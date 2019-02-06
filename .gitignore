@@ -1,0 +1,8 @@
+.DS_Store
+.next
+node_modules
+npm-debug.log
+web/bundles
+yarn-error.log
+.env*
+!.env.dev
