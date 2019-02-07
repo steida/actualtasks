@@ -1,9 +1,28 @@
 import Head from 'next/head';
 import React from 'react';
 import { findNodeHandle, StyleSheet, View } from 'react-native';
+import Button from '../components/Button';
 import useAppContext from '../hooks/useAppContext';
 
 let initialRender = true;
+
+const LayoutHeader = () => {
+  const { appState, theme, setAppState } = useAppContext();
+  const toggleDarkMode = () => {
+    setAppState(state => {
+      return {
+        ...state,
+        darkMode: !state.darkMode,
+      };
+    });
+  };
+  const emoji = appState.darkMode ? '🌛' : '🌤';
+  return (
+    <View style={[theme.layoutHeader, theme.marginStartAuto]}>
+      <Button onPress={toggleDarkMode}>{emoji}</Button>
+    </View>
+  );
+};
 
 interface LayoutProps {
   title: string;
@@ -47,6 +66,7 @@ const Layout: React.FunctionComponent<LayoutProps> = props => {
       </Head>
       <View style={theme.layout}>
         <View style={theme.layoutContainer}>
+          <LayoutHeader />
           <View ref={layoutBodyRef} style={theme.layoutBody}>
             {props.children}
           </View>
