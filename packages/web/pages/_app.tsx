@@ -3,8 +3,8 @@ import React from 'react';
 import { defineMessages, IntlProvider } from 'react-intl';
 import IntlProviderFix from '../components/IntlProviderFix';
 import AppContext from '../contexts/AppContext';
-
-// import darkTheme, { name as darkThemeName } from '../themes/dark';
+// import { LocalStorageDarkMode } from '../hooks/useLocalStorage';
+import darkTheme from '../themes/dark';
 import lightTheme from '../themes/light';
 
 export type AppHref =
@@ -32,7 +32,17 @@ interface MyAppProps {
   pageProps: {};
 }
 
-export default class MyApp extends App<MyAppProps> {
+export interface MyAppState {
+  darkMode: boolean;
+}
+
+const initialState = {
+  darkMode: false,
+};
+
+export default class MyApp extends App<MyAppProps, MyAppState> {
+  static localStorageKey = 'actualtasks';
+
   static async getInitialProps(): Promise<MyAppProps> {
     const props = {
       initialNow: Date.now(),
@@ -42,9 +52,32 @@ export default class MyApp extends App<MyAppProps> {
     return props;
   }
 
+  state = initialState;
+
+  componentDidMount() {
+    let state: MyAppState | null = null;
+    try {
+      const item = localStorage.getItem(MyApp.localStorageKey);
+      if (item == null) return;
+      state = JSON.parse(item);
+    } catch (error) {
+      // tslint:disable-next-line:no-console
+      console.log(error);
+      return;
+    }
+    this.setState(state);
+  }
+
+  setAppState = (callback: (state: MyAppState) => MyAppState) => {
+    const newState = callback(this.state);
+    this.setState(newState);
+    localStorage.setItem(MyApp.localStorageKey, JSON.stringify(newState));
+  };
+
   render() {
     const { Component: Page, initialNow, pageProps } = this.props;
-    const theme = lightTheme;
+    const appState = this.state;
+    const theme = appState.darkMode ? darkTheme : lightTheme;
 
     return (
       <Container>
@@ -55,7 +88,14 @@ export default class MyApp extends App<MyAppProps> {
         >
           <IntlProviderFix>
             {intl => (
-              <AppContext.Provider value={{ intl, theme }}>
+              <AppContext.Provider
+                value={{
+                  appState,
+                  intl,
+                  setAppState: this.setAppState,
+                  theme,
+                }}
+              >
                 <Page {...pageProps} />
               </AppContext.Provider>
             )}

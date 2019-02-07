@@ -5,12 +5,22 @@ import useAppContext from '../hooks/useAppContext';
 import { pageTitles } from './_app';
 
 const Index: React.FunctionComponent = () => {
-  const { intl } = useAppContext();
+  const { appState, intl, setAppState } = useAppContext();
   const title = intl.formatMessage(pageTitles.index);
+
+  const onPress = () => {
+    setAppState(state => {
+      return {
+        ...state,
+        darkMode: !state.darkMode,
+      };
+    });
+  };
 
   return (
     <Layout title={title}>
-      <Text>Soon 🎯</Text>
+      <Text>{appState.darkMode.toString()}</Text>
+      <Text onPress={onPress}>Soon 🎯</Text>
     </Layout>
   );
 };
