@@ -65,7 +65,7 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
       console.log(error);
       return;
     }
-    this.setState(state);
+    if (state != null) this.setState(state);
   }
 
   setAppState = (callback: (state: MyAppState) => MyAppState) => {
