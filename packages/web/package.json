@@ -12,6 +12,8 @@
     "analyze:browser": "BUNDLE_ANALYZE=browser next build"
   },
   "dependencies": {
+    "immutable": "^3.8.1",
+    "is-hotkey": "^0.1.4",
     "next": "8.0.0-canary.18",
     "prop-types": "^15.6.2",
     "react": "^16.8.0",
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
+    "@types/is-hotkey": "^0.1.1",
     "@types/next": "^7.0.5",
     "@types/react": "^16.7.11",
     "@types/react-dom": "^16.0.11",

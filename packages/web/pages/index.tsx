@@ -1,3 +1,4 @@
+import { isHotkey } from 'is-hotkey';
 import React from 'react';
 import { Text, View } from 'react-native';
 // @ts-ignore
@@ -20,7 +21,7 @@ interface TaskText {
 
 interface TaskItem {
   data: {
-    checked: boolean;
+    completed: boolean;
   };
   nodes: TaskText[];
   object: 'block';
@@ -37,12 +38,13 @@ const initialValue: TasksValue = {
   document: {
     nodes: [
       {
-        data: { checked: false },
+        data: { completed: false },
         nodes: [
           {
             leaves: [
               {
-                text: 'Test',
+                // Because autoFocus does not work.
+                text: 'Click me.',
               },
             ],
             object: 'text',
@@ -55,18 +57,21 @@ const initialValue: TasksValue = {
   },
 };
 
-interface TaskItemProps {
-  attributes: any;
-  children: any;
-  node: any;
-}
+const toggleCompleted = (
+  editor: RenderNodeProps['editor'],
+  node: RenderNodeProps['node'],
+  completed: boolean,
+) => {
+  // @ts-ignore Probably wrong type definition.
+  editor.setNodeByKey(node.key, { data: { completed } });
+};
 
-const TaskItem: React.FunctionComponent<TaskItemProps> = props => {
+const TaskItem: React.FunctionComponent<RenderNodeProps> = props => {
   const { theme } = useAppContext();
-  const checked = props.node.data.get('checked');
+  const completed = props.node.data.get('completed');
 
-  const handleChange = () => {
-    // event: React.ChangeEvent<HTMLInputElement>
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    toggleCompleted(props.editor, props.node, event.target.checked);
   };
 
   return (
@@ -77,8 +82,8 @@ const TaskItem: React.FunctionComponent<TaskItemProps> = props => {
             // @ts-ignore TODO: replace style prop with RN type.
             style={theme.taskItemCheckbox}
             type="checkbox"
-            checked={checked}
-            onChange={handleChange}
+            checked={completed}
+            onChange={handleCheckboxChange}
           />
         </div>
       </View>
@@ -97,8 +102,33 @@ const Index: React.FunctionComponent = () => {
   });
   const editorRef = React.useRef<Editor>(null);
 
-  const onEditorChange = ({ value }: { value: Value }) => {
+  // TODO: Autofucus or restore previous focus. But focus() throws
+  // IndexSizeError: Failed to execute 'getRangeAt' on 'Selection': 0 is not a valid index.
+  // on hot reload and maybe on something else, hmm.
+  // React.useEffect(() => {
+  //   if (!editorRef.current) return;
+  //   if (editorRef.current.value.selection.isFocused) return;
+  //   editorRef.current.focus();
+  // }, [editorRef.current]);
+
+  const handleEditorChange = ({ value }: { value: Value }) => {
     setEditorValue(value);
+  };
+
+  const handleKeyDown = (event: any, editor: CoreEditor, next: () => any) => {
+    if (isHotkey('opt+enter')(event)) {
+      event.preventDefault();
+      // tslint:disable-next-line:no-console
+      const { path } = editor.value.selection.focus;
+      if (path == null) return;
+      const node = editor.value.document.getParent(path);
+      // @ts-ignore TODO: Should be checked probably.
+      const completed = node.data.get('completed');
+      // @ts-ignore TODO: Should be checked probably.
+      toggleCompleted(editor, node, !completed);
+      return;
+    }
+    return next();
   };
 
   const renderNode = (
@@ -118,12 +148,13 @@ const Index: React.FunctionComponent = () => {
     <Layout title={title}>
       <Editor
         autoCorrect={false}
+        // autoFocus // Does not work and we want to restore previous focus anyway.
+        onChange={handleEditorChange}
+        onKeyDown={handleKeyDown}
+        ref={editorRef}
+        renderNode={renderNode}
         spellCheck={false}
         value={editorValue}
-        onChange={onEditorChange}
-        ref={editorRef}
-        // onKeyDown={this.onKeyDown}
-        renderNode={renderNode}
       />
     </Layout>
   );
