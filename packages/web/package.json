@@ -19,6 +19,8 @@
     "react-dom": "^16.8.0",
     "react-intl": "^2.7.2",
     "react-native-web": "^0.10.0",
+    "slate": "^0.44.10",
+    "slate-react": "^0.21.16",
     "validator": "^10.11.0"
   },
   "devDependencies": {
@@ -28,6 +30,8 @@
     "@types/react-dom": "^16.0.11",
     "@types/react-intl": "^2.3.14",
     "@types/react-native": "^0.55.28",
+    "@types/slate": "^0.43.9",
+    "@types/slate-react": "^0.20.3",
     "@types/styled-jsx": "^2.2.7",
     "@types/validator": "^10.9.0",
     "@zeit/next-bundle-analyzer": "^0.1.2",

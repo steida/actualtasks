@@ -277,6 +277,19 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     textTransform: 'uppercase',
   };
 
+  const taskItem: ViewStyle = {
+    flexDirection: 'row',
+  };
+
+  const taskItemCheckbox: ViewStyle = {
+    margin: 0,
+  };
+
+  const taskItemCheckboxWrapper: ViewStyle = {
+    marginRight: 8,
+    marginTop: 3,
+  };
+
   return {
     button,
     buttonDanger,
@@ -301,6 +314,9 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     paragraph,
     row,
     spacer,
+    taskItem,
+    taskItemCheckbox,
+    taskItemCheckboxWrapper,
     text,
     textInputOutline,
     textSmall,
