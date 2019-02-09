@@ -1,3 +1,4 @@
+import throttle from 'lodash.throttle';
 import React, { Dispatch, SetStateAction } from 'react';
 
 type Key = 'darkMode' | 'tasks';
@@ -67,6 +68,10 @@ const initialValues: { [key in Key]: Value<Key> } = {
   },
 };
 
+const setStorageItem = throttle((key: string, value: any) => {
+  localStorage.setItem(storageKey(key), JSON.stringify(value));
+}, 500);
+
 const useLocalStorage = <K extends Key>(
   key: K,
   ignoreSetValue: boolean = false,
@@ -114,8 +119,7 @@ const useLocalStorage = <K extends Key>(
   }, []);
 
   const set = (value: Value<K>) => {
-    // throttle?
-    localStorage.setItem(storageKey(key), JSON.stringify(value));
+    setStorageItem(key, value);
     setValues[key].forEach(setValueFn => {
       if (ignoreSetValue && setValueFn === setValue) return;
       setValueFn(value);
