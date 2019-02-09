@@ -290,6 +290,10 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     marginTop: 3,
   };
 
+  const lineThrough: TextStyle = {
+    textDecorationLine: 'line-through',
+  };
+
   return {
     button,
     buttonDanger,
@@ -306,6 +310,7 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     layoutFooter,
     layoutFooterText,
     layoutHeader,
+    lineThrough,
     link,
     linkActive,
     marginBottom,

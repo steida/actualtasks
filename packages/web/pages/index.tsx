@@ -42,7 +42,9 @@ const TaskItem: React.FunctionComponent<RenderNodeProps> = props => {
           />
         </div>
       </View>
-      <Text style={theme.text}>{props.children}</Text>
+      <Text style={[theme.text, completed && theme.lineThrough]}>
+        {props.children}
+      </Text>
     </View>
   );
 };
