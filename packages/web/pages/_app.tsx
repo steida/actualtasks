@@ -16,7 +16,7 @@ export type AppHref =
 // code splitting. One nav component would import many whole pages.
 export const pageTitles = defineMessages({
   index: {
-    defaultMessage: 'Actual Tasks',
+    defaultMessage: 'Actual Tasks (something like retired Google Gmail Tasks)',
     id: 'pageTitles.index',
   },
   me: {
