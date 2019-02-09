@@ -7,55 +7,11 @@ import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
 import { Editor, RenderNodeProps } from 'slate-react';
 import Layout from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
+import useLocalStorage, { taskItemType } from '../hooks/useLocalStorage';
 import { pageTitles } from './_app';
 
-const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) =>
-  createElement('input', props);
-
-const taskItemType = 'task-item';
-
-interface TaskText {
-  leaves: Array<{ text: string }>;
-  object: 'text';
-}
-
-interface TaskItem {
-  data: {
-    completed: boolean;
-  };
-  nodes: TaskText[];
-  object: 'block';
-  type: typeof taskItemType;
-}
-
-interface TasksValue {
-  document: {
-    nodes: TaskItem[];
-  };
-}
-
-const initialValue: TasksValue = {
-  document: {
-    nodes: [
-      {
-        data: { completed: false },
-        nodes: [
-          {
-            leaves: [
-              {
-                // Because autoFocus does not work.
-                text: 'Click me.',
-              },
-            ],
-            object: 'text',
-          },
-        ],
-        object: 'block',
-        type: 'task-item',
-      },
-    ],
-  },
-};
+const Checkbox = (props: React.InputHTMLAttributes<HTMLInputElement>) =>
+  createElement('input', { ...props, type: 'checkbox' });
 
 const toggleCompleted = (
   editor: RenderNodeProps['editor'],
@@ -78,10 +34,9 @@ const TaskItem: React.FunctionComponent<RenderNodeProps> = props => {
     <View {...props.attributes} style={theme.taskItem}>
       <View style={theme.taskItemCheckboxWrapper}>
         <div contentEditable={false}>
-          <Input
+          <Checkbox
             // @ts-ignore TODO: replace style prop with RN type.
             style={theme.taskItemCheckbox}
-            type="checkbox"
             checked={completed}
             onChange={handleCheckboxChange}
           />
@@ -95,11 +50,19 @@ const TaskItem: React.FunctionComponent<RenderNodeProps> = props => {
 const Index: React.FunctionComponent = () => {
   const { intl } = useAppContext();
   const title = intl.formatMessage(pageTitles.index);
-  const [editorValue, setEditorValue] = React.useState<Value>(() => {
+  const [tasks, setTasks] = useLocalStorage('tasks', true);
+
+  const initialState = () => {
     // For SSR.
     KeyUtils.resetGenerator();
-    return Value.fromJSON(initialValue as any); // We have more specific type.
-  });
+    return Value.fromJSON(tasks as any);
+  };
+
+  const [editorValue, setEditorValue] = React.useState<Value>(initialState);
+  React.useEffect(() => {
+    setEditorValue(initialState());
+  }, [tasks]);
+
   const editorRef = React.useRef<Editor>(null);
 
   // TODO: Autofucus or restore previous focus. But focus() throws
@@ -113,6 +76,7 @@ const Index: React.FunctionComponent = () => {
 
   const handleEditorChange = ({ value }: { value: Value }) => {
     setEditorValue(value);
+    setTasks(value.toJSON() as any);
   };
 
   const handleKeyDown = (event: any, editor: CoreEditor, next: () => any) => {

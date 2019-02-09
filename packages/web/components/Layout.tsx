@@ -3,23 +3,17 @@ import React from 'react';
 import { findNodeHandle, StyleSheet, View } from 'react-native';
 import Button from '../components/Button';
 import useAppContext from '../hooks/useAppContext';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 let initialRender = true;
 
 const LayoutHeader = () => {
-  const { appState, theme, setAppState } = useAppContext();
-  const toggleDarkMode = () => {
-    setAppState(state => {
-      return {
-        ...state,
-        darkMode: !state.darkMode,
-      };
-    });
-  };
-  const emoji = appState.darkMode ? '🌛' : '🌤';
+  const { theme } = useAppContext();
+  const [darkMode, setDarkMode] = useLocalStorage('darkMode');
+  const emoji = darkMode ? '🌛' : '🌤';
   return (
     <View style={[theme.layoutHeader, theme.marginStartAuto]}>
-      <Button onPress={toggleDarkMode}>{emoji}</Button>
+      <Button onPress={() => setDarkMode(!darkMode)}>{emoji}</Button>
     </View>
   );
 };
