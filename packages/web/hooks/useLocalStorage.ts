@@ -16,6 +16,7 @@ export const taskItemType = 'task-item';
 interface TaskItem {
   data: {
     completed: boolean;
+    depth: number;
   };
   nodes: TaskText[];
   object: 'block';
@@ -56,13 +57,35 @@ const initialValues: { [key in Key]: Value<Key> } = {
     document: {
       nodes: [
         {
-          data: { completed: false },
+          data: {
+            completed: false,
+            depth: 0,
+          },
           nodes: [
             {
               leaves: [
                 {
                   // Because autoFocus does not work.
                   text: 'Click me.',
+                },
+              ],
+              object: 'text',
+            },
+          ],
+          object: 'block',
+          type: 'task-item',
+        },
+        {
+          data: {
+            completed: false,
+            depth: 1,
+          },
+          nodes: [
+            {
+              leaves: [
+                {
+                  // Because autoFocus does not work.
+                  text: 'Then this.',
                 },
               ],
               object: 'text',

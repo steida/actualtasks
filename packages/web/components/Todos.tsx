@@ -1,6 +1,6 @@
 import { isHotkey } from 'is-hotkey';
 import React from 'react';
-import { Text, View } from 'react-native';
+import { RegisteredStyle, Text, View, ViewStyle } from 'react-native';
 // @ts-ignore
 import { createElement } from 'react-native-web';
 import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
@@ -22,14 +22,47 @@ const toggleCompleted = (
 
 const TaskItem: React.FunctionComponent<RenderNodeProps> = props => {
   const { theme } = useAppContext();
-  const completed = props.node.data.get('completed');
+  // TODO: Node data should be typed, but it can and will be runtime changed.
+  // Use localStorage migration via https://github.com/gcanti/io-ts?
+  // Use fail-safe GraphQL versionless approach for now.
+  const { data } = props.node;
+  const completed: boolean = data.get('completed');
+
+  // For example, the depth is a new prop. Btw yes, it's ok to have inline functions.
+  const getDepthStyle = (): RegisteredStyle<ViewStyle> => {
+    switch (data.get('depth')) {
+      case 0:
+        return theme.taskItemDepth0;
+      case 1:
+        return theme.taskItemDepth1;
+      case 2:
+        return theme.taskItemDepth2;
+      case 3:
+        return theme.taskItemDepth3;
+      case 4:
+        return theme.taskItemDepth4;
+      case 5:
+        return theme.taskItemDepth5;
+      case 6:
+        return theme.taskItemDepth6;
+      case 7:
+        return theme.taskItemDepth7;
+      case 8:
+        return theme.taskItemDepth8;
+      case 9:
+        return theme.taskItemDepth9;
+      default:
+        return theme.taskItemDepth0;
+    }
+  };
+  const depthStyle = getDepthStyle();
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     toggleCompleted(props.editor, props.node, event.target.checked);
   };
 
   return (
-    <View {...props.attributes} style={theme.taskItem}>
+    <View {...props.attributes} style={[theme.taskItem, depthStyle]}>
       <View style={theme.taskItemCheckboxWrapper}>
         <div contentEditable={false}>
           <Checkbox

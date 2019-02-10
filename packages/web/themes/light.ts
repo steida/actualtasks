@@ -297,6 +297,21 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     marginTop: 3,
   };
 
+  const createTaskItemDepthStyle = (depth: number): ViewStyle => ({
+    marginStart: depth * typography.lineHeight,
+  });
+
+  const taskItemDepth0 = createTaskItemDepthStyle(0);
+  const taskItemDepth1 = createTaskItemDepthStyle(1);
+  const taskItemDepth2 = createTaskItemDepthStyle(2);
+  const taskItemDepth3 = createTaskItemDepthStyle(3);
+  const taskItemDepth4 = createTaskItemDepthStyle(4);
+  const taskItemDepth5 = createTaskItemDepthStyle(5);
+  const taskItemDepth6 = createTaskItemDepthStyle(6);
+  const taskItemDepth7 = createTaskItemDepthStyle(7);
+  const taskItemDepth8 = createTaskItemDepthStyle(8);
+  const taskItemDepth9 = createTaskItemDepthStyle(9);
+
   const lineThrough: TextStyle = {
     textDecorationLine: 'line-through',
   };
@@ -336,6 +351,16 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     taskItem,
     taskItemCheckbox,
     taskItemCheckboxWrapper,
+    taskItemDepth0,
+    taskItemDepth1,
+    taskItemDepth2,
+    taskItemDepth3,
+    taskItemDepth4,
+    taskItemDepth5,
+    taskItemDepth6,
+    taskItemDepth7,
+    taskItemDepth8,
+    taskItemDepth9,
     text,
     textInputOutline,
     textSmall,
