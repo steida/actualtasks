@@ -1,5 +1,6 @@
 import throttle from 'lodash.throttle';
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useContext } from 'react';
+import WasRenderedContext from '../contexts/WasRenderedContext';
 
 type Key = 'darkMode' | 'tasks';
 
@@ -76,10 +77,6 @@ const useLocalStorage = <K extends Key>(
   key: K,
   ignoreSetValue: boolean = false,
 ): [Value<K>, (value: Value<K>) => void] => {
-  // Initial value is the must for the server side rendering.
-  // @ts-ignore TODO: Something is wrong here. Fix it.
-  const [value, setValue] = React.useState<Value<K>>(() => initialValues[key]);
-
   const getStorageValue = (): Value<K> | null => {
     try {
       const item = localStorage.getItem(storageKey(key));
@@ -91,6 +88,14 @@ const useLocalStorage = <K extends Key>(
     }
     return null;
   };
+
+  const wasRendered = useContext(WasRenderedContext);
+
+  // Initial value is the must for the React hydrate but only for it.
+  // @ts-ignore TODO: Fix it and remove ts-ignore.
+  const [value, setValue] = React.useState<Value<K>>(() => {
+    return wasRendered ? getStorageValue() : initialValues[key];
+  });
 
   const maybeSetStorageValue = () => {
     const storageValue = getStorageValue();
