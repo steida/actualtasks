@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Text, View } from 'react-native';
+import { Text, TextInput, View } from 'react-native';
+import isEmail from 'validator/lib/isEmail';
 import Button from '../components/Button';
 import Layout from '../components/Layout';
 import Link from '../components/Link';
@@ -30,14 +31,27 @@ const Me: React.FunctionComponent = () => {
   const { intl, theme } = useAppContext();
   const title = intl.formatMessage(pageTitles.me);
   const [darkMode, setDarkMode] = useLocalStorage('darkMode');
+  const [email, setEmail] = useLocalStorage('email');
   const emoji = darkMode ? '🌛' : '🌤';
+  const labelIsValid = email === '' || isEmail(email);
 
   return (
     <Layout title={title}>
-      <View style={{ flex: 1 }}>
+      <View style={theme.flex1}>
         <View style={theme.buttons}>
-          <Button onPress={() => setDarkMode(!darkMode)}>{emoji}</Button>
+          <Button big onPress={() => setDarkMode(!darkMode)}>
+            {emoji}
+          </Button>
         </View>
+        <Text style={[theme.label, !labelIsValid && theme.labelInvalid]}>
+          <FormattedMessage defaultMessage="Your email" id="yourEmail" />
+        </Text>
+        <TextInput
+          keyboardType="email-address"
+          onChangeText={text => setEmail(text)}
+          style={theme.textInputOutline}
+          value={email}
+        />
       </View>
       <Footer />
     </Layout>

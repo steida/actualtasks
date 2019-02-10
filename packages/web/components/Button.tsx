@@ -5,12 +5,13 @@ import useAppContext from '../hooks/useAppContext';
 type Type = 'text' | 'primary' | 'secondary' | 'danger';
 
 interface ButtonProps extends TouchableOpacityProps {
+  big?: boolean;
   type?: Type;
 }
 
 const Button: React.FunctionComponent<ButtonProps> = props => {
   const { theme } = useAppContext();
-  const { disabled, type = 'text', ...rest } = props;
+  const { disabled, type = 'text', big = false, ...rest } = props;
 
   const getStyle = (type: Type) => {
     const assertNever = (type: never) => {
@@ -37,7 +38,13 @@ const Button: React.FunctionComponent<ButtonProps> = props => {
       // TODO: With updated RN types. Probably 0.57+
       // accessibilityRole="button"
     >
-      <Text style={[getStyle(type), disabled && theme.buttonDisabled]}>
+      <Text
+        style={[
+          getStyle(type),
+          disabled && theme.buttonDisabled,
+          big && theme.buttonBig,
+        ]}
+      >
         {props.children}
       </Text>
     </TouchableOpacity>

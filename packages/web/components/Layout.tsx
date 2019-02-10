@@ -1,8 +1,11 @@
 import Head from 'next/head';
 import { withRouter } from 'next/router';
 import React from 'react';
-import { findNodeHandle, StyleSheet, View } from 'react-native';
+import { findNodeHandle, StyleSheet, Text, View } from 'react-native';
+import isEmail from 'validator/lib/isEmail';
+import Gravatar from '../components/Gravatar';
 import useAppContext from '../hooks/useAppContext';
+import useLocalStorage from '../hooks/useLocalStorage';
 import { AppHref } from '../pages/_app';
 import Link from './Link';
 
@@ -10,14 +13,28 @@ let initialRender = true;
 
 const LayoutHeader = withRouter(({ router }) => {
   const { theme } = useAppContext();
+  const [storageEmail] = useLocalStorage('email');
   const personHref: AppHref =
     router && router.pathname === '/' ? '/me' : { pathname: '/' };
 
+  const email = isEmail(storageEmail) ? storageEmail : '';
+
   return (
     <View style={[theme.layoutHeader, theme.marginStartAuto]}>
-      <Link prefetch href={personHref}>
-        👤
-      </Link>
+      <Text style={theme.text}>
+        <Link prefetch href={personHref}>
+          {email ? (
+            <Gravatar
+              email={email}
+              inline
+              rounded
+              size={StyleSheet.flatten(theme.text).lineHeight}
+            />
+          ) : (
+            '👤'
+          )}
+        </Link>
+      </Text>
     </View>
   );
 });

@@ -12,6 +12,7 @@
     "analyze:browser": "BUNDLE_ANALYZE=browser next build"
   },
   "dependencies": {
+    "gravatar": "^1.8.0",
     "immutable": "^3.8.1",
     "is-hotkey": "^0.1.4",
     "lodash.throttle": "^4.1.1",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
+    "@types/gravatar": "^1.4.28",
     "@types/is-hotkey": "^0.1.1",
     "@types/lodash.throttle": "^4.1.4",
     "@types/next": "^7.0.5",

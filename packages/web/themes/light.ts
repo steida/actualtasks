@@ -146,7 +146,7 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     flex: 1,
     marginHorizontal: 'auto',
     maxWidth: 768,
-    paddingHorizontal: dimensions.spaceSmall,
+    paddingHorizontal: dimensions.space,
     // https://css-tricks.com/tale-width-max-width/
     width: '100%',
   };
@@ -196,7 +196,7 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
   const textInputOutline: TextStyle = {
     ...text,
     ...borderGrayLight,
-    paddingHorizontal: typography.lineHeight / 2,
+    paddingHorizontal: typography.lineHeight / 3,
     paddingVertical: typography.lineHeight / 4,
     width: typography.fontSize * 16,
   };
@@ -214,6 +214,10 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
   const button: TextStyle = {
     ...text,
     margin: typography.lineHeight / 4,
+  };
+
+  const buttonBig: TextStyle = {
+    ...typography.scale(2),
   };
 
   const buttonPadding = {
@@ -271,9 +275,13 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
   const label: TextStyle = {
     ...textSmall,
     color: colors.gray,
-    padding: typography.lineHeight / 6,
+    paddingVertical: typography.lineHeight / 6,
     // @ts-ignore Because it was added in RN56.
     textTransform: 'uppercase',
+  };
+
+  const labelInvalid: TextStyle = {
+    color: colors.danger,
   };
 
   const taskItem: ViewStyle = {
@@ -293,16 +301,23 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     textDecorationLine: 'line-through',
   };
 
+  const flex1: ViewStyle = {
+    flex: 1,
+  };
+
   return {
     button,
+    buttonBig,
     buttonDanger,
     buttonDisabled,
     buttonPrimary,
     buttonSecondary,
     buttons,
+    flex1,
     heading1,
     heading2,
     label,
+    labelInvalid,
     layout,
     layoutBody,
     layoutContainer,

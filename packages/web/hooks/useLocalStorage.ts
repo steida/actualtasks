@@ -2,7 +2,7 @@ import throttle from 'lodash.throttle';
 import React, { Dispatch, SetStateAction, useContext } from 'react';
 import WasRenderedContext from '../contexts/WasRenderedContext';
 
-type Key = 'darkMode' | 'tasks';
+type Key = 'darkMode' | 'tasks' | 'email';
 
 type DarkMode = boolean;
 
@@ -28,10 +28,14 @@ interface Tasks {
   };
 }
 
+type Email = string;
+
 type Value<K extends Key> = K extends 'darkMode'
   ? DarkMode
   : K extends 'tasks'
   ? Tasks
+  : K extends 'email'
+  ? Email
   : never;
 
 const storageKey = (key: string) => `actualtasks-${key}`;
@@ -40,11 +44,13 @@ const setValues: {
   [key in Key]: Array<Dispatch<SetStateAction<Value<Key>>>>
 } = {
   darkMode: [],
+  email: [],
   tasks: [],
 };
 
 const initialValues: { [key in Key]: Value<Key> } = {
   darkMode: false,
+  email: '',
   tasks: {
     document: {
       nodes: [
