@@ -153,6 +153,7 @@ const useLocalStorage = <K extends Key>(
     const migratedSessionKey = 'actualtasks-migrated';
     const migrated = sessionStorage.getItem(migratedSessionKey);
     if (migrated === 'true') return;
+
     const done = () => {
       sessionStorage.setItem(migratedSessionKey, 'true');
     };
@@ -167,9 +168,9 @@ const useLocalStorage = <K extends Key>(
       }));
       setStorageItem('version', 1);
       setStorageItem('tasks', tasks);
-      done();
     }
-    // else if (version === 1)
+    // else if (version === 1) {}
+    done();
   };
 
   React.useEffect(() => {
