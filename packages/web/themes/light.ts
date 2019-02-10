@@ -284,33 +284,33 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     color: colors.danger,
   };
 
-  const taskItem: ViewStyle = {
+  const task: ViewStyle = {
     flexDirection: 'row',
   };
 
-  const taskItemCheckbox: ViewStyle = {
+  const taskCheckbox: ViewStyle = {
     margin: 0,
   };
 
-  const taskItemCheckboxWrapper: ViewStyle = {
+  const taskCheckboxWrapper: ViewStyle = {
     marginRight: 8,
     marginTop: 3,
   };
 
-  const createTaskItemDepthStyle = (depth: number): ViewStyle => ({
+  const createTaskDepthStyle = (depth: number): ViewStyle => ({
     marginStart: depth * typography.lineHeight,
   });
 
-  const taskItemDepth0 = createTaskItemDepthStyle(0);
-  const taskItemDepth1 = createTaskItemDepthStyle(1);
-  const taskItemDepth2 = createTaskItemDepthStyle(2);
-  const taskItemDepth3 = createTaskItemDepthStyle(3);
-  const taskItemDepth4 = createTaskItemDepthStyle(4);
-  const taskItemDepth5 = createTaskItemDepthStyle(5);
-  const taskItemDepth6 = createTaskItemDepthStyle(6);
-  const taskItemDepth7 = createTaskItemDepthStyle(7);
-  const taskItemDepth8 = createTaskItemDepthStyle(8);
-  const taskItemDepth9 = createTaskItemDepthStyle(9);
+  const taskDepth0 = createTaskDepthStyle(0);
+  const taskDepth1 = createTaskDepthStyle(1);
+  const taskDepth2 = createTaskDepthStyle(2);
+  const taskDepth3 = createTaskDepthStyle(3);
+  const taskDepth4 = createTaskDepthStyle(4);
+  const taskDepth5 = createTaskDepthStyle(5);
+  const taskDepth6 = createTaskDepthStyle(6);
+  const taskDepth7 = createTaskDepthStyle(7);
+  const taskDepth8 = createTaskDepthStyle(8);
+  const taskDepth9 = createTaskDepthStyle(9);
 
   const lineThrough: TextStyle = {
     textDecorationLine: 'line-through',
@@ -348,19 +348,19 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     paragraph,
     row,
     spacer,
-    taskItem,
-    taskItemCheckbox,
-    taskItemCheckboxWrapper,
-    taskItemDepth0,
-    taskItemDepth1,
-    taskItemDepth2,
-    taskItemDepth3,
-    taskItemDepth4,
-    taskItemDepth5,
-    taskItemDepth6,
-    taskItemDepth7,
-    taskItemDepth8,
-    taskItemDepth9,
+    task,
+    taskCheckbox,
+    taskCheckboxWrapper,
+    taskDepth0,
+    taskDepth1,
+    taskDepth2,
+    taskDepth3,
+    taskDepth4,
+    taskDepth5,
+    taskDepth6,
+    taskDepth7,
+    taskDepth8,
+    taskDepth9,
     text,
     textInputOutline,
     textSmall,

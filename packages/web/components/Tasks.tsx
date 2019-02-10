@@ -6,7 +6,7 @@ import { createElement } from 'react-native-web';
 import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
 import { Editor, RenderNodeProps } from 'slate-react';
 import useAppContext from '../hooks/useAppContext';
-import useLocalStorage, { taskItemType } from '../hooks/useLocalStorage';
+import useLocalStorage, { taskType } from '../hooks/useLocalStorage';
 
 const Checkbox = (props: React.InputHTMLAttributes<HTMLInputElement>) =>
   createElement('input', { ...props, type: 'checkbox' });
@@ -20,7 +20,7 @@ const toggleCompleted = (
   editor.setNodeByKey(node.key, { data: { completed } });
 };
 
-const TaskItem: React.FunctionComponent<RenderNodeProps> = props => {
+const Task: React.FunctionComponent<RenderNodeProps> = props => {
   const { theme } = useAppContext();
   // TODO: Node data should be typed, but it can and will be runtime changed.
   // Use localStorage migration via https://github.com/gcanti/io-ts?
@@ -29,45 +29,45 @@ const TaskItem: React.FunctionComponent<RenderNodeProps> = props => {
   const completed: boolean = data.get('completed');
 
   // For example, the depth is a new prop. Btw yes, it's ok to have inline functions.
-  const getDepthStyle = (): RegisteredStyle<ViewStyle> => {
+  const getTaskDepthStyle = (): RegisteredStyle<ViewStyle> => {
     switch (data.get('depth')) {
       case 0:
-        return theme.taskItemDepth0;
+        return theme.taskDepth0;
       case 1:
-        return theme.taskItemDepth1;
+        return theme.taskDepth1;
       case 2:
-        return theme.taskItemDepth2;
+        return theme.taskDepth2;
       case 3:
-        return theme.taskItemDepth3;
+        return theme.taskDepth3;
       case 4:
-        return theme.taskItemDepth4;
+        return theme.taskDepth4;
       case 5:
-        return theme.taskItemDepth5;
+        return theme.taskDepth5;
       case 6:
-        return theme.taskItemDepth6;
+        return theme.taskDepth6;
       case 7:
-        return theme.taskItemDepth7;
+        return theme.taskDepth7;
       case 8:
-        return theme.taskItemDepth8;
+        return theme.taskDepth8;
       case 9:
-        return theme.taskItemDepth9;
+        return theme.taskDepth9;
       default:
-        return theme.taskItemDepth0;
+        return theme.taskDepth0;
     }
   };
-  const depthStyle = getDepthStyle();
+  const depthStyle = getTaskDepthStyle();
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     toggleCompleted(props.editor, props.node, event.target.checked);
   };
 
   return (
-    <View {...props.attributes} style={[theme.taskItem, depthStyle]}>
-      <View style={theme.taskItemCheckboxWrapper}>
+    <View {...props.attributes} style={[theme.task, depthStyle]}>
+      <View style={theme.taskCheckboxWrapper}>
         <div contentEditable={false}>
           <Checkbox
             // @ts-ignore TODO: replace style prop with RN type.
-            style={theme.taskItemCheckbox}
+            style={theme.taskCheckbox}
             checked={completed}
             onChange={handleCheckboxChange}
           />
@@ -80,7 +80,7 @@ const TaskItem: React.FunctionComponent<RenderNodeProps> = props => {
   );
 };
 
-const Todos: React.FunctionComponent = () => {
+const Tasks: React.FunctionComponent = () => {
   const [tasks, setTasks] = useLocalStorage('tasks', true);
 
   const initialState = () => {
@@ -132,8 +132,8 @@ const Todos: React.FunctionComponent = () => {
     next: () => any,
   ) => {
     switch (props.node.type) {
-      case taskItemType:
-        return <TaskItem {...props} />;
+      case taskType:
+        return <Task {...props} />;
       default:
         return next();
     }
@@ -153,4 +153,4 @@ const Todos: React.FunctionComponent = () => {
   );
 };
 
-export default Todos;
+export default Tasks;

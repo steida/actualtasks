@@ -11,21 +11,22 @@ interface TaskText {
   object: 'text';
 }
 
-export const taskItemType = 'task-item';
+// TODO: Rename with migration. We can't just rename value from local storage.
+export const taskType = 'task-item';
 
-interface TaskItem {
+interface Task {
   data: {
     completed: boolean;
     depth: number;
   };
   nodes: TaskText[];
   object: 'block';
-  type: typeof taskItemType;
+  type: typeof taskType;
 }
 
 interface Tasks {
   document: {
-    nodes: TaskItem[];
+    nodes: Task[];
   };
 }
 

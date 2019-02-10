@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '../components/Layout';
-import Todos from '../components/Todos';
+import Tasks from '../components/Tasks';
 import useAppContext from '../hooks/useAppContext';
 import { pageTitles } from './_app';
 
@@ -10,7 +10,7 @@ const Index: React.FunctionComponent = () => {
 
   return (
     <Layout title={title}>
-      <Todos />
+      <Tasks />
     </Layout>
   );
 };
