@@ -2,7 +2,7 @@ import throttle from 'lodash.throttle';
 import React, { Dispatch, SetStateAction, useContext } from 'react';
 import WasRenderedContext from '../contexts/WasRenderedContext';
 
-type Key = 'darkMode' | 'tasks' | 'email';
+type Key = 'darkMode' | 'tasks' | 'email' | 'version';
 
 type DarkMode = boolean;
 
@@ -11,8 +11,7 @@ interface TaskText {
   object: 'text';
 }
 
-// TODO: Rename with migration. We can't just rename value from local storage.
-export const taskType = 'task-item';
+export const taskType = 'task';
 
 interface Task {
   data: {
@@ -32,15 +31,19 @@ interface Tasks {
 
 type Email = string;
 
+type Version = number;
+
 type Value<K extends Key> = K extends 'darkMode'
   ? DarkMode
   : K extends 'tasks'
   ? Tasks
   : K extends 'email'
   ? Email
+  : K extends 'version'
+  ? Version
   : never;
 
-const storageKey = (key: string) => `actualtasks-${key}`;
+const storageKey = (key: Key) => `actualtasks-${key}`;
 
 const setValues: {
   [key in Key]: Array<Dispatch<SetStateAction<Value<Key>>>>
@@ -48,6 +51,7 @@ const setValues: {
   darkMode: [],
   email: [],
   tasks: [],
+  version: [],
 };
 
 // Initial values must be here because useLocalStorage owns them.
@@ -74,7 +78,7 @@ const initialValues: { [key in Key]: Value<Key> } = {
             },
           ],
           object: 'block',
-          type: 'task-item',
+          type: 'task',
         },
         {
           data: {
@@ -93,22 +97,31 @@ const initialValues: { [key in Key]: Value<Key> } = {
             },
           ],
           object: 'block',
-          type: 'task-item',
+          type: 'task',
         },
       ],
     },
   },
+  version: 1,
 };
 
-const setStorageItem = throttle((key: string, value: any) => {
+const setStorageItem = (key: Key, value: any) => {
+  // TODO: Handle errors via Sentry.
+  // try {
   localStorage.setItem(storageKey(key), JSON.stringify(value));
-}, 500);
+  // } catch (error) {
+  //   // tslint:disable-next-line:no-console
+  //   console.log(error);
+  // }
+};
+
+const setStorageItemThrottled = throttle(setStorageItem, 500);
 
 const useLocalStorage = <K extends Key>(
   key: K,
   ignoreSetValue: boolean = false,
 ): [Value<K>, (value: Value<K>) => void] => {
-  const getStorageValue = (): Value<K> | null => {
+  const getItem = <T extends Key>(key: T): Value<T> | null => {
     try {
       const item = localStorage.getItem(storageKey(key));
       if (item == null) return null;
@@ -126,17 +139,43 @@ const useLocalStorage = <K extends Key>(
   // @ts-ignore This must be somehow resovable without ifs, I hope.
   const [value, setValue] = React.useState<Value<K>>(() => {
     return wasRendered
-      ? getStorageValue() || initialValues[key]
+      ? getItem(key) || initialValues[key]
       : initialValues[key];
   });
 
-  const maybeSetStorageValue = () => {
-    const storageValue = getStorageValue();
+  const maybeLoadValueFromStorage = () => {
+    const storageValue = getItem(key);
     if (storageValue != null) setValue(storageValue);
   };
 
+  const maybeMigrateLocalStorageData = () => {
+    // Migrate only one tab, other tabs will get it via storage event.
+    const migratedSessionKey = 'actualtasks-migrated';
+    const migrated = sessionStorage.getItem(migratedSessionKey);
+    if (migrated === 'true') return;
+    const done = () => {
+      sessionStorage.setItem(migratedSessionKey, 'true');
+    };
+
+    const version = getItem('version');
+    if (version == null) {
+      const tasks: Tasks | null = getItem('tasks');
+      if (tasks == null) return;
+      tasks.document.nodes = tasks.document.nodes.map(node => ({
+        ...node,
+        type: 'task' as typeof taskType,
+      }));
+      setStorageItem('version', 1);
+      setStorageItem('tasks', tasks);
+      done();
+    }
+    // else if (version === 1)
+  };
+
   React.useEffect(() => {
-    maybeSetStorageValue();
+    maybeMigrateLocalStorageData();
+    // To override initial render data.
+    maybeLoadValueFromStorage();
     setValues[key].push(setValue);
     return () => {
       setValues[key].splice(setValues[key].indexOf(setValue), 1);
@@ -145,7 +184,7 @@ const useLocalStorage = <K extends Key>(
 
   const syncLocalStorage = (event: StorageEvent) => {
     if (event.key === storageKey(key)) {
-      maybeSetStorageValue();
+      maybeLoadValueFromStorage();
     }
   };
 
@@ -157,7 +196,7 @@ const useLocalStorage = <K extends Key>(
   }, []);
 
   const set = (value: Value<K>) => {
-    setStorageItem(key, value);
+    setStorageItemThrottled(key, value);
     setValues[key].forEach(setValueFn => {
       if (ignoreSetValue && setValueFn === setValue) return;
       setValueFn(value);

@@ -5,10 +5,16 @@ import { RegisteredStyle, Text, View, ViewStyle } from 'react-native';
 import { createElement } from 'react-native-web';
 import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
 import { Editor, RenderNodeProps } from 'slate-react';
+import { Overwrite } from 'utility-types';
 import useAppContext from '../hooks/useAppContext';
 import useLocalStorage, { taskType } from '../hooks/useLocalStorage';
 
-const Checkbox = (props: React.InputHTMLAttributes<HTMLInputElement>) =>
+type CheckboxProps = Overwrite<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  { style: RegisteredStyle<ViewStyle> }
+>;
+
+const Checkbox = (props: CheckboxProps) =>
   createElement('input', { ...props, type: 'checkbox' });
 
 const toggleCompleted = (
@@ -22,9 +28,7 @@ const toggleCompleted = (
 
 const Task: React.FunctionComponent<RenderNodeProps> = props => {
   const { theme } = useAppContext();
-  // TODO: Node data should be typed, but it can and will be runtime changed.
-  // Use localStorage migration via https://github.com/gcanti/io-ts?
-  // Use fail-safe GraphQL versionless approach for now.
+  // TODO: Node data should be typed.
   const { data } = props.node;
   const completed: boolean = data.get('completed');
 
@@ -66,7 +70,6 @@ const Task: React.FunctionComponent<RenderNodeProps> = props => {
       <View style={theme.taskCheckboxWrapper}>
         <div contentEditable={false}>
           <Checkbox
-            // @ts-ignore TODO: replace style prop with RN type.
             style={theme.taskCheckbox}
             checked={completed}
             onChange={handleCheckboxChange}
