@@ -1,22 +1,26 @@
 import Head from 'next/head';
+import { withRouter } from 'next/router';
 import React from 'react';
 import { findNodeHandle, StyleSheet, View } from 'react-native';
-import Button from '../components/Button';
 import useAppContext from '../hooks/useAppContext';
-import useLocalStorage from '../hooks/useLocalStorage';
+import { AppHref } from '../pages/_app';
+import Link from './Link';
 
 let initialRender = true;
 
-const LayoutHeader = () => {
+const LayoutHeader = withRouter(({ router }) => {
   const { theme } = useAppContext();
-  const [darkMode, setDarkMode] = useLocalStorage('darkMode');
-  const emoji = darkMode ? '🌛' : '🌤';
+  const personHref: AppHref =
+    router && router.pathname === '/' ? '/me' : { pathname: '/' };
+
   return (
     <View style={[theme.layoutHeader, theme.marginStartAuto]}>
-      <Button onPress={() => setDarkMode(!darkMode)}>{emoji}</Button>
+      <Link prefetch href={personHref}>
+        👤
+      </Link>
     </View>
   );
-};
+});
 
 interface LayoutProps {
   title: string;

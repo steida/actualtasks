@@ -10,7 +10,10 @@ export type AppHref =
       pathname: '/';
       query?: { id: string };
     }
-  | 'https://twitter.com/steida';
+  | 'https://twitter.com/steida'
+  | 'https://github.com/steida/actualtasks'
+  | 'https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3'
+  | '/me';
 
 // Page titles can not be collocated within pages because that would defeat
 // code splitting. One nav component would import many whole pages.

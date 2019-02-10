@@ -162,14 +162,13 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
   };
 
   const layoutFooter: ViewStyle = {
-    borderTopColor: colors.gray,
-    borderTopWidth: 1,
     paddingVertical: dimensions.spaceSmall,
   };
 
   const layoutFooterText: TextStyle = {
     ...text,
     ...typography.scale(-1),
+    textAlign: 'center',
   };
 
   const link: TextStyle = {
