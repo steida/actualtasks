@@ -48,6 +48,7 @@ const setValues: {
   tasks: [],
 };
 
+// Initial values must be here because useLocalStorage owns them.
 const initialValues: { [key in Key]: Value<Key> } = {
   darkMode: false,
   email: '',
@@ -98,9 +99,11 @@ const useLocalStorage = <K extends Key>(
   const wasRendered = useContext(WasRenderedContext);
 
   // Initial value is the must for the React hydrate but only for it.
-  // @ts-ignore TODO: Fix it and remove ts-ignore.
+  // @ts-ignore This must be somehow resovable without ifs, I hope.
   const [value, setValue] = React.useState<Value<K>>(() => {
-    return wasRendered ? getStorageValue() : initialValues[key];
+    return wasRendered
+      ? getStorageValue() || initialValues[key]
+      : initialValues[key];
   });
 
   const maybeSetStorageValue = () => {
