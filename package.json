@@ -9,9 +9,6 @@
   "workspaces": [
     "packages/*"
   ],
-  "resolutions": {
-    "ajv": "6.8.1"
-  },
   "scripts": {
     "dev": "wsrun dev",
     "deps": "rimraf 'yarn.lock' 'node_modules' '**/node_modules' && yarn",
