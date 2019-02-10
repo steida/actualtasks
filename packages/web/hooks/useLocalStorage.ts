@@ -43,7 +43,9 @@ type Value<K extends Key> = K extends 'darkMode'
   ? Version
   : never;
 
-const storageKey = (key: Key) => `actualtasks-${key}`;
+// Force storage reset via key.
+const storageVersion = 1;
+const storageKey = (key: string) => `actualtasks-${storageVersion}-${key}`;
 
 const setValues: {
   [key in Key]: Array<Dispatch<SetStateAction<Value<Key>>>>
@@ -150,33 +152,33 @@ const useLocalStorage = <K extends Key>(
 
   const maybeMigrateLocalStorageData = () => {
     // Migrate only one tab, other tabs will get it via storage event.
-    const migratedSessionKey = 'actualtasks-migrated';
-    const migrated = sessionStorage.getItem(migratedSessionKey);
-    if (migrated === 'true') return;
-
+    const migrationDoneSessionKey = storageKey('migrationDone');
+    const migrationDone = sessionStorage.getItem(migrationDoneSessionKey);
+    if (migrationDone === 'true') return;
     const done = () => {
-      sessionStorage.setItem(migratedSessionKey, 'true');
+      sessionStorage.setItem(migrationDoneSessionKey, 'true');
     };
-
-    const version = getItem('version');
-    if (version == null) {
-      const tasks: Tasks | null = getItem('tasks');
-      if (tasks == null) return;
-      tasks.document.nodes = tasks.document.nodes.map(node => ({
-        ...node,
-        type: 'task' as typeof taskType,
-      }));
-      setStorageItem('version', 1);
-      setStorageItem('tasks', tasks);
-    }
-    // else if (version === 1) {}
+    // // Example:
+    // switch (getItem('version') || 1) {
+    //   case 1: {
+    //     // const tasks: Tasks | null = getItem('tasks');
+    //     // if (tasks == null) return;
+    //     // tasks.document.nodes = tasks.document.nodes.map(node => ({
+    //     //   ...node,
+    //     //   // change something
+    //     // }));
+    //     // setStorageItem('version', 2);
+    //     // setStorageItem('tasks', tasks);
+    //     break;
+    //   }
+    // }
     done();
   };
 
   React.useEffect(() => {
     maybeMigrateLocalStorageData();
     // To override initial render data.
-    maybeLoadValueFromStorage();
+    if (!wasRendered) maybeLoadValueFromStorage();
     setValues[key].push(setValue);
     return () => {
       setValues[key].splice(setValues[key].indexOf(setValue), 1);
