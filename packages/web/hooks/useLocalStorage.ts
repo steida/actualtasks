@@ -13,11 +13,13 @@ interface TaskText {
 
 export const taskType = 'task';
 
+export interface TaskData {
+  completed: boolean;
+  depth: number;
+}
+
 interface Task {
-  data: {
-    completed: boolean;
-    depth: number;
-  };
+  data: TaskData;
   nodes: TaskText[];
   object: 'block';
   type: typeof taskType;

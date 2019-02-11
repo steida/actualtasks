@@ -3,11 +3,16 @@ import React from 'react';
 import { RegisteredStyle, Text, View, ViewStyle } from 'react-native';
 // @ts-ignore
 import { createElement } from 'react-native-web';
-import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
+import {
+  Editor as CoreEditor,
+  KeyUtils,
+  // Point,
+  Value,
+} from 'slate';
 import { Editor, RenderNodeProps } from 'slate-react';
 import { Overwrite } from 'utility-types';
 import useAppContext from '../hooks/useAppContext';
-import useLocalStorage, { taskType } from '../hooks/useLocalStorage';
+import useLocalStorage, { TaskData, taskType } from '../hooks/useLocalStorage';
 
 type CheckboxProps = Overwrite<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -17,24 +22,33 @@ type CheckboxProps = Overwrite<
 const Checkbox = (props: CheckboxProps) =>
   createElement('input', { ...props, type: 'checkbox' });
 
-const toggleCompleted = (
+const getNodeData = (node: RenderNodeProps['node']): TaskData => {
+  // data.toJS is costly and we don't need it anyway.
+  // This is simple type safe approach.
+  const completed = 'completed';
+  const depth = 'depth';
+  return {
+    [completed]: node.data.get(completed),
+    [depth]: node.data.get(depth),
+  };
+};
+
+const setNodeData = (
   editor: RenderNodeProps['editor'],
-  node: RenderNodeProps['node'],
-  completed: boolean,
+  nodeKey: string,
+  data: TaskData,
 ) => {
-  // @ts-ignore Probably wrong type definition.
-  editor.setNodeByKey(node.key, { data: { completed } });
+  // @ts-ignore Wrong type definition.
+  editor.setNodeByKey(nodeKey, { data });
 };
 
 const Task: React.FunctionComponent<RenderNodeProps> = props => {
   const { theme } = useAppContext();
-  // TODO: Node data should be typed.
-  const { data } = props.node;
-  const completed: boolean = data.get('completed');
-
-  // For example, the depth is a new prop. Btw yes, it's ok to have inline functions.
-  const getTaskDepthStyle = (): RegisteredStyle<ViewStyle> => {
-    switch (data.get('depth')) {
+  const data = getNodeData(props.node);
+  // Inline functions are ok.
+  // https://reactjs.org/docs/hooks-faq.html#are-hooks-slow-because-of-creating-functions-in-render
+  const getTaskDepthStyle = () => {
+    switch (data.depth) {
       case 0:
         return theme.taskDepth0;
       case 1:
@@ -62,7 +76,10 @@ const Task: React.FunctionComponent<RenderNodeProps> = props => {
   const depthStyle = getTaskDepthStyle();
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    toggleCompleted(props.editor, props.node, event.target.checked);
+    setNodeData(props.editor, props.node.key, {
+      ...data,
+      completed: event.target.checked,
+    });
   };
 
   return (
@@ -71,12 +88,12 @@ const Task: React.FunctionComponent<RenderNodeProps> = props => {
         <div contentEditable={false}>
           <Checkbox
             style={theme.taskCheckbox}
-            checked={completed}
+            checked={data.completed}
             onChange={handleCheckboxChange}
           />
         </div>
       </View>
-      <Text style={[theme.text, completed && theme.lineThrough]}>
+      <Text style={[theme.text, data.completed && theme.lineThrough]}>
         {props.children}
       </Text>
     </View>
@@ -110,20 +127,32 @@ const Tasks: React.FunctionComponent = () => {
 
   const handleEditorChange = ({ value }: { value: Value }) => {
     setEditorValue(value);
+    // TODO: Throttle because of costly .toJSON
     setTasks(value.toJSON() as any);
   };
 
   const handleKeyDown = (event: any, editor: CoreEditor, next: () => any) => {
+    const getSelectedTasks = () => {
+      const tasks: Array<{ key: string } & TaskData> = [];
+      editor.value.blocks.forEach(node => {
+        if (node == null) return;
+        tasks.push({
+          key: node.key,
+          ...getNodeData(node),
+        });
+      });
+      return tasks;
+    };
+
     if (isHotkey('opt+enter')(event)) {
       event.preventDefault();
-      // tslint:disable-next-line:no-console
-      const { path } = editor.value.selection.focus;
-      if (path == null) return;
-      const node = editor.value.document.getParent(path);
-      // @ts-ignore TODO: Should be checked probably.
-      const completed = node.data.get('completed');
-      // @ts-ignore TODO: Should be checked probably.
-      toggleCompleted(editor, node, !completed);
+      const tasks = getSelectedTasks();
+      const allCompleted = !tasks.some(task => !task.completed);
+      const completed = allCompleted ? false : true;
+      tasks.forEach(task => {
+        const { key, ...data } = task;
+        setNodeData(editor, key, { ...data, completed });
+      });
       return;
     }
     return next();
