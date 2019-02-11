@@ -797,10 +797,10 @@
     "@types/react" "*"
     "@types/react-loadable" "*"
 
-"@types/next@^7.0.5":
-  version "7.0.9"
-  resolved "https://registry.yarnpkg.com/@types/next/-/next-7.0.9.tgz#8e48dbba85c9ba7866f870483df314f956074108"
-  integrity sha512-YJRp68any82tbnfXsDMdWPQPiKVntQyMpEJt7bRLr2NPvu/qmbuql/imjyvA3UC2wdoi7DENHv/GXvnKwfNomQ==
+"@types/next@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@types/next/-/next-8.0.0.tgz#e2dbf3fbc3d5f4dbd1f83d19a3971fb916c42263"
+  integrity sha512-PTz9jGOkQKugasBtTbgYwUL7zfH4J3iGK9UXNeg4Hat8Lj09S3ikXzJernRHrg/gHYa8LJivyi1v8ku/ZUa5bQ==
   dependencies:
     "@types/next-server" "*"
     "@types/node" "*"
@@ -1695,9 +1695,9 @@ check-types@^7.3.0:
   integrity sha512-YbulWHdfP99UfZ73NcUDlNJhEIDgm9Doq9GhpyXbF+7Aegi3CVV7qqMCKTTqJxlvEvnQBp9IA+dxsGN6xK/nSg==
 
 chokidar@^2.0.2:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-2.1.0.tgz#5fcb70d0b28ebe0867eb0f09d5f6a08f29a1efa0"
-  integrity sha512-5t6G2SH8eO6lCvYOoUpaRnF5Qfd//gd7qJAkwRUw9qlGVkiQ13uwQngqbWWaurOsaAm9+kUGbITADxt6H0XFNQ==
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-2.1.1.tgz#adc39ad55a2adf26548bd2afa048f611091f9184"
+  integrity sha512-gfw3p2oQV2wEt+8VuMlNsPjCxDxvvgnm/kz+uATu805mWVF8IJN7uz9DN7iBz+RMJISmiVbCOBFs9qBGMjtPfQ==
   dependencies:
     anymatch "^2.0.0"
     async-each "^1.0.1"
@@ -2738,9 +2738,9 @@ glob@^7.0.3, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3:
     path-is-absolute "^1.0.0"
 
 globals@^11.1.0:
-  version "11.10.0"
-  resolved "https://registry.yarnpkg.com/globals/-/globals-11.10.0.tgz#1e09776dffda5e01816b3bb4077c8b59c24eaa50"
-  integrity sha512-0GZF1RiPKU97IHUO5TORo9w1PwrH/NBPl+fS7oMLdaTRiYmYbwK4NWoZWrAdd0/abG9R2BU+OiwyQpTpE6pdfQ==
+  version "11.11.0"
+  resolved "https://registry.yarnpkg.com/globals/-/globals-11.11.0.tgz#dcf93757fa2de5486fbeed7118538adf789e9c2e"
+  integrity sha512-WHq43gS+6ufNOEqlrDBxVEbb8ntfXrfAUU2ZOpCxrBdGKW3gyv8mCxAfIBD0DroPKGrJ2eSsXsLtY9MPntsyTw==
 
 globby@^5.0.0:
   version "5.0.0"
