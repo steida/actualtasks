@@ -290,6 +290,11 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
 
   const taskCheckbox: ViewStyle = {
     margin: 0,
+    opacity: 0.7,
+  };
+
+  const taskCheckboxCompleted: ViewStyle = {
+    opacity: 1,
   };
 
   const taskCheckboxWrapper: ViewStyle = {
@@ -350,6 +355,7 @@ export const createTheme = (colors: Colors, dimensions: Dimensions) => {
     spacer,
     task,
     taskCheckbox,
+    taskCheckboxCompleted,
     taskCheckboxWrapper,
     taskDepth0,
     taskDepth1,
