@@ -3,16 +3,17 @@ import React from 'react';
 import { StyleProp, Text, View, ViewStyle } from 'react-native';
 // @ts-ignore
 import { createElement } from 'react-native-web';
-import {
-  Editor as CoreEditor,
-  KeyUtils,
-  // Point,
-  Value,
-} from 'slate';
+import { Block, Editor as CoreEditor, KeyUtils, Value } from 'slate';
 import { Editor, RenderNodeProps } from 'slate-react';
 import { Overwrite } from 'utility-types';
 import useAppContext from '../hooks/useAppContext';
 import useLocalStorage, { TaskData, taskType } from '../hooks/useLocalStorage';
+
+type KeyboardEventHook = (
+  event: KeyboardEvent,
+  editor: CoreEditor,
+  next: () => any,
+) => void;
 
 type CheckboxProps = Overwrite<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -22,7 +23,9 @@ type CheckboxProps = Overwrite<
 const Checkbox = (props: CheckboxProps) =>
   createElement('input', { ...props, type: 'checkbox' });
 
-const getNodeData = (node: RenderNodeProps['node']): TaskData => {
+type Node = RenderNodeProps['node'];
+
+const getNodeData = (node: Node): TaskData => {
   // data.toJS is costly and we don't need it anyway.
   // This is simple type safe approach.
   const completed = 'completed';
@@ -37,19 +40,12 @@ const getNodeData = (node: RenderNodeProps['node']): TaskData => {
 type SlateKey = string;
 type TaskDataWithKey = { key: SlateKey } & TaskData;
 
-const setNodeData = (
-  editor: RenderNodeProps['editor'],
-  nodeKey: string,
-  data: TaskData,
-) => {
+const setNodeData = (editor: CoreEditor, nodeKey: string, data: TaskData) => {
   // @ts-ignore Wrong type definition.
   editor.setNodeByKey(nodeKey, { data });
 };
 
-const setNodesData = (
-  editor: RenderNodeProps['editor'],
-  tasks: TaskDataWithKey[],
-) => {
+const setNodesData = (editor: CoreEditor, tasks: TaskDataWithKey[]) => {
   tasks.forEach(task => {
     const { key, ...data } = task;
     setNodeData(editor, key, data);
@@ -83,9 +79,8 @@ const Task: React.FunctionComponent<RenderNodeProps> = props => {
         return theme.taskDepth8;
       case 9:
         return theme.taskDepth9;
-      default:
-        return theme.taskDepth0;
     }
+    return data.depth < 0 ? theme.taskDepth0 : theme.taskDepth9;
   };
   const depthStyle = getTaskDepthStyle();
 
@@ -148,22 +143,24 @@ const Tasks: React.FunctionComponent = () => {
     setTasks(value.toJSON() as any);
   };
 
-  const handleKeyDown = (event: any, editor: CoreEditor, next: () => any) => {
-    const getSelectedTasks = (): TaskDataWithKey[] => {
+  const handleKeyDown: KeyboardEventHook = (event, editor, next) => {
+    const getSelected = () => {
+      const blocks: Block[] = [];
       const tasks: TaskDataWithKey[] = [];
       editor.value.blocks.forEach(node => {
-        if (node == null) return;
+        if (node == null || node.type !== taskType) return;
+        blocks.push(node);
         tasks.push({
           key: node.key,
           ...getNodeData(node),
         });
       });
-      return tasks;
+      return { blocks, tasks };
     };
 
     if (isHotkey('opt+enter')(event)) {
       event.preventDefault();
-      const tasks = getSelectedTasks();
+      const tasks = getSelected().tasks;
       const allCompleted = !tasks.some(task => !task.completed);
       const completedTasks = tasks.map(task => ({
         ...task,
@@ -176,19 +173,39 @@ const Tasks: React.FunctionComponent = () => {
     const isTab = isHotkey('tab')(event);
     const isShiftTab = isHotkey('shift+tab')(event);
     if (isTab || isShiftTab) {
-      const tasks = getSelectedTasks();
-      // To enable key navigation to leave component with shift tab.
-      const nothingToShiftTab =
-        isShiftTab && tasks.some(task => task.depth === 0);
-      if (nothingToShiftTab) return next();
+      const { tasks, blocks } = getSelected();
+      if (tasks.length === null) return next();
+      const canTab = () => {
+        const previous = editor.value.document.getPreviousBlock(tasks[0].key);
+        if (previous == null) return false;
+        const previousDepth = getNodeData(previous).depth;
+        const firstDepth = getNodeData(blocks[0]).depth;
+        return firstDepth <= previousDepth;
+      };
+      const canShiftTab = () => !tasks.some(task => task.depth === 0);
+      const canChangeDepth = isTab ? canTab() : canShiftTab();
+      if (!canChangeDepth) {
+        event.preventDefault();
+        return;
+      }
       event.preventDefault();
-      // const newDepths = tasks.map(task => ({
-      //   ...task,
-      //   depth: task.depth + (isTab ? 1 : -1),
-      // }));
-
+      const changedTasks = tasks.map(task => ({
+        ...task,
+        depth: task.depth + (isTab ? 1 : -1),
+      }));
+      setNodesData(editor, changedTasks);
       return;
     }
+
+    switch (event.key) {
+      case 'Escape': {
+        const focusable: HTMLElement | null = document.querySelector(
+          '[data-focusable',
+        );
+        if (focusable) focusable.focus();
+      }
+    }
+
     return next();
   };
 
@@ -210,6 +227,7 @@ const Tasks: React.FunctionComponent = () => {
       autoCorrect={false}
       // autoFocus // Does not work and we want to restore previous focus anyway.
       onChange={handleEditorChange}
+      // @ts-ignore Type definitions bug.
       onKeyDown={handleKeyDown}
       ref={editorRef}
       renderNode={renderNode}
