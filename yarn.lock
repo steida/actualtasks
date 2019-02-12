@@ -815,9 +815,9 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "10.12.24"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.24.tgz#b13564af612a22a20b5d95ca40f1bffb3af315cf"
-  integrity sha512-GWWbvt+z9G5otRBW8rssOFgRY87J9N/qbhqfjMZ+gUuL6zoL+Hm6gP/8qQBG4jjimqdaNLCehcVapZ/Fs2WjCQ==
+  version "11.9.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.9.1.tgz#38fd4be2e0f1b1b94e713599afc43f4b2343c61e"
+  integrity sha512-XJHvu7fvycZ7ORTyThXiKCtld+R4Y1GGerYRrVSf/GhaNahRBIf/Nx+7Xh3AvI5nudOVt/L671CxHGkJt1/+hQ==
 
 "@types/prop-types@*":
   version "15.5.8"
@@ -1818,9 +1818,9 @@ concat-stream@^1.5.0:
     typedarray "^0.0.6"
 
 consola@^2.3.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/consola/-/consola-2.4.0.tgz#d13c711cd0648a600ca68b399b739cf8f5058097"
-  integrity sha512-fy9j1unXm/bXgk6dPMnwktTJqkAPgm/s28k+wZ/O7XeVgGXDPRXu/hcE12I68iqjk63W6No1J6TQlHQQOMIVhA==
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/consola/-/consola-2.4.1.tgz#ad7209c306a2b6fa955b776f88f87bf92f491aa8"
+  integrity sha512-j6bIzpmyRGY2TDZVkAi3DM95CgC8hWx1A7AiJdyn4X5gls1bbpXIMpn3p8QsfaNu+ycNLXP+2DwKb47FXjw1ww==
   dependencies:
     chalk "^2.4.2"
     dayjs "^1.8.3"
@@ -3753,10 +3753,10 @@ next-plugin-custom-babel-config@^1.0.0:
   resolved "https://registry.yarnpkg.com/next-plugin-custom-babel-config/-/next-plugin-custom-babel-config-1.0.0.tgz#053547672c26431a9884342238ebb9acab54c77c"
   integrity sha512-jJZOfR1oJPBZG+1iX3Ae7Rzc3tGvABIwlXNg/dzvsLh/4ENdAqojHDpdA5297ENZyCBJ6kHgjBXnxt3tpZZGvg==
 
-next-plugin-transpile-modules@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/next-plugin-transpile-modules/-/next-plugin-transpile-modules-1.1.0.tgz#1b3e4235a839f31f48e5a8ae1e2e2e23bccee6cd"
-  integrity sha512-/XksdNn/7ajcbaXbOb/3fYHt8nmRiVvUh9wQ3Hk8Saxsw2egnolawOYDPa97XuKozcSoH/vh4estszHOK/FbBQ==
+next-plugin-transpile-modules@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/next-plugin-transpile-modules/-/next-plugin-transpile-modules-2.0.0.tgz#8632683f0f04fbc776ce80c6cc62bb5c6694661d"
+  integrity sha512-9vI7/OvBlu6f/cwzNdBDKxmY2Zc4Jr8hRy59exkXWwF22LUIZrEa0D7qhqWahAhbMibMGMMsX9GeUuOXKcG9/Q==
 
 next-server@8.0.0:
   version "8.0.0"
