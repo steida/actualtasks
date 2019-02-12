@@ -3,9 +3,10 @@ import React from 'react';
 import { StyleProp, Text, View, ViewStyle } from 'react-native';
 // @ts-ignore
 import { createElement } from 'react-native-web';
-import { Block, Editor as CoreEditor, KeyUtils, Value } from 'slate';
+import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
 import { Editor, RenderNodeProps } from 'slate-react';
 import { Overwrite } from 'utility-types';
+import { LayoutContext } from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
 import useLocalStorage, { TaskData, taskType } from '../hooks/useLocalStorage';
 
@@ -20,10 +21,19 @@ type CheckboxProps = Overwrite<
   { style: StyleProp<ViewStyle> }
 >;
 
+type Node = RenderNodeProps['node'];
+
+// Slate key is an implementation detail. It does not belong to TaskData
+// unless we will generate guids.
+type TaskDataWithKey = { key: string } & TaskData;
+
+const nodeToTaskDataWithKey = (node: Node): TaskDataWithKey => ({
+  key: node.key,
+  ...getNodeData(node),
+});
+
 const Checkbox = (props: CheckboxProps) =>
   createElement('input', { ...props, type: 'checkbox' });
-
-type Node = RenderNodeProps['node'];
 
 const getNodeData = (node: Node): TaskData => {
   // data.toJS is costly and we don't need it anyway.
@@ -36,23 +46,11 @@ const getNodeData = (node: Node): TaskData => {
   };
 };
 
-// Slate key is an implementation detail. It does not belong to TaskData.
-type SlateKey = string;
-type TaskDataWithKey = { key: SlateKey } & TaskData;
-
-const setNodeData = (editor: CoreEditor, nodeKey: string, data: TaskData) => {
-  // @ts-ignore Wrong type definition.
-  editor.setNodeByKey(nodeKey, { data });
+type TaskProps = RenderNodeProps & {
+  onCheckboxChange: (node: Node) => void;
 };
 
-const setNodesData = (editor: CoreEditor, tasks: TaskDataWithKey[]) => {
-  tasks.forEach(task => {
-    const { key, ...data } = task;
-    setNodeData(editor, key, data);
-  });
-};
-
-const Task: React.FunctionComponent<RenderNodeProps> = props => {
+const Task: React.FunctionComponent<TaskProps> = props => {
   const { theme } = useAppContext();
   const data = getNodeData(props.node);
   // Inline functions are ok.
@@ -84,13 +82,6 @@ const Task: React.FunctionComponent<RenderNodeProps> = props => {
   };
   const depthStyle = getTaskDepthStyle();
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNodeData(props.editor, props.node.key, {
-      ...data,
-      completed: event.target.checked,
-    });
-  };
-
   return (
     <View {...props.attributes} style={[theme.task, depthStyle]}>
       <View style={theme.taskCheckboxWrapper}>
@@ -101,7 +92,7 @@ const Task: React.FunctionComponent<RenderNodeProps> = props => {
               data.completed && theme.taskCheckboxCompleted,
             ]}
             checked={data.completed}
-            onChange={handleCheckboxChange}
+            onChange={() => props.onCheckboxChange(props.node)}
           />
         </div>
       </View>
@@ -114,6 +105,7 @@ const Task: React.FunctionComponent<RenderNodeProps> = props => {
 
 const Tasks: React.FunctionComponent = () => {
   const [tasks, setTasks] = useLocalStorage('tasks', true);
+  const { focusHeader } = React.useContext(LayoutContext);
 
   const initialState = () => {
     // For SSR.
@@ -143,43 +135,55 @@ const Tasks: React.FunctionComponent = () => {
     setTasks(value.toJSON() as any);
   };
 
-  const handleKeyDown: KeyboardEventHook = (event, editor, next) => {
-    const getSelected = () => {
-      const blocks: Block[] = [];
-      const tasks: TaskDataWithKey[] = [];
-      editor.value.blocks.forEach(node => {
-        if (node == null || node.type !== taskType) return;
-        blocks.push(node);
-        tasks.push({
-          key: node.key,
-          ...getNodeData(node),
-        });
-      });
-      return { blocks, tasks };
-    };
+  const getSelectedTasks = (): TaskDataWithKey[] => {
+    const selectedTasks: TaskDataWithKey[] = [];
+    if (editorRef.current == null) return [];
+    editorRef.current.value.blocks.forEach(node => {
+      if (node == null || node.type !== taskType) return;
+      selectedTasks.push(nodeToTaskDataWithKey(node));
+    });
+    return selectedTasks;
+  };
 
-    if (isHotkey('opt+enter')(event)) {
+  const setNodesData = (tasks: TaskDataWithKey[]) => {
+    const { current: editor } = editorRef;
+    if (editor == null) return;
+    tasks.forEach(task => {
+      const { key, ...data } = task;
+      editor.setNodeByKey(
+        key,
+        // @ts-ignore Wrong type definition.
+        { data },
+      );
+    });
+  };
+
+  const toggleTasks = (tasks: TaskDataWithKey[]) => {
+    const allCompleted = !tasks.some(task => !task.completed);
+    const completedTasks = tasks.map(task => ({
+      ...task,
+      completed: allCompleted ? false : true,
+    }));
+    setNodesData(completedTasks);
+  };
+
+  const handleKeyDown: KeyboardEventHook = (event, editor, next) => {
+    if (isHotkey('alt+enter')(event)) {
       event.preventDefault();
-      const tasks = getSelected().tasks;
-      const allCompleted = !tasks.some(task => !task.completed);
-      const completedTasks = tasks.map(task => ({
-        ...task,
-        completed: allCompleted ? false : true,
-      }));
-      setNodesData(editor, completedTasks);
+      toggleTasks(getSelectedTasks());
       return;
     }
 
     const isTab = isHotkey('tab')(event);
     const isShiftTab = isHotkey('shift+tab')(event);
     if (isTab || isShiftTab) {
-      const { tasks, blocks } = getSelected();
+      const tasks = getSelectedTasks();
       if (tasks.length === null) return next();
       const canTab = () => {
         const previous = editor.value.document.getPreviousBlock(tasks[0].key);
         if (previous == null) return false;
         const previousDepth = getNodeData(previous).depth;
-        const firstDepth = getNodeData(blocks[0]).depth;
+        const firstDepth = tasks[0].depth;
         return firstDepth <= previousDepth;
       };
       const canShiftTab = () => !tasks.some(task => task.depth === 0);
@@ -193,20 +197,36 @@ const Tasks: React.FunctionComponent = () => {
         ...task,
         depth: task.depth + (isTab ? 1 : -1),
       }));
-      setNodesData(editor, changedTasks);
+      setNodesData(changedTasks);
       return;
+    }
+
+    const metaUp = isHotkey('meta+up')(event);
+    const metaDown = isHotkey('meta+down')(event);
+    if (metaUp || metaDown) {
+      event.preventDefault();
+      // const { blocks } = getSelected();
+      // const currentIndex = blocks.
+      return;
+      // jak zjistim indexy? hejbat jednim?
+      // kazdej proste presunout? hmm, asi jo!
+      // drzet se stejneho depth?
+      // editor.moveNodeByKey(key, newKey, newIndex)
     }
 
     switch (event.key) {
       case 'Escape': {
-        const focusable: HTMLElement | null = document.querySelector(
-          '[data-focusable',
-        );
-        if (focusable) focusable.focus();
+        focusHeader();
+        event.preventDefault();
+        return;
       }
     }
 
     return next();
+  };
+
+  const handleTaskCheckboxChange = (node: Node) => {
+    toggleTasks([nodeToTaskDataWithKey(node)]);
   };
 
   const renderNode = (
@@ -216,7 +236,7 @@ const Tasks: React.FunctionComponent = () => {
   ) => {
     switch (props.node.type) {
       case taskType:
-        return <Task {...props} />;
+        return <Task {...props} onCheckboxChange={handleTaskCheckboxChange} />;
       default:
         return next();
     }
