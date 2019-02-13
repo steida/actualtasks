@@ -213,11 +213,7 @@ const Tasks: React.FunctionComponent = () => {
     setNodesData(completedTasks);
   };
 
-  const indentTasks = (
-    event: KeyboardEvent,
-    isTab: boolean,
-    tasks: TaskDataWithKey[],
-  ) => {
+  const indentTasks = (isTab: boolean, tasks: TaskDataWithKey[]) => {
     const editor = getEditor();
     const firstTask = tasks[0];
     tasks = tasksWithChildren(tasks);
@@ -234,11 +230,7 @@ const Tasks: React.FunctionComponent = () => {
       return !tasks.some(task => task.depth === 0);
     };
     const canChangeDepth = isTab ? canTab() : canShiftTab();
-    if (!canChangeDepth) {
-      event.preventDefault();
-      return;
-    }
-    event.preventDefault();
+    if (!canChangeDepth) return;
     const changedTasks = tasks.map(task => ({
       ...task,
       depth: task.depth + (isTab ? 1 : -1),
@@ -246,32 +238,69 @@ const Tasks: React.FunctionComponent = () => {
     setNodesData(changedTasks);
   };
 
+  const moveTasks = (isMetaUp: boolean, task: TaskDataWithKey) => {
+    const editor = getEditor();
+    const { nodes } = editor.value.document;
+    let index = getTaskIndex(task.key);
+    if (index === 0 && isMetaUp) return;
+    let siblingData = null;
+    while (isMetaUp ? index > 0 : index < nodes.count()) {
+      index = index + (isMetaUp ? -1 : 1);
+      const sibling = nodes.get(index);
+      if (sibling == null) return;
+      siblingData = getTaskData(sibling);
+      if (siblingData.depth <= task.depth) break;
+    }
+    let tasks = tasksWithChildren([task]);
+    const depthChanged = siblingData && siblingData.depth < task.depth;
+    tasks = tasks.map(task => {
+      return {
+        ...task,
+        depth: Math.max(task.depth - (depthChanged ? 1 : 0), 0),
+      };
+    });
+    if (isMetaUp) {
+      tasks.forEach((task, i) => {
+        setNodesData([task]);
+        editor.moveNodeByKey(task.key, editor.value.document.key, index + i);
+      });
+    } else {
+      const task = nodeToTaskDataWithKey(nodes.get(index));
+      index += tasksWithChildren([task]).length - 1;
+      tasks.reverse().forEach((task, i) => {
+        setNodesData([task]);
+        editor.moveNodeByKey(task.key, editor.value.document.key, index - i);
+      });
+    }
+  };
+
   const handleKeyDown: KeyboardEventHook = (event, _editor, next) => {
-    if (isHotkey('alt+enter')(event)) {
+    const isAltEnter = isHotkey('alt+enter')(event);
+    if (isAltEnter) {
       event.preventDefault();
-      toggleTasks(getSelectedTasks());
+      const tasks = getSelectedTasks();
+      toggleTasks(tasks);
       return;
     }
 
     const isTab = isHotkey('tab')(event);
     const isShiftTab = isHotkey('shift+tab')(event);
     if (isTab || isShiftTab) {
+      event.preventDefault();
       const tasks = getSelectedTasks();
-      indentTasks(event, isTab, tasks);
+      indentTasks(isTab, tasks);
       return;
     }
 
-    const metaUp = isHotkey('meta+up')(event);
-    const metaDown = isHotkey('meta+down')(event);
-    if (metaUp || metaDown) {
+    const isMetaUp = isHotkey('meta+up')(event);
+    const isMetaDown = isHotkey('meta+down')(event);
+    if (isMetaUp || isMetaDown) {
       event.preventDefault();
-      // const { blocks } = getSelected();
-      // const currentIndex = blocks.
+      const tasks = getSelectedTasks();
+      // We don't have algorithm to move more tasks.
+      if (tasks.length > 1) return;
+      moveTasks(isMetaUp, tasks[0]);
       return;
-      // jak zjistim indexy? hejbat jednim?
-      // kazdej proste presunout? hmm, asi jo!
-      // drzet se stejneho depth?
-      // editor.moveNodeByKey(key, newKey, newIndex)
     }
 
     switch (event.key) {
