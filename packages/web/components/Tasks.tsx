@@ -121,6 +121,12 @@ const Tasks: React.FunctionComponent = () => {
 
   const editorRef = React.useRef<Editor>(null);
 
+  const getEditor = () => {
+    const { current } = editorRef;
+    if (current == null) throw new Error('editorRef current is null');
+    return current;
+  };
+
   // TODO: Autofucus or restore previous focus. But focus() throws
   // IndexSizeError: Failed to execute 'getRangeAt' on 'Selection': 0 is not a valid index.
   // on hot reload and maybe on something else, hmm.
@@ -138,8 +144,8 @@ const Tasks: React.FunctionComponent = () => {
 
   const getSelectedTasks = (): TaskDataWithKey[] => {
     const selectedTasks: TaskDataWithKey[] = [];
-    if (editorRef.current == null) return [];
-    editorRef.current.value.blocks.forEach(node => {
+    const editor = getEditor();
+    editor.value.blocks.forEach(node => {
       if (node == null || node.type !== taskType) return;
       selectedTasks.push(nodeToTaskDataWithKey(node));
     });
@@ -147,8 +153,7 @@ const Tasks: React.FunctionComponent = () => {
   };
 
   const setNodesData = (tasks: TaskDataWithKey[]) => {
-    const { current: editor } = editorRef;
-    if (editor == null) return;
+    const editor = getEditor();
     tasks.forEach(task => {
       const { key, ...data } = task;
       editor.setNodeByKey(
@@ -159,6 +164,13 @@ const Tasks: React.FunctionComponent = () => {
     });
   };
 
+  const getTaskIndex = (key: string): number => {
+    const editor = getEditor();
+    return editor.value.document.nodes.findIndex(
+      node => node != null && node.key === key,
+    );
+  };
+
   const withChildren = (callback: (tasks: TaskDataWithKey[]) => void) => (
     tasks: TaskDataWithKey[],
   ) => {
@@ -167,13 +179,10 @@ const Tasks: React.FunctionComponent = () => {
     tasks.forEach(task => map.set(task.key, task));
 
     const getTaskChildren = (task: TaskDataWithKey): TaskDataWithKey[] => {
-      const { current: editor } = editorRef;
+      const editor = getEditor();
       const children: TaskDataWithKey[] = [];
-      if (editor == null) return children;
       const { nodes } = editor.value.document;
-      let index = nodes.findIndex(
-        node => node != null && node.key === task.key,
-      );
+      let index = getTaskIndex(task.key);
       // https://twitter.com/estejs/status/1095489649424908288
       while (true) {
         index++;
@@ -218,8 +227,9 @@ const Tasks: React.FunctionComponent = () => {
       const tasks = getSelectedTasks();
       if (tasks.length === null) return next();
       const canTab = () => {
-        // TODO: Parent, index, and index - 1?
-        const previous = editor.value.document.getPreviousBlock(tasks[0].key);
+        const taskIndex = getTaskIndex(tasks[0].key);
+        if (taskIndex === 0) return false;
+        const previous = editor.value.document.nodes.get(taskIndex - 1);
         if (previous == null) return false;
         const previousDepth = getTaskData(previous).depth;
         const firstDepth = tasks[0].depth;
