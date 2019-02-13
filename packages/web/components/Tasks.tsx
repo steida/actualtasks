@@ -29,13 +29,14 @@ type TaskDataWithKey = { key: string } & TaskData;
 
 const nodeToTaskDataWithKey = (node: Node): TaskDataWithKey => ({
   key: node.key,
-  ...getNodeData(node),
+  ...getTaskData(node),
 });
 
 const Checkbox = (props: CheckboxProps) =>
   createElement('input', { ...props, type: 'checkbox' });
 
-const getNodeData = (node: Node): TaskData => {
+// getNodeDataProp is probably micro-optimization.
+const getTaskData = (node: Node): TaskData => {
   // data.toJS is costly and we don't need it anyway.
   // This is simple type safe approach.
   const completed = 'completed';
@@ -52,7 +53,7 @@ type TaskProps = RenderNodeProps & {
 
 const Task: React.FunctionComponent<TaskProps> = props => {
   const { theme } = useAppContext();
-  const data = getNodeData(props.node);
+  const data = getTaskData(props.node);
   // Inline functions are ok.
   // https://reactjs.org/docs/hooks-faq.html#are-hooks-slow-because-of-creating-functions-in-render
   const getTaskDepthStyle = () => {
@@ -104,19 +105,19 @@ const Task: React.FunctionComponent<TaskProps> = props => {
 };
 
 const Tasks: React.FunctionComponent = () => {
-  const [tasks, setTasks] = useLocalStorage('tasks', true);
+  const [storageTasks, setStorageTasks] = useLocalStorage('tasks', true);
   const { focusHeader } = React.useContext(LayoutContext);
 
   const initialState = () => {
     // For SSR.
     KeyUtils.resetGenerator();
-    return Value.fromJSON(tasks as any);
+    return Value.fromJSON(storageTasks as any);
   };
 
   const [editorValue, setEditorValue] = React.useState<Value>(initialState);
   React.useEffect(() => {
     setEditorValue(initialState());
-  }, [tasks]);
+  }, [storageTasks]);
 
   const editorRef = React.useRef<Editor>(null);
 
@@ -131,8 +132,8 @@ const Tasks: React.FunctionComponent = () => {
 
   const handleEditorChange = ({ value }: { value: Value }) => {
     setEditorValue(value);
-    // TODO: Throttle because of costly .toJSON
-    setTasks(value.toJSON() as any);
+    // TODO: Throttle because of costly .toJSON. PR anyone?
+    setStorageTasks(value.toJSON() as any);
   };
 
   const getSelectedTasks = (): TaskDataWithKey[] => {
@@ -158,14 +159,51 @@ const Tasks: React.FunctionComponent = () => {
     });
   };
 
-  const toggleTasks = (tasks: TaskDataWithKey[]) => {
+  const withChildren = (callback: (tasks: TaskDataWithKey[]) => void) => (
+    tasks: TaskDataWithKey[],
+  ) => {
+    // Ensure dedupe via Map.
+    const map: Map<string, TaskDataWithKey> = new Map();
+    tasks.forEach(task => map.set(task.key, task));
+
+    const getTaskChildren = (task: TaskDataWithKey): TaskDataWithKey[] => {
+      const { current: editor } = editorRef;
+      const children: TaskDataWithKey[] = [];
+      if (editor == null) return children;
+      const { nodes } = editor.value.document;
+      let index = nodes.findIndex(
+        node => node != null && node.key === task.key,
+      );
+      // https://twitter.com/estejs/status/1095489649424908288
+      while (true) {
+        index++;
+        const next = nodes.get(index);
+        if (next == null) break;
+        const data = getTaskData(next);
+        if (data.depth <= task.depth) break;
+        children.push({ ...data, key: next.key });
+      }
+      return children;
+    };
+
+    tasks.forEach(task => {
+      getTaskChildren(task).forEach(child => {
+        if (map.has(child.key)) return;
+        map.set(child.key, child);
+      });
+    });
+
+    callback([...map.values()]);
+  };
+
+  const toggleTasks = withChildren((tasks: TaskDataWithKey[]) => {
     const allCompleted = !tasks.some(task => !task.completed);
     const completedTasks = tasks.map(task => ({
       ...task,
       completed: allCompleted ? false : true,
     }));
     setNodesData(completedTasks);
-  };
+  });
 
   const handleKeyDown: KeyboardEventHook = (event, editor, next) => {
     if (isHotkey('alt+enter')(event)) {
@@ -180,9 +218,10 @@ const Tasks: React.FunctionComponent = () => {
       const tasks = getSelectedTasks();
       if (tasks.length === null) return next();
       const canTab = () => {
+        // TODO: Parent, index, and index - 1?
         const previous = editor.value.document.getPreviousBlock(tasks[0].key);
         if (previous == null) return false;
-        const previousDepth = getNodeData(previous).depth;
+        const previousDepth = getTaskData(previous).depth;
         const firstDepth = tasks[0].depth;
         return firstDepth <= previousDepth;
       };
