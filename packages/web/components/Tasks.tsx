@@ -171,9 +171,7 @@ const Tasks: React.FunctionComponent = () => {
     );
   };
 
-  const withChildren = (callback: (tasks: TaskDataWithKey[]) => void) => (
-    tasks: TaskDataWithKey[],
-  ) => {
+  const tasksWithChildren = (tasks: TaskDataWithKey[]) => {
     // Ensure dedupe via Map.
     const map: Map<string, TaskDataWithKey> = new Map();
     tasks.forEach(task => map.set(task.key, task));
@@ -202,19 +200,53 @@ const Tasks: React.FunctionComponent = () => {
       });
     });
 
-    callback([...map.values()]);
+    return [...map.values()];
   };
 
-  const toggleTasks = withChildren((tasks: TaskDataWithKey[]) => {
+  const toggleTasks = (tasks: TaskDataWithKey[]) => {
+    tasks = tasksWithChildren(tasks);
     const allCompleted = !tasks.some(task => !task.completed);
     const completedTasks = tasks.map(task => ({
       ...task,
       completed: allCompleted ? false : true,
     }));
     setNodesData(completedTasks);
-  });
+  };
 
-  const handleKeyDown: KeyboardEventHook = (event, editor, next) => {
+  const indentTasks = (
+    event: KeyboardEvent,
+    isTab: boolean,
+    tasks: TaskDataWithKey[],
+  ) => {
+    const editor = getEditor();
+    const firstTask = tasks[0];
+    tasks = tasksWithChildren(tasks);
+    const canTab = () => {
+      const taskIndex = getTaskIndex(firstTask.key);
+      if (taskIndex === 0) return false;
+      const previous = editor.value.document.nodes.get(taskIndex - 1);
+      if (previous == null) return false;
+      const previousDepth = getTaskData(previous).depth;
+      const firstDepth = tasks[0].depth;
+      return firstDepth <= previousDepth;
+    };
+    const canShiftTab = () => {
+      return !tasks.some(task => task.depth === 0);
+    };
+    const canChangeDepth = isTab ? canTab() : canShiftTab();
+    if (!canChangeDepth) {
+      event.preventDefault();
+      return;
+    }
+    event.preventDefault();
+    const changedTasks = tasks.map(task => ({
+      ...task,
+      depth: task.depth + (isTab ? 1 : -1),
+    }));
+    setNodesData(changedTasks);
+  };
+
+  const handleKeyDown: KeyboardEventHook = (event, _editor, next) => {
     if (isHotkey('alt+enter')(event)) {
       event.preventDefault();
       toggleTasks(getSelectedTasks());
@@ -225,28 +257,7 @@ const Tasks: React.FunctionComponent = () => {
     const isShiftTab = isHotkey('shift+tab')(event);
     if (isTab || isShiftTab) {
       const tasks = getSelectedTasks();
-      if (tasks.length === null) return next();
-      const canTab = () => {
-        const taskIndex = getTaskIndex(tasks[0].key);
-        if (taskIndex === 0) return false;
-        const previous = editor.value.document.nodes.get(taskIndex - 1);
-        if (previous == null) return false;
-        const previousDepth = getTaskData(previous).depth;
-        const firstDepth = tasks[0].depth;
-        return firstDepth <= previousDepth;
-      };
-      const canShiftTab = () => !tasks.some(task => task.depth === 0);
-      const canChangeDepth = isTab ? canTab() : canShiftTab();
-      if (!canChangeDepth) {
-        event.preventDefault();
-        return;
-      }
-      event.preventDefault();
-      const changedTasks = tasks.map(task => ({
-        ...task,
-        depth: task.depth + (isTab ? 1 : -1),
-      }));
-      setNodesData(changedTasks);
+      indentTasks(event, isTab, tasks);
       return;
     }
 
