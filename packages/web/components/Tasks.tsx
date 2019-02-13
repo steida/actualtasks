@@ -106,7 +106,7 @@ const Task: React.FunctionComponent<TaskProps> = props => {
 
 const Tasks: React.FunctionComponent = () => {
   const [storageTasks, setStorageTasks] = useLocalStorage('tasks', true);
-  const { focusHeader } = React.useContext(LayoutContext);
+  const { focusLayoutBody } = React.useContext(LayoutContext);
 
   const initialState = () => {
     // For SSR.
@@ -305,7 +305,7 @@ const Tasks: React.FunctionComponent = () => {
 
     switch (event.key) {
       case 'Escape': {
-        focusHeader();
+        focusLayoutBody();
         event.preventDefault();
         return;
       }

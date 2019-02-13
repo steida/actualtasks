@@ -12,11 +12,11 @@ import Link from './Link';
 let initialRender = true;
 
 interface LayoutContextType {
-  focusHeader: () => void;
+  focusLayoutBody: () => void;
 }
 
 export const LayoutContext = React.createContext<LayoutContextType>({
-  focusHeader: () => {
+  focusLayoutBody: () => {
     throw new Error('No LayoutContext.Provider');
   },
 });
@@ -82,15 +82,9 @@ const Layout: React.FunctionComponent<LayoutProps> = props => {
     layoutBodyRef.current.focus();
   };
 
-  const focusHeader = () => {
-    // Assuming the header is first focusable element in document.
-    const focusable: HTMLElement | null = document.querySelector(
-      '[data-focusable]',
-    );
-    // TODO: Investigate why first focus will not show outline. It's probably
-    // something related to RNW. Maybe it's feature. User using key navigation
-    // solely will not run over it anyway.
-    if (focusable) focusable.focus();
+  const focusLayoutBody = () => {
+    if (!layoutBodyRef.current) return;
+    layoutBodyRef.current.focus();
   };
 
   return (
@@ -100,7 +94,7 @@ const Layout: React.FunctionComponent<LayoutProps> = props => {
         <meta name="theme-color" content={htmlBackgroundColor} />
         <style>{` html { background-color: ${htmlBackgroundColor} } `}</style>
       </Head>
-      <LayoutContext.Provider value={{ focusHeader }}>
+      <LayoutContext.Provider value={{ focusLayoutBody }}>
         <View style={theme.layout}>
           <View style={theme.layoutContainer}>
             <LayoutHeader />
