@@ -1,8 +1,8 @@
+import produce from 'immer';
 import React from 'react';
 import AppStateContext, {
   AppStateContextType,
   Callback,
-  Unsubscribe,
 } from './AppStateContext';
 
 // TODO: Use mweststrate/immer for app state. We will get changesets for free!
@@ -22,28 +22,31 @@ interface AppStateProviderProps {
 const AppStateProvider: React.FunctionComponent<
   AppStateProviderProps
 > = props => {
-  const [appState] = React.useState(() => {
-    return props.config.migrations.reduce(
+  const appStateRef = React.useRef<object | null>(null);
+  const { current: callbacks } = React.useRef<Callback[]>([]);
+
+  const getAppState = () => {
+    const state = appStateRef.current;
+    if (state != null) return state;
+    return (appStateRef.current = props.config.migrations.reduce(
       (state, migration) => migration(state),
       {},
-    );
-  });
-  const callbacks = React.useRef<Callback[]>([]);
+    ));
+  };
 
-  // Always the same value, so Context consumers should not be updated on change.
+  // Always the same value, so Context consumers will not be updated on
+  // appState change. We use subscribed callbacks instead.
   const context = React.useRef<AppStateContextType>({
-    getAppState() {
-      return appState;
-    },
-    subscribe(callback: Callback): Unsubscribe {
-      callbacks.current.push(callback);
+    getAppState,
+    subscribe(callback) {
+      callbacks.push(callback);
       return () => {
-        callbacks.current.splice(callbacks.current.indexOf(callback), 1);
+        callbacks.splice(callbacks.indexOf(callback), 1);
       };
     },
-    setAppState() {
-      // Tady pouzit immer, ok.
-      //
+    setAppState(callback) {
+      appStateRef.current = produce(getAppState(), callback);
+      callbacks.forEach(callback => callback());
     },
   });
 

@@ -1,17 +1,17 @@
 interface User {
-  email: string;
-  darkMode: boolean;
+  readonly email: string;
+  readonly darkMode: boolean;
 }
 
 export interface AppState1 {
-  users: User[];
-  viewer: User;
+  readonly users: User[];
+  readonly viewer: User;
 }
 
 export interface AppState2 {
-  users: User[];
-  viewer: User;
-  fok: string;
+  readonly users: User[];
+  readonly viewer: User;
+  readonly fok: string;
 }
 
 export type AppState = AppState2;
