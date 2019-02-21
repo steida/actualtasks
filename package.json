@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "wsrun dev",
+    "dev": "wsrun --exclude-missing dev",
     "deps": "rimraf 'yarn.lock' 'node_modules' '**/node_modules' && yarn",
     "lint": "tslint -p .",
     "lint:fix": "yarn lint --fix",

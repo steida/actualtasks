@@ -1,3 +1,5 @@
+import appStateConfig from '@app/shared/appStateConfig';
+import { AppStateProvider } from '@app/shared/lib/appstate';
 import App, { Container } from 'next/app';
 import React from 'react';
 import { defineMessages, IntlProvider } from 'react-intl';
@@ -15,19 +17,6 @@ export type AppHref =
   | 'https://github.com/steida/actualtasks'
   | 'https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3'
   | '/me';
-
-// Page titles can not be collocated within pages because that would defeat
-// code splitting. One nav component would import many whole pages.
-export const pageTitles = defineMessages({
-  index: {
-    defaultMessage: 'Actual Tasks',
-    id: 'pageTitles.index',
-  },
-  me: {
-    defaultMessage: 'Me',
-    id: 'pageTitles.me',
-  },
-});
 
 interface MyAppProps {
   initialNow: number;
@@ -64,26 +53,41 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
 
     return (
       <Container>
-        <WasRendered.Provider value={wasRendered}>
-          <IntlProvider
-            locale="en"
-            initialNow={initialNow}
-            textComponent={React.Fragment}
-          >
-            <IntlProviderFix>
-              {intl => (
-                <ThemeConsumer>
-                  {theme => (
-                    <AppContext.Provider value={{ intl, theme }}>
-                      <Page {...pageProps} />
-                    </AppContext.Provider>
-                  )}
-                </ThemeConsumer>
-              )}
-            </IntlProviderFix>
-          </IntlProvider>
-        </WasRendered.Provider>
+        <AppStateProvider config={appStateConfig}>
+          <WasRendered.Provider value={wasRendered}>
+            <IntlProvider
+              locale="en"
+              initialNow={initialNow}
+              textComponent={React.Fragment}
+            >
+              <IntlProviderFix>
+                {intl => (
+                  <ThemeConsumer>
+                    {theme => (
+                      <AppContext.Provider value={{ intl, theme }}>
+                        <Page {...pageProps} />
+                      </AppContext.Provider>
+                    )}
+                  </ThemeConsumer>
+                )}
+              </IntlProviderFix>
+            </IntlProvider>
+          </WasRendered.Provider>
+        </AppStateProvider>
       </Container>
     );
   }
 }
+
+// Page titles can not be collocated within pages because that would defeat
+// code splitting. One nav component would import many whole pages.
+export const pageTitles = defineMessages({
+  index: {
+    defaultMessage: 'Actual Tasks',
+    id: 'pageTitles.index',
+  },
+  me: {
+    defaultMessage: 'Me',
+    id: 'pageTitles.me',
+  },
+});

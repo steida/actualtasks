@@ -24,7 +24,7 @@ module.exports = withCustomBabelConfig(
           },
         },
         target: 'serverless',
-        transpileModules: ['@actualtasks'],
+        transpileModules: ['@app'],
       }),
     ),
   ),

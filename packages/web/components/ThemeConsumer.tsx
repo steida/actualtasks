@@ -1,5 +1,5 @@
 import React from 'react';
-import useLocalStorage from '../hooks/useLocalStorage';
+import useAppState from '../hooks/useAppState';
 import darkTheme from '../themes/dark';
 import lightTheme, { Theme } from '../themes/light';
 
@@ -8,8 +8,8 @@ interface ThemeConsumer {
 }
 
 const ThemeConsumer: React.FunctionComponent<ThemeConsumer> = props => {
-  const [darkMode] = useLocalStorage('darkMode');
-  return props.children(darkMode ? darkTheme : lightTheme);
+  const [viewer] = useAppState(state => state.viewer);
+  return props.children(viewer.darkMode ? darkTheme : lightTheme);
 };
 
 export default ThemeConsumer;

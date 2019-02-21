@@ -5,7 +5,7 @@ import { findNodeHandle, StyleSheet, Text, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import Gravatar from '../components/Gravatar';
 import useAppContext from '../hooks/useAppContext';
-import useLocalStorage from '../hooks/useLocalStorage';
+import useAppState from '../hooks/useAppState';
 import { AppHref } from '../pages/_app';
 import Link from './Link';
 
@@ -23,19 +23,19 @@ export const LayoutContext = React.createContext<LayoutContextType>({
 
 const LayoutHeader = withRouter(({ router }) => {
   const { theme } = useAppContext();
-  const [storageEmail] = useLocalStorage('email');
+  const [viewer] = useAppState(state => state.viewer);
   const personHref: AppHref =
     router && router.pathname === '/' ? '/me' : { pathname: '/' };
 
-  const email = isEmail(storageEmail) ? storageEmail : '';
+  const displayEmail = isEmail(viewer.email) ? viewer.email : '';
 
   return (
     <View style={[theme.layoutHeader, theme.marginStartAuto]}>
       <Text style={theme.text}>
         <Link prefetch href={personHref}>
-          {email ? (
+          {displayEmail ? (
             <Gravatar
-              email={email}
+              email={displayEmail}
               inline
               rounded
               size={StyleSheet.flatten(theme.text).lineHeight}

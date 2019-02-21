@@ -5,7 +5,8 @@ export const name = 'dark';
 
 const darkColors = {
   ...colors,
-  background: '#343a40',
+  background: '#362714', // from VSCode Kimbie Dark
+  // background: '#343a40',
   foreground: '#ffffff',
 };
 

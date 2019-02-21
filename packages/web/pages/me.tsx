@@ -6,8 +6,23 @@ import Button from '../components/Button';
 import Layout from '../components/Layout';
 import Link from '../components/Link';
 import useAppContext from '../hooks/useAppContext';
-import useLocalStorage from '../hooks/useLocalStorage';
+import useAppState from '../hooks/useAppState';
 import { pageTitles } from './_app';
+
+const DarkModeButton: React.FunctionComponent = () => {
+  const [viewer, setAppState] = useAppState(state => state.viewer);
+  const emoji = viewer.darkMode ? '🌛' : '🌤';
+  const toggleViewerDarkMode = () => {
+    setAppState(({ viewer }) => {
+      viewer.darkMode = !viewer.darkMode;
+    });
+  };
+  return (
+    <Button big onPress={toggleViewerDarkMode}>
+      {emoji}
+    </Button>
+  );
+};
 
 const Footer: React.FunctionComponent = () => {
   const { theme } = useAppContext();
@@ -30,27 +45,29 @@ const Footer: React.FunctionComponent = () => {
 const Me: React.FunctionComponent = () => {
   const { intl, theme } = useAppContext();
   const title = intl.formatMessage(pageTitles.me);
-  const [darkMode, setDarkMode] = useLocalStorage('darkMode');
-  const [email, setEmail] = useLocalStorage('email');
-  const emoji = darkMode ? '🌛' : '🌤';
-  const labelIsValid = email === '' || isEmail(email);
+  const [viewer, setAppState] = useAppState(state => state.viewer);
+  const setViewerEmail = (email: string) => {
+    setAppState(({ viewer }) => {
+      viewer.email = email;
+    });
+  };
+
+  const labelIsValid = viewer.email === '' || isEmail(viewer.email);
 
   return (
     <Layout title={title}>
       <View style={theme.flex1}>
         <View style={theme.buttons}>
-          <Button big onPress={() => setDarkMode(!darkMode)}>
-            {emoji}
-          </Button>
+          <DarkModeButton />
         </View>
         <Text style={[theme.label, !labelIsValid && theme.labelInvalid]}>
           <FormattedMessage defaultMessage="Your email" id="yourEmail" />
         </Text>
         <TextInput
           keyboardType="email-address"
-          onChangeText={text => setEmail(text)}
+          onChangeText={text => setViewerEmail(text)}
           style={theme.textInputOutline}
-          value={email}
+          value={viewer.email}
         />
       </View>
       <Footer />

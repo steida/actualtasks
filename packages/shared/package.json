@@ -1,0 +1,14 @@
+{
+  "name": "@app/shared",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@types/react": "^16.8.4",
+    "@types/react-native": "^0.55.0",
+    "immer": "^2.0.0",
+    "react": "^16.8.2",
+    "react-art": "^16.8.2",
+    "react-dom": "^16.8.2",
+    "react-native-web": "^0.10.0"
+  }
+}
