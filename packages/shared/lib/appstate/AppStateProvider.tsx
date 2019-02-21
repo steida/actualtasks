@@ -7,7 +7,7 @@ import AppStateContext, {
 
 // TODO: Use mweststrate/immer for app state. We will get changesets for free!
 
-type Migrations = Array<(state: object) => object>;
+type Migrations = Array<(() => object) | ((state: any) => object)>;
 
 interface Config {
   name: string;
