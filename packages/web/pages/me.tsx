@@ -10,8 +10,8 @@ import useAppState from '../hooks/useAppState';
 import { pageTitles } from './_app';
 
 const DarkModeButton: React.FunctionComponent = () => {
-  const [viewer, setAppState] = useAppState(state => state.viewer);
-  const emoji = viewer.darkMode ? '🌛' : '🌤';
+  const [darkMode, setAppState] = useAppState(state => state.viewer.darkMode);
+  const emoji = darkMode ? '🌛' : '🌤';
   const toggleViewerDarkMode = () => {
     setAppState(({ viewer }) => {
       viewer.darkMode = !viewer.darkMode;
@@ -21,6 +21,30 @@ const DarkModeButton: React.FunctionComponent = () => {
     <Button big onPress={toggleViewerDarkMode}>
       {emoji}
     </Button>
+  );
+};
+
+const EmailInput: React.FunctionComponent = () => {
+  const { theme } = useAppContext();
+  const [email, setAppState] = useAppState(state => state.viewer.email);
+  const setViewerEmail = (email: string) =>
+    setAppState(({ viewer }) => {
+      viewer.email = email;
+    });
+  const labelIsValid = email === '' || isEmail(email);
+
+  return (
+    <>
+      <Text style={[theme.label, !labelIsValid && theme.labelInvalid]}>
+        <FormattedMessage defaultMessage="Your email" id="yourEmail" />
+      </Text>
+      <TextInput
+        keyboardType="email-address"
+        onChangeText={text => setViewerEmail(text)}
+        style={theme.textInputOutline}
+        value={email}
+      />
+    </>
   );
 };
 
@@ -45,13 +69,6 @@ const Footer: React.FunctionComponent = () => {
 const Me: React.FunctionComponent = () => {
   const { intl, theme } = useAppContext();
   const title = intl.formatMessage(pageTitles.me);
-  const [viewer, setAppState] = useAppState(state => state.viewer);
-  const setViewerEmail = (email: string) =>
-    setAppState(({ viewer }) => {
-      viewer.email = email;
-    });
-
-  const labelIsValid = viewer.email === '' || isEmail(viewer.email);
 
   return (
     <Layout title={title}>
@@ -59,15 +76,7 @@ const Me: React.FunctionComponent = () => {
         <View style={theme.buttons}>
           <DarkModeButton />
         </View>
-        <Text style={[theme.label, !labelIsValid && theme.labelInvalid]}>
-          <FormattedMessage defaultMessage="Your email" id="yourEmail" />
-        </Text>
-        <TextInput
-          keyboardType="email-address"
-          onChangeText={text => setViewerEmail(text)}
-          style={theme.textInputOutline}
-          value={viewer.email}
-        />
+        <EmailInput />
       </View>
       <Footer />
     </Layout>

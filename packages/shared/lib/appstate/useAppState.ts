@@ -10,6 +10,8 @@ const useAppState = <AppState, SelectedState>(
 
   React.useEffect(() => {
     return context.subscribe(() => {
+      // We don't have to memo anything.
+      // https://reactjs.org/docs/hooks-reference.html#bailing-out-of-a-state-update
       setState(getSelectedState());
     });
   }, []);

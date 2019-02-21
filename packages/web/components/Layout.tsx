@@ -21,28 +21,31 @@ export const LayoutContext = React.createContext<LayoutContextType>({
   },
 });
 
+const GravatarFoo: React.FunctionComponent = () => {
+  const { theme } = useAppContext();
+  const [email] = useAppState(state => state.viewer.email);
+  const displayEmail = isEmail(email) ? email : '';
+  if (!displayEmail) return <>{'👤'}</>;
+  return (
+    <Gravatar
+      email={displayEmail}
+      inline
+      rounded
+      size={StyleSheet.flatten(theme.text).lineHeight}
+    />
+  );
+};
+
 const LayoutHeader = withRouter(({ router }) => {
   const { theme } = useAppContext();
-  const [viewer] = useAppState(state => state.viewer);
   const personHref: AppHref =
     router && router.pathname === '/' ? '/me' : { pathname: '/' };
-
-  const displayEmail = isEmail(viewer.email) ? viewer.email : '';
 
   return (
     <View style={[theme.layoutHeader, theme.marginStartAuto]}>
       <Text style={theme.text}>
         <Link prefetch href={personHref}>
-          {displayEmail ? (
-            <Gravatar
-              email={displayEmail}
-              inline
-              rounded
-              size={StyleSheet.flatten(theme.text).lineHeight}
-            />
-          ) : (
-            '👤'
-          )}
+          <GravatarFoo />
         </Link>
       </Text>
     </View>
