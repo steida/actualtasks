@@ -46,11 +46,10 @@ const Me: React.FunctionComponent = () => {
   const { intl, theme } = useAppContext();
   const title = intl.formatMessage(pageTitles.me);
   const [viewer, setAppState] = useAppState(state => state.viewer);
-  const setViewerEmail = (email: string) => {
+  const setViewerEmail = (email: string) =>
     setAppState(({ viewer }) => {
       viewer.email = email;
     });
-  };
 
   const labelIsValid = viewer.email === '' || isEmail(viewer.email);
 
