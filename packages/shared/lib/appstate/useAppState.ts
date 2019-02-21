@@ -3,7 +3,7 @@ import AppStateContext from './AppStateContext';
 
 export type SetAppState<S> = (callback: (state: S) => void) => void;
 
-const useAppState = <SelectedState, AppState>(
+const useAppState = <AppState, SelectedState>(
   selector: (state: AppState) => SelectedState,
 ): [SelectedState, SetAppState<AppState>] => {
   const context = React.useContext(AppStateContext);

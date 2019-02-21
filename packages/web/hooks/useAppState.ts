@@ -10,7 +10,7 @@ import { AppState } from '@app/shared/types';
 const useAppState = <SelectedState>(
   selector: (state: AppState) => SelectedState,
 ): [SelectedState, SetAppState<AppState>] => {
-  return useAppStateLib(selector);
+  return useAppStateLib<AppState, SelectedState>(selector);
 };
 
 export default useAppState;
