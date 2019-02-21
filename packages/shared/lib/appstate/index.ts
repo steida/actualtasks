@@ -1,4 +1,6 @@
 import AppStateProvider from './AppStateProvider';
-import useAppState, { SetAppState } from './useAppState';
+import useAppState from './useAppState';
 
-export { AppStateProvider, SetAppState, useAppState };
+// Do not reexport SetAppState type. Webpack reports false warning.
+
+export { AppStateProvider, useAppState };
