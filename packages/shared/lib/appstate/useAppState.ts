@@ -1,7 +1,5 @@
 import React from 'react';
-import AppStateContext from './AppStateContext';
-
-export type SetAppState<S> = (callback: (state: S) => void) => void;
+import AppStateContext, { SetAppState } from './AppStateContext';
 
 const useAppState = <AppState, SelectedState>(
   selector: (state: AppState) => SelectedState,
