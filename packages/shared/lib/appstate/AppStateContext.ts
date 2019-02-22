@@ -3,7 +3,6 @@ import React from 'react';
 
 // I don't know why state must be any when we use interfaces.
 
-// appState
 export type SetAppState<S = any> = (
   callback: (draft: Draft<S>) => void,
 ) => void;

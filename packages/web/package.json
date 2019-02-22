@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@app/shared": "1.0.0",
+    "immer": "^2.0.0",
     "gravatar": "^1.8.0",
     "immutable": "^3.8.1",
     "is-hotkey": "^0.1.4",
