@@ -71,7 +71,7 @@ const AppStateProvider: React.FunctionComponent<
       if (value == null) return;
       const data: StorageData = JSON.parse(value);
       const state = migrations
-        .slice(data.version - 1)
+        .slice(data.version)
         .reduce((state, migration) => migration(state), data.state);
       setAppStateRef(state);
     } catch (error) {
