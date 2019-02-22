@@ -42,7 +42,7 @@ const AppStateProvider: React.FunctionComponent<
     ));
   };
 
-  // TODO: Something like unique id / email / whatever checker on safe.
+  // TODO: Something like unique id / email / whatever checker on save.
   const save = async () => {
     const state = getAppState();
     const version = migrations.length;
@@ -84,6 +84,25 @@ const AppStateProvider: React.FunctionComponent<
 
   React.useEffect(() => {
     load();
+  }, []);
+
+  const syncStorage = async (event: StorageEvent) => {
+    if (event.key !== name) return;
+    try {
+      const value = await AsyncStorage.getItem(name);
+      const data: StorageData = JSON.parse(value);
+      setAppStateRef(data.state);
+    } catch (error) {
+      // tslint:disable-next-line:no-console
+      console.log(error);
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener('storage', syncStorage);
+    return () => {
+      window.removeEventListener('storage', syncStorage);
+    };
   }, []);
 
   // Always the same value, so Context consumers will not be updated on
