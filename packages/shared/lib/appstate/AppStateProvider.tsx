@@ -42,7 +42,6 @@ const AppStateProvider: React.FunctionComponent<
     ));
   };
 
-  // TODO: Something like unique id / email / whatever checker on save.
   const save = async () => {
     const state = getAppState();
     const version = migrations.length;
