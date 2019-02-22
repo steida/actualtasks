@@ -1,10 +1,10 @@
+import { AppState } from '@app/shared/appStateConfig';
 import { useAppState as useAppStateLib } from '@app/shared/lib/appstate';
 import { SetAppState } from '@app/shared/lib/appState/AppStateContext';
-import { AppState } from '@app/shared/types';
 
-// Make typed useAppState, so we don't have to:
+// Make typed useAppState version, so we don't have to:
 //  - import AppState type everywhere
-//  - define Selected state, because it's inferred.
+//  - define SelectedState, because it's inferred.
 const useAppState = <SelectedState>(
   selector: (state: AppState) => SelectedState,
 ): [SelectedState, SetAppState<AppState>] => {

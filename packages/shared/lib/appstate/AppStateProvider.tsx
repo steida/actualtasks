@@ -1,13 +1,18 @@
 import produce from 'immer';
+import throttle from 'lodash.throttle';
 import React from 'react';
+import { AsyncStorage } from 'react-native';
 import AppStateContext, {
   AppStateContextType,
   Callback,
 } from './AppStateContext';
 
-// TODO: Use mweststrate/immer for app state. We will get changesets for free!
-
 type Migrations = Array<(() => object) | ((state: any) => object)>;
+
+interface StorageData {
+  version: number;
+  state: object;
+}
 
 interface Config {
   name: string;
@@ -22,17 +27,64 @@ interface AppStateProviderProps {
 const AppStateProvider: React.FunctionComponent<
   AppStateProviderProps
 > = props => {
-  const appStateRef = React.useRef<object | null>(null);
+  const { name, migrations } = props.config;
   const { current: callbacks } = React.useRef<Callback[]>([]);
+  const loadedRef = React.useRef(false);
+  const appStateRef = React.useRef<object | null>(null);
 
+  // https://reactjs.org/docs/hooks-faq.html#how-to-create-expensive-objects-lazily
   const getAppState = () => {
     const state = appStateRef.current;
     if (state != null) return state;
-    return (appStateRef.current = props.config.migrations.reduce(
+    return (appStateRef.current = migrations.reduce(
       (state, migration) => migration(state),
       {},
     ));
   };
+
+  // TODO: Something like unique id / email / whatever checker on safe.
+  const save = async () => {
+    const state = getAppState();
+    const version = migrations.length;
+    // Atomic object is easy and solid. For bigger datasets, we can use another
+    // universal (React + React Native) storage like WatermelonDB.
+    const data: StorageData = { version, state };
+    try {
+      await AsyncStorage.setItem(name, JSON.stringify(data));
+    } catch (error) {
+      // tslint:disable-next-line:no-console
+      console.log(error);
+    }
+  };
+
+  const saveThrottled = React.useMemo(() => throttle(save, 500), []);
+
+  const setAppStateRef = (state: object) => {
+    appStateRef.current = state;
+    callbacks.forEach(callback => callback());
+    saveThrottled();
+  };
+
+  const load = async () => {
+    try {
+      const value = await AsyncStorage.getItem(name);
+      if (value == null) return;
+      const data: StorageData = JSON.parse(value);
+      const state = migrations
+        .slice(data.version - 1)
+        .reduce((state, migration) => migration(state), data.state);
+      setAppStateRef(state);
+    } catch (error) {
+      // tslint:disable-next-line:no-console
+      console.log(error);
+    } finally {
+      loadedRef.current = true;
+    }
+  };
+
+  React.useEffect(() => {
+    load();
+  }, []);
 
   // Always the same value, so Context consumers will not be updated on
   // appState change. We use subscribed callbacks instead.
@@ -45,19 +97,14 @@ const AppStateProvider: React.FunctionComponent<
       };
     },
     setAppState(callback) {
-      appStateRef.current = produce(getAppState(), callback);
-      callbacks.forEach(callback => callback());
+      if (!loadedRef.current)
+        throw Error(
+          'useAppState: setAppState can not be called before state is loaded.',
+        );
+      const nextState = produce(getAppState(), callback);
+      setAppStateRef(nextState);
     },
   });
-
-  const [wasRendered, setWasRendered] = React.useState(false);
-
-  React.useEffect(() => {
-    // vyvolat migraci globalne jednou, aha, potrebuju ref
-    // co migrace pres taby? co se stane?
-    // const version = props.migrations.length;
-    if (!wasRendered) setWasRendered(true);
-  }, []);
 
   return (
     <AppStateContext.Provider value={context.current}>
