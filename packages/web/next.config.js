@@ -23,7 +23,7 @@ module.exports = withCustomBabelConfig(
             reportFilename: '../../bundles/server.html',
           },
         },
-        target: 'serverless',
+        // target: 'serverless',
         transpileModules: ['@app'],
       }),
     ),
