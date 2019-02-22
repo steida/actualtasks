@@ -1,6 +1,8 @@
 import { AppState } from '@app/shared/appStateConfig';
-import { useAppState as useAppStateLib } from '@app/shared/lib/appstate';
-import { SetAppState } from '@app/shared/lib/appState/AppStateContext';
+import {
+  SetAppState,
+  useAppState as useAppStateLib,
+} from '@app/shared/lib/appstate';
 
 // Make typed useAppState version, so we don't have to:
 //  - import AppState type everywhere
