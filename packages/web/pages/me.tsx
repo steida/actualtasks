@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { defineMessages, FormattedMessage } from 'react-intl';
 import { Text, TextInput, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import Button from '../components/Button';
@@ -8,6 +8,13 @@ import Link from '../components/Link';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import { pageTitles } from './_app';
+
+export const messages = defineMessages({
+  backupAndSync: {
+    defaultMessage: 'Backup and Sync',
+    id: 'backupAndSync',
+  },
+});
 
 const DarkModeButton: React.FunctionComponent = () => {
   const [darkMode, setAppState] = useAppState(state => state.viewer.darkMode);
@@ -36,7 +43,7 @@ const EmailInput: React.FunctionComponent = () => {
   return (
     <>
       <Text style={[theme.label, !labelIsValid && theme.labelInvalid]}>
-        <FormattedMessage defaultMessage="Your email" id="yourEmail" />
+        <FormattedMessage defaultMessage="Email" id="emailLabel" />
       </Text>
       <TextInput
         keyboardType="email-address"
@@ -69,6 +76,7 @@ const Footer: React.FunctionComponent = () => {
 const Me: React.FunctionComponent = () => {
   const { intl, theme } = useAppContext();
   const title = intl.formatMessage(pageTitles.me);
+  const [backAndSyncShown, setBackupAndSyncShown] = React.useState(false);
 
   return (
     <Layout title={title}>
@@ -76,7 +84,27 @@ const Me: React.FunctionComponent = () => {
         <View style={theme.buttons}>
           <DarkModeButton />
         </View>
-        <EmailInput />
+        <View style={theme.buttons}>
+          <Button onPress={() => setBackupAndSyncShown(!backAndSyncShown)}>
+            {intl.formatMessage(messages.backupAndSync)}
+          </Button>
+        </View>
+        {backAndSyncShown && (
+          <View style={theme.marginTop}>
+            <EmailInput />
+            <Text style={[theme.text, theme.marginTop]}>
+              <FormattedMessage
+                defaultMessage="TODO: Explain we don't store nor use email etc."
+                id="syncExplaining"
+              />
+            </Text>
+            <View style={[theme.buttons, theme.marginTop]}>
+              <Button disabled type="primary">
+                {intl.formatMessage(messages.backupAndSync)}
+              </Button>
+            </View>
+          </View>
+        )}
       </View>
       <Footer />
     </Layout>
