@@ -3699,15 +3699,10 @@ next-plugin-custom-babel-config@^1.0.0:
   resolved "https://registry.yarnpkg.com/next-plugin-custom-babel-config/-/next-plugin-custom-babel-config-1.0.0.tgz#053547672c26431a9884342238ebb9acab54c77c"
   integrity sha512-jJZOfR1oJPBZG+1iX3Ae7Rzc3tGvABIwlXNg/dzvsLh/4ENdAqojHDpdA5297ENZyCBJ6kHgjBXnxt3tpZZGvg==
 
-next-plugin-transpile-modules@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/next-plugin-transpile-modules/-/next-plugin-transpile-modules-2.0.0.tgz#8632683f0f04fbc776ce80c6cc62bb5c6694661d"
-  integrity sha512-9vI7/OvBlu6f/cwzNdBDKxmY2Zc4Jr8hRy59exkXWwF22LUIZrEa0D7qhqWahAhbMibMGMMsX9GeUuOXKcG9/Q==
-
-next-server@8.0.2:
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/next-server/-/next-server-8.0.2.tgz#b93797ec6b0ba5ac360c57a33a185967191156df"
-  integrity sha512-OODyysPPJY4f8Oy60+y1ALe4DODZofEGGZGoGkVbYDVddz70H5GRFhcYdmsd/0x/lrhSXs8V4LrFTpntMKSmcA==
+next-server@8.0.3:
+  version "8.0.3"
+  resolved "https://registry.yarnpkg.com/next-server/-/next-server-8.0.3.tgz#47c5ad0317cd712f5ad8d35d817ad0668b7341cc"
+  integrity sha512-SuxJEY2TTECloHU1zn7xfOtm6Jnc3F6T6QxkT82BFbSIaPA2jEMLLBys8ov7eMpiTIQ8H6F5Y0stNsZSYSZczg==
   dependencies:
     etag "1.8.1"
     find-up "3.0.0"
@@ -3717,10 +3712,15 @@ next-server@8.0.2:
     send "0.16.1"
     url "0.11.0"
 
+next-transpile-modules@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/next-transpile-modules/-/next-transpile-modules-2.0.0.tgz#ecbac0a5ad97ec7c0f47326bcdb64b6e11cf445c"
+  integrity sha512-W+jV3Kg+bLmGbntYfrGBloiV+ABOXt+GMI2aIUcM29yaPVDsIn2vWoyH6PA2ZXXgILm7xmyPfi30/0idbAmsaA==
+
 next@^8.0.0:
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/next/-/next-8.0.2.tgz#d50b5233e813dc39d43239158981892a7fefbfe4"
-  integrity sha512-qHs/IhfJK58CWfUlWKDpoDV7UjI36ebk1tdnnSY0jhSqH0EhB2PjXfuvcdpd9RoaA3kvbsZ6Ip+KxxSHhEvG/g==
+  version "8.0.3"
+  resolved "https://registry.yarnpkg.com/next/-/next-8.0.3.tgz#7f27172e9441aacb21b04aaaaa663af43aceea3b"
+  integrity sha512-Q4GHUZPzQrjBAWPOBBbWVlKUj9XPc/OsLc7svEXG+c/k9K9piQHDewtI9g4jQPAQlKOqt9BcRk8s5teV4SFPfQ==
   dependencies:
     "@babel/core" "7.1.2"
     "@babel/plugin-proposal-class-properties" "7.1.0"
@@ -3733,7 +3733,6 @@ next@^8.0.0:
     "@babel/runtime" "7.1.2"
     "@babel/runtime-corejs2" "7.1.2"
     "@babel/template" "7.1.2"
-    ansi-html "0.0.7"
     arg "3.0.0"
     async-sema "2.1.4"
     autodll-webpack-plugin "0.4.2"
@@ -3757,7 +3756,7 @@ next@^8.0.0:
     loader-utils "1.1.0"
     mkdirp-then "1.2.0"
     nanoid "1.2.1"
-    next-server "8.0.2"
+    next-server "8.0.3"
     prop-types "15.6.2"
     prop-types-exact "1.2.0"
     react-error-overlay "4.0.0"
