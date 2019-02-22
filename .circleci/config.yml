@@ -6,5 +6,5 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-      - run: npm i -g yarn && yarn
+      - run: yarn
       - run: yarn test
