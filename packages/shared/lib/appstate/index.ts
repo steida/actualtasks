@@ -1,10 +1,9 @@
-import { SetAppState as SetAppState_ } from './AppStateContext';
+import { SetAppState } from './AppStateContext';
 import AppStateProvider from './AppStateProvider';
 import useAppState from './useAppState';
 
-export type SetAppState<S> = SetAppState_<S>;
-
-// hmm, s tim je neco spatne, bude uz fungovat?
-// Do not reexport SetAppState type. Webpack reports false warning.
+// That's how we have to reexport types.
+// https://github.com/babel/babel-loader/issues/603#issuecomment-399293448
+export type SetAppState<S> = SetAppState<S>;
 
 export { AppStateProvider, useAppState };
