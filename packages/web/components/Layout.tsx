@@ -22,7 +22,7 @@ export const LayoutContext = React.createContext<LayoutContextType>({
   },
 });
 
-const GravatarFoo: React.FunctionComponent = () => {
+const ViewerGravatar: React.FunctionComponent = () => {
   const { theme } = useAppContext();
   const [email] = useAppState(state => state.viewer.email);
   const displayEmail = isEmail(email) ? email : '';
@@ -46,7 +46,7 @@ const LayoutHeader = withRouter(({ router }) => {
     <View style={[theme.layoutHeader, theme.marginStartAuto]}>
       <Text style={theme.text}>
         <Link prefetch href={personHref}>
-          <GravatarFoo />
+          <ViewerGravatar />
         </Link>
       </Text>
     </View>
@@ -96,7 +96,7 @@ const Layout: React.FunctionComponent<LayoutProps> = props => {
       <Head>
         <title>{props.title}</title>
         <meta name="theme-color" content={htmlBackgroundColor} />
-        <style>{` html { background-color: ${htmlBackgroundColor} } `}</style>
+        <style>{`html { background-color: ${htmlBackgroundColor} } `}</style>
       </Head>
       <LayoutContext.Provider value={{ focusLayoutBody }}>
         <View style={theme.layout}>
