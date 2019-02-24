@@ -12,7 +12,7 @@
     "analyze:browser": "BUNDLE_ANALYZE=browser next build"
   },
   "dependencies": {
-    "@app/shared": "1.0.0",
+    "@app/state": "1.0.0",
     "immer": "^2.0.0",
     "gravatar": "^1.8.0",
     "immutable": "^3.8.1",

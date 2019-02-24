@@ -1,5 +1,5 @@
 {
-  "name": "@app/shared",
+  "name": "@app/state",
   "version": "1.0.0",
   "private": true,
   "dependencies": {

@@ -1,5 +1,5 @@
-import appStateConfig from '@app/shared/appStateConfig';
-import { AppStateProvider } from '@app/shared/lib/appstate';
+import appStateConfig from '@app/state/appStateConfig';
+import { AppStateProvider } from '@app/state/lib/appstate';
 import App, { Container } from 'next/app';
 import React from 'react';
 import { defineMessages, IntlProvider } from 'react-intl';
