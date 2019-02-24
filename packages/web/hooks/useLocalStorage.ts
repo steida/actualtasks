@@ -1,3 +1,4 @@
+/* eslint-disable */
 import throttle from 'lodash.throttle';
 import React, { Dispatch, SetStateAction, useContext } from 'react';
 import WasRenderedContext from '../contexts/WasRenderedContext';
@@ -7,7 +8,7 @@ type Key = 'darkMode' | 'tasks' | 'email' | 'version';
 type DarkMode = boolean;
 
 interface TaskText {
-  leaves: Array<{ text: string }>;
+  leaves: { text: string }[];
   object: 'text';
 }
 
@@ -49,9 +50,7 @@ type Value<K extends Key> = K extends 'darkMode'
 const storageVersion = 1;
 const storageKey = (key: string) => `actualtasks-${storageVersion}-${key}`;
 
-const setValues: {
-  [key in Key]: Array<Dispatch<SetStateAction<Value<Key>>>>
-} = {
+const setValues: { [key in Key]: Dispatch<SetStateAction<Value<Key>>>[] } = {
   darkMode: [],
   email: [],
   tasks: [],
@@ -185,7 +184,12 @@ const useLocalStorage = <K extends Key>(
     return () => {
       setValues[key].splice(setValues[key].indexOf(setValue), 1);
     };
-  }, []);
+  }, [
+    key,
+    maybeLoadValueFromStorage,
+    maybeMigrateLocalStorageData,
+    wasRendered,
+  ]);
 
   const syncLocalStorage = (event: StorageEvent) => {
     if (event.key === storageKey(key)) {
@@ -198,7 +202,7 @@ const useLocalStorage = <K extends Key>(
     return () => {
       window.removeEventListener('storage', syncLocalStorage);
     };
-  }, []);
+  }, [syncLocalStorage]);
 
   const set = (value: Value<K>) => {
     setStorageItemThrottled(key, value);

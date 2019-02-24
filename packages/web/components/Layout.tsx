@@ -1,12 +1,13 @@
+/* eslint-env browser */
 import Head from 'next/head';
 import { withRouter } from 'next/router';
 import React from 'react';
 import { findNodeHandle, StyleSheet, Text, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
-import Gravatar from '../components/Gravatar';
+import Gravatar from './Gravatar';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
-import { AppHref } from '../pages/_app';
+import { AppHref } from '../types';
 import Link from './Link';
 
 let initialRender = true;
@@ -25,7 +26,7 @@ const GravatarFoo: React.FunctionComponent = () => {
   const { theme } = useAppContext();
   const [email] = useAppState(state => state.viewer.email);
   const displayEmail = isEmail(email) ? email : '';
-  if (!displayEmail) return <>{'👤'}</>;
+  if (!displayEmail) return <>👤</>;
   return (
     <Gravatar
       email={displayEmail}
@@ -63,10 +64,6 @@ const Layout: React.FunctionComponent<LayoutProps> = props => {
   }, [theme.layout]);
   const layoutBodyRef = React.useRef<View>(null);
 
-  React.useEffect(() => {
-    maybeFocusLayoutBody();
-  }, []);
-
   // https://medium.com/@robdel12/single-page-apps-routers-are-broken-255daa310cf
   // Useful for accessibility and key navigation.
   const maybeFocusLayoutBody = () => {
@@ -84,6 +81,10 @@ const Layout: React.FunctionComponent<LayoutProps> = props => {
     layoutBodyRef.current.setNativeProps({ style: { outline: 'none' } });
     layoutBodyRef.current.focus();
   };
+
+  React.useEffect(() => {
+    maybeFocusLayoutBody();
+  }, [maybeFocusLayoutBody]);
 
   const focusLayoutBody = () => {
     if (!layoutBodyRef.current) return;

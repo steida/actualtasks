@@ -22,18 +22,18 @@ interface TaskList1 {
   name: string;
   slate: {
     document: {
-      nodes: Array<{
+      nodes: {
         data: {
           completed: boolean;
           depth: number;
         };
-        nodes: Array<{
-          leaves: Array<{ text: string }>;
+        nodes: {
+          leaves: { text: string }[];
           object: 'text';
-        }>;
+        }[];
         object: 'block';
         type: 'task';
-      }>;
+      }[];
     };
   };
 }

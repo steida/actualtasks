@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { isHotkey } from 'is-hotkey';
 import React from 'react';
 import { StyleProp, Text, View, ViewStyle } from 'react-native';
@@ -6,7 +7,7 @@ import { createElement } from 'react-native-web';
 import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
 import { Editor, RenderNodeProps } from 'slate-react';
 import { Overwrite } from 'utility-types';
-import { LayoutContext } from '../components/Layout';
+import { LayoutContext } from './Layout';
 import useAppContext from '../hooks/useAppContext';
 import useLocalStorage, { TaskData, taskType } from '../hooks/useLocalStorage';
 

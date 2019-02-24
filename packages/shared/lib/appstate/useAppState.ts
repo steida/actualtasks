@@ -14,7 +14,7 @@ const useAppState = <AppState, SelectedState>(
       // https://reactjs.org/docs/hooks-reference.html#bailing-out-of-a-state-update
       setState(getSelectedState());
     });
-  }, []);
+  }, [context, getSelectedState]);
 
   return [state, context.setAppState];
 };

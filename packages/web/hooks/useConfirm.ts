@@ -12,6 +12,7 @@ const useConfirm = () => {
   const { intl } = useAppContext();
 
   const confirm = () => {
+    // eslint-disable-next-line
     return window.confirm(intl.formatMessage(messages.areYouSure));
   };
 

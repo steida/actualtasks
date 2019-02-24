@@ -7,7 +7,7 @@ import AppStateContext, {
   Callback,
 } from './AppStateContext';
 
-type Migrations = Array<(() => object) | ((state: any) => object)>;
+type Migrations = ((() => object) | ((state: any) => object))[];
 
 interface StorageData {
   version: number;
@@ -51,12 +51,12 @@ const AppStateProvider: React.FunctionComponent<
     try {
       await AsyncStorage.setItem(name, JSON.stringify(data));
     } catch (error) {
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };
 
-  const saveThrottled = React.useMemo(() => throttle(save, 500), []);
+  const saveThrottled = React.useMemo(() => throttle(save, 500), [save]);
 
   const setAppStateRef = (state: object) => {
     appStateRef.current = state;
@@ -74,7 +74,7 @@ const AppStateProvider: React.FunctionComponent<
         .reduce((state, migration) => migration(state), data.state);
       setAppStateRef(state);
     } catch (error) {
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loadedRef.current = true;
@@ -83,7 +83,7 @@ const AppStateProvider: React.FunctionComponent<
 
   React.useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   const syncStorage = async (event: StorageEvent) => {
     if (event.key !== name) return;
@@ -92,17 +92,20 @@ const AppStateProvider: React.FunctionComponent<
       const data: StorageData = JSON.parse(value);
       setAppStateRef(data.state);
     } catch (error) {
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.log(error);
     }
   };
 
   React.useEffect(() => {
-    window.addEventListener('storage', syncStorage);
+    const isBrowser = typeof window !== 'undefined';
+    // eslint-disable-next-line no-undef
+    if (isBrowser) window.addEventListener('storage', syncStorage);
     return () => {
-      window.removeEventListener('storage', syncStorage);
+      // eslint-disable-next-line no-undef
+      if (isBrowser) window.removeEventListener('storage', syncStorage);
     };
-  }, []);
+  }, [syncStorage]);
 
   // Always the same value, so Context consumers will not be updated on
   // appState change. We use subscribed callbacks instead.
