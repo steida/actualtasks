@@ -1,6 +1,6 @@
 import React from 'react';
 import { InjectedIntl } from 'react-intl';
-import { Theme } from '../themes/light';
+import { Theme } from '@app/themes/lightTheme';
 
 interface AppContext {
   intl: InjectedIntl;

@@ -1,7 +1,7 @@
 import React from 'react';
+import lightTheme, { Theme } from '@app/themes/lightTheme';
+import darkTheme from '@app/themes/darkTheme';
 import useAppState from '../hooks/useAppState';
-import darkTheme from '../themes/dark';
-import lightTheme, { Theme } from '../themes/light';
 
 interface ThemeConsumer {
   children: (theme: Theme) => React.ReactElement<any>;
@@ -9,7 +9,8 @@ interface ThemeConsumer {
 
 const ThemeConsumer: React.FunctionComponent<ThemeConsumer> = props => {
   const [darkMode] = useAppState(state => state.viewer.darkMode);
-  return props.children(darkMode ? darkTheme : lightTheme);
+  const theme = darkMode ? darkTheme : lightTheme;
+  return props.children(theme);
 };
 
 export default ThemeConsumer;

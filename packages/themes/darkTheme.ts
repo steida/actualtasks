@@ -1,7 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, createTheme, dimensions } from './light';
-
-export const name = 'dark';
+import { colors, LightTheme, dimensions } from './lightTheme';
 
 const darkColors = {
   ...colors,
@@ -10,6 +8,6 @@ const darkColors = {
   foreground: '#ffffff',
 };
 
-const theme = StyleSheet.create(createTheme(darkColors, dimensions));
+const darkTheme = StyleSheet.create(new LightTheme(darkColors, dimensions));
 
-export default theme;
+export default darkTheme;
