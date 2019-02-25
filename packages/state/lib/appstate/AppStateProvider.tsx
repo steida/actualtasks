@@ -89,6 +89,7 @@ const AppStateProvider: React.FunctionComponent<
     if (event.key !== name) return;
     try {
       const value = await AsyncStorage.getItem(name);
+      if (value == null) return;
       const data: StorageData = JSON.parse(value);
       setAppStateRef(data.state);
     } catch (error) {
@@ -99,11 +100,13 @@ const AppStateProvider: React.FunctionComponent<
 
   React.useEffect(() => {
     const isBrowser = typeof window !== 'undefined';
+    if (!isBrowser) return;
     // eslint-disable-next-line no-undef
-    if (isBrowser) window.addEventListener('storage', syncStorage);
+    window.addEventListener('storage', syncStorage);
+    // eslint-disable-next-line consistent-return
     return () => {
       // eslint-disable-next-line no-undef
-      if (isBrowser) window.removeEventListener('storage', syncStorage);
+      window.removeEventListener('storage', syncStorage);
     };
   }, [syncStorage]);
 

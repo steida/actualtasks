@@ -42,13 +42,13 @@ const Link: React.FunctionComponent<LinkProps> = props => {
   return (
     <NextLink {...rest} href={href} passHref>
       <Text
+        accessibilityRole="link"
         style={[
           style || theme.link,
           (isActive || routeIsActive()) && (activeStyle || theme.linkActive),
         ]}
         {...Platform.select({
           web: {
-            accessibilityRole: 'link',
             onMouseEnter: () => setIsActive(true),
             onMouseLeave: () => setIsActive(false),
           },

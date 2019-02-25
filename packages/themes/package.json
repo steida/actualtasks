@@ -6,6 +6,6 @@
     "react-native-web": "^0.10.0"
   },
   "devDependencies": {
-    "@types/react-native": "^0.55.28"
+    "@types/react-native": "^0.57.38"
   }
 }
