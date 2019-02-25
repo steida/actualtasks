@@ -1,0 +1,11 @@
+{
+  "name": "@app/validators",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "validator": "^10.11.0"
+  },
+  "devDependencies": {
+    "@types/validator": "^10.9.0"
+  }
+}
