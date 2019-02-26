@@ -10,6 +10,7 @@ import { AppRegistry } from 'react-native';
 // Force Next-generated DOM elements to fill their parent's height.
 // Disable input and textarea outline because blinking caret is enough.
 // https://github.com/necolas/react-native-web/blob/master/docs/guides/client-side-rendering.md
+// https://github.com/zeit/next.js/blob/canary/examples/with-react-native-web/pages/_document.js
 const globalStyles = `
   #__next{display:flex;flex-direction:column;height:100%}
   input,textarea{outline:none}
@@ -37,14 +38,7 @@ export default class MyDocument extends Document {
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
-        <body
-          style={{
-            height: '100%',
-            // overflow hidden disables browser scroll momentum, which is not
-            // supported in ScrollView yet.
-            // overflow: 'hidden',
-          }}
-        >
+        <body style={{ height: '100%', overflow: 'hidden' }}>
           <Main />
           <NextScript />
         </body>

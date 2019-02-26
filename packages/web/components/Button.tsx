@@ -2,16 +2,19 @@ import React from 'react';
 import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import useAppContext from '../hooks/useAppContext';
 
-type Type = 'text' | 'primary' | 'secondary' | 'danger';
+// This is mess.
+type Type = 'text' | 'primary' | 'secondary' | 'danger' | 'gray';
+
+type Size = 'big' | 'normal' | 'small';
 
 interface ButtonProps extends TouchableOpacityProps {
-  big?: boolean;
+  size?: Size;
   type?: Type;
 }
 
 const Button: React.FunctionComponent<ButtonProps> = props => {
   const { theme } = useAppContext();
-  const { disabled, type = 'text', big = false, ...rest } = props;
+  const { disabled, type = 'text', size = 'normal', ...rest } = props;
 
   const getStyle = (type: Type) => {
     const assertNever = (type: never) => {
@@ -20,6 +23,8 @@ const Button: React.FunctionComponent<ButtonProps> = props => {
     switch (type) {
       case 'text':
         return theme.button;
+      case 'gray':
+        return theme.buttonGray;
       case 'primary':
         return theme.buttonPrimary;
       case 'secondary':
@@ -32,17 +37,13 @@ const Button: React.FunctionComponent<ButtonProps> = props => {
   };
 
   return (
-    <TouchableOpacity
-      disabled={disabled}
-      {...rest}
-      // TODO: With updated RN types. Probably 0.57+
-      // accessibilityRole="button"
-    >
+    <TouchableOpacity disabled={disabled} {...rest} accessibilityRole="button">
       <Text
         style={[
           getStyle(type),
           disabled && theme.buttonDisabled,
-          big && theme.buttonBig,
+          size === 'big' && theme.buttonBig,
+          size === 'small' && theme.buttonSmall,
         ]}
       >
         {props.children}

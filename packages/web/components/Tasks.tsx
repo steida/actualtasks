@@ -83,6 +83,7 @@ const Task: React.FunctionComponent<TaskProps> = props => {
     return data.depth < 0 ? theme.taskDepth0 : theme.taskDepth9;
   };
   const depthStyle = getTaskDepthStyle();
+  // console.log(React.Children.toArray(props.children)[0].props.block.count());
 
   return (
     <View {...props.attributes} style={[theme.task, depthStyle]}>

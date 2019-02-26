@@ -90,9 +90,11 @@ export class LightTheme {
   heading1: TextStyle;
   heading2: TextStyle;
   layout: ViewStyle;
-  layoutContainer: ViewStyle;
   layoutHeader: ViewStyle;
   layoutBody: ViewStyle;
+  layoutScrollView: ViewStyle;
+  layoutScrollViewContainer: ViewStyle;
+  layoutScrollViewSidebar: ViewStyle;
   layoutFooter: ViewStyle;
   layoutFooterText: TextStyle;
   link: TextStyle;
@@ -103,7 +105,9 @@ export class LightTheme {
   row: ViewStyle;
   buttons: ViewStyle;
   button: TextStyle;
+  buttonGray: TextStyle;
   buttonBig: TextStyle;
+  buttonSmall: TextStyle;
   buttonPrimary: TextStyle;
   buttonDanger: TextStyle;
   buttonSecondary: TextStyle;
@@ -129,6 +133,7 @@ export class LightTheme {
   taskDepth9: ViewStyle;
   lineThrough: TextStyle;
   flex1: ViewStyle;
+  sidebar: ViewStyle;
 
   constructor(colors: Colors, dimensions: Dimensions) {
     const typography = createTypography({
@@ -181,42 +186,46 @@ export class LightTheme {
     };
 
     this.layout = {
-      // That's why we have separate layout and layoutContainer.
-      // layoutContainer can have a different bg color than the whole page.
       backgroundColor: colors.background,
-      // minHeight ensures the footer is always at the bottom. Flex 1 can't help,
-      // because we do not use ScrollView. Check _document.tsx overflow comment.
-      minHeight: '100%',
-    };
-
-    this.layoutContainer = {
       flex: 1,
-      marginHorizontal: 'auto',
-      maxWidth: 768,
-      paddingHorizontal: dimensions.spaceSmall,
-      // https://css-tricks.com/tale-width-max-width/
-      width: '100%',
     };
 
     this.layoutHeader = {
+      justifyContent: 'flex-end',
       flexDirection: 'row',
-      paddingVertical: dimensions.space,
+      padding: dimensions.spaceSmall,
     };
 
     this.layoutBody = {
       flex: 1,
-      paddingTop: dimensions.spaceSmall,
+      flexDirection: 'row',
+    };
+
+    this.layoutScrollView = {
+      flex: 1,
+    };
+
+    this.layoutScrollViewContainer = {
+      // It's must to ensure focus outline is visible.
+      padding: dimensions.spaceSmall,
+    };
+
+    this.layoutScrollViewSidebar = {
+      ...this.layoutScrollView,
+      maxWidth: typography.fontSize * 10,
+      paddingStart: dimensions.space,
+      // borderRightWidth: 1,
+      // borderRightColor: colors.grayLight,
     };
 
     this.layoutFooter = {
-      borderTopColor: colors.gray,
-      borderTopWidth: 1,
       paddingVertical: dimensions.spaceSmall,
     };
 
     this.layoutFooterText = {
       ...this.text,
       ...typography.scale(-1),
+      textAlign: 'center',
     };
 
     this.link = {
@@ -265,8 +274,18 @@ export class LightTheme {
       margin: typography.lineHeight / 4,
     };
 
+    this.buttonGray = {
+      ...this.button,
+      color: colors.gray,
+    };
+
     this.buttonBig = {
       ...typography.scale(2),
+    };
+
+    this.buttonSmall = {
+      ...typography.scale(-1),
+      marginVertical: 0,
     };
 
     // Button helper styles. It can be refactored but this is fine enough.
@@ -373,6 +392,21 @@ export class LightTheme {
 
     this.flex1 = {
       flex: 1,
+    };
+
+    this.sidebar = {
+      // paddingHorizontal: dimensions.spaceSmall,
+      // position: 'absolute',
+      // width: 160,
+      // top: 0,
+      // left: -166,
+      // bottom: 0,
+      // paddingVertical: dimensions.spaceSmall,
+      // backgroundColor: '#444',
+      // TODO: Show only when offseted.
+      // borderRightWidth: 1,
+      // borderRightColor: colors.grayLight,
+      // borderRadius: 16,
     };
   }
 }

@@ -76,37 +76,34 @@ const Footer: React.FunctionComponent = () => {
 const Me: React.FunctionComponent = () => {
   const { intl, theme } = useAppContext();
   const title = intl.formatMessage(pageTitles.me);
-  const [backAndSyncShown, setBackupAndSyncShown] = React.useState(false);
+  const [backupAndSyncShown, setBackupAndSyncShown] = React.useState(false);
 
   return (
-    <Layout title={title}>
-      <View style={theme.flex1}>
-        <View style={theme.buttons}>
-          <DarkModeButton />
-        </View>
-        <View style={theme.buttons}>
-          <Button onPress={() => setBackupAndSyncShown(!backAndSyncShown)}>
-            {intl.formatMessage(messages.backupAndSync)}
-          </Button>
-        </View>
-        {backAndSyncShown && (
-          <View style={theme.marginTop}>
-            <EmailInput />
-            <Text style={[theme.text, theme.marginTop]}>
-              <FormattedMessage
-                defaultMessage="TODO: Explain we don't store nor use email etc."
-                id="syncExplaining"
-              />
-            </Text>
-            <View style={[theme.buttons, theme.marginTop]}>
-              <Button disabled type="primary">
-                {intl.formatMessage(messages.backupAndSync)}
-              </Button>
-            </View>
-          </View>
-        )}
+    <Layout title={title} footer={<Footer />}>
+      <View style={theme.buttons}>
+        <DarkModeButton />
       </View>
-      <Footer />
+      <View style={theme.buttons}>
+        <Button onPress={() => setBackupAndSyncShown(!backupAndSyncShown)}>
+          {intl.formatMessage(messages.backupAndSync)}
+        </Button>
+      </View>
+      {backupAndSyncShown && (
+        <View style={theme.marginTop}>
+          <EmailInput />
+          <Text style={[theme.text, theme.marginTop]}>
+            <FormattedMessage
+              defaultMessage="TODO: Explain we don't store nor use email etc."
+              id="syncExplaining"
+            />
+          </Text>
+          <View style={[theme.buttons, theme.marginTop]}>
+            <Button disabled type="primary">
+              {intl.formatMessage(messages.backupAndSync)}
+            </Button>
+          </View>
+        </View>
+      )}
     </Layout>
   );
 };

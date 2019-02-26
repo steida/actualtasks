@@ -79,8 +79,11 @@ module.exports = {
     // Irrelevant.
     'no-plusplus': 'off',
     'no-return-assign': 'off',
+    'consistent-return': 'off',
     // TSC checks it.
     '@typescript-eslint/no-unused-vars': 'off',
+    'no-undef': 'off',
+    'react/jsx-no-undef': 'off',
     // React Hooks.
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
