@@ -7,6 +7,7 @@ import IntlProviderFix from '../components/IntlProviderFix';
 import ThemeConsumer from '../components/ThemeConsumer';
 import AppContext from '../contexts/AppContext';
 import WasRendered from '../contexts/WasRenderedContext';
+import HideBeforeClientIsReady from '../components/HideBeforeClientIsReady';
 
 interface MyAppProps {
   initialNow: number;
@@ -55,7 +56,9 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
                   <ThemeConsumer>
                     {theme => (
                       <AppContext.Provider value={{ intl, theme }}>
-                        <Page {...pageProps} />
+                        <HideBeforeClientIsReady>
+                          <Page {...pageProps} />
+                        </HideBeforeClientIsReady>
                       </AppContext.Provider>
                     )}
                   </ThemeConsumer>
