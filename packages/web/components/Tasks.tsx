@@ -337,12 +337,15 @@ const Tasks: React.FunctionComponent = () => {
     <Editor
       autoCorrect={false}
       // autoFocus // Does not work and we want to restore previous focus anyway.
+      // @ts-ignore
       onChange={handleEditorChange}
       // @ts-ignore Type definitions bug.
       onKeyDown={handleKeyDown}
       ref={editorRef}
+      // @ts-ignore
       renderNode={renderNode}
       spellCheck={false}
+      // @ts-ignore
       value={editorValue}
     />
   );
