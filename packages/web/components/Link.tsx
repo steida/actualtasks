@@ -6,7 +6,7 @@ import { Assign, Omit, Overwrite } from 'utility-types';
 import useAppContext from '../hooks/useAppContext';
 import { AppHref } from '../types';
 
-type LinkProps = Assign<
+export type LinkProps = Assign<
   Overwrite<
     Omit<NextLinkProps, 'passHref'>,
     {

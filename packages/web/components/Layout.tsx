@@ -15,7 +15,7 @@ import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import Link from './Link';
 import useWindowWidth from '../hooks/useWindowWidth';
-import TaskLists from './TaskLists';
+import Menu from './Menu';
 
 let initialRender = true;
 
@@ -100,10 +100,7 @@ const LayoutMenu: FunctionComponent<LayoutMenuProps> = props => {
         },
       ]}
     >
-      <TaskLists />
-      <Link style={[theme.button, theme.buttonSmall]} href="/add">
-        +
-      </Link>
+      <Menu />
     </ScrollView>
   );
 };
