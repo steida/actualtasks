@@ -1,7 +1,7 @@
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
 import { withRouter, WithRouterProps } from 'next/router';
 import React from 'react';
-import { Platform, RegisteredStyle, TextStyle, Text } from 'react-native';
+import { Platform, TextStyle, Text, StyleProp } from 'react-native';
 import { Assign, Omit, Overwrite } from 'utility-types';
 import useAppContext from '../hooks/useAppContext';
 import { AppHref } from '../types';
@@ -17,8 +17,8 @@ type LinkProps = Assign<
     }
   >,
   WithRouterProps & {
-    style?: RegisteredStyle<TextStyle>;
-    activeStyle?: RegisteredStyle<TextStyle>;
+    style?: StyleProp<TextStyle>;
+    activeStyle?: StyleProp<TextStyle>;
   }
 >;
 

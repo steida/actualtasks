@@ -10,12 +10,14 @@ import {
   View,
 } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
+import { FormattedMessage } from 'react-intl';
 import Gravatar from './Gravatar';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import { AppHref } from '../types';
 import Link from './Link';
 import useWindowWidth from '../hooks/useWindowWidth';
+import TaskLists from './TaskLists';
 
 let initialRender = true;
 
@@ -62,8 +64,25 @@ const LayoutHeader = withRouter(({ router }) => {
   );
 });
 
+const LayoutFooter: React.FunctionComponent = () => {
+  const { theme } = useAppContext();
+  return (
+    <View style={theme.layoutFooter}>
+      <Text style={theme.layoutFooterText}>
+        <Link href="https://github.com/steida/actualtasks">
+          <FormattedMessage defaultMessage="made" id="madeBy" />
+        </Link>
+        {' by '}
+        <Link href="https://twitter.com/steida">steida</Link> for {''}
+        <Link href="https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3">
+          satoshis
+        </Link>
+      </Text>
+    </View>
+  );
+};
+
 interface LayoutMenuProps {
-  menu?: React.ReactElement;
   screenSize: ScreenSize;
 }
 
@@ -85,15 +104,17 @@ const LayoutMenu: FunctionComponent<LayoutMenuProps> = props => {
         },
       ]}
     >
-      {props.menu}
+      <TaskLists />
+      <Link style={[theme.button, theme.buttonSmall]} href="/add">
+        +
+      </Link>
     </ScrollView>
   );
 };
 
 interface LayoutProps {
   title: string;
-  menu?: React.ReactElement;
-  footer?: React.ReactElement;
+  noFooter?: boolean;
 }
 
 const Layout: FunctionComponent<LayoutProps> = props => {
@@ -153,20 +174,16 @@ const Layout: FunctionComponent<LayoutProps> = props => {
             ]}
             ref={layoutBodyRef}
           >
-            {isSmallScreen === false && (
-              <LayoutMenu screenSize={screenSize} menu={props.menu} />
-            )}
+            {isSmallScreen === false && <LayoutMenu screenSize={screenSize} />}
             <ScrollView
               style={theme.layoutContentScrollView}
               contentContainerStyle={theme.layoutContentScrollViewContent}
             >
               {props.children}
             </ScrollView>
-            {isSmallScreen === true && (
-              <LayoutMenu screenSize={screenSize} menu={props.menu} />
-            )}
+            {isSmallScreen === true && <LayoutMenu screenSize={screenSize} />}
           </View>
-          {props.footer}
+          {!props.noFooter && <LayoutFooter />}
         </View>
       </LayoutContext.Provider>
     </>

@@ -21,6 +21,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'prettier',
     'prettier/@typescript-eslint',
+    'prettier/react',
   ],
   settings: {
     react: {
@@ -64,8 +65,7 @@ module.exports = {
     'react/prop-types': 'off',
     // They are fine sometimes.
     'no-nested-ternary': 'off',
-    // Prettier. Imho bug that must be disabled explicitly.
-    'react/jsx-one-expression-per-line': 'off',
+    // This is fine.
     'lines-between-class-members': 'off',
     // Relay
     'relay/graphql-syntax': 'error',

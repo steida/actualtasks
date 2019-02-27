@@ -83,4 +83,8 @@ export const pageTitles = defineMessages({
     defaultMessage: 'Me',
     id: 'pageTitles.me',
   },
+  add: {
+    defaultMessage: 'Add',
+    id: 'pageTitles.add',
+  },
 });

@@ -1,8 +1,10 @@
 import { DeepReadonly } from 'utility-types';
+import createTaskList from './createTaskList';
 
 const name = 'actualtasks';
 
 // Remember: Never ever change any interface without version migration step.
+// Treat types are immutable structures. Never change type. Add new instead.
 
 // To add new AppState version:
 //  - Add new AppStateX, do not save.
@@ -17,8 +19,9 @@ interface User1 {
   darkMode: boolean;
 }
 
-interface TaskList1 {
+export interface TaskList1 {
   id: string;
+  createdAt: number;
   name: string;
   slate: {
     document: {
@@ -50,32 +53,18 @@ type AppState1 = DeepReadonly<{
 
 export type AppState = AppState1;
 
+// This is the index undeletable taskList for index URL.
+const indexTaskListId = 'actual';
+const indexTaskList: DeepReadonly<TaskList1> = {
+  ...createTaskList(),
+  id: indexTaskListId,
+  createdAt: 0,
+};
+
 const migrations = [
   (): AppState1 => {
     return {
-      taskLists: [
-        {
-          id: 'actual', // Must be the same both for client and server.
-          name: 'Actual',
-          slate: {
-            document: {
-              nodes: [
-                {
-                  data: { completed: false, depth: 0 },
-                  nodes: [
-                    {
-                      leaves: [{ text: 'What should be done?' }],
-                      object: 'text',
-                    },
-                  ],
-                  object: 'block',
-                  type: 'task',
-                },
-              ],
-            },
-          },
-        },
-      ],
+      taskLists: [indexTaskList],
       viewer: {
         darkMode: false,
         email: '',

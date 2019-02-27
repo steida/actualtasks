@@ -104,7 +104,8 @@ export class LightTheme {
   spacer: ViewStyle;
   borderGrayLight: ViewStyle;
   textInputOutline: TextStyle;
-  row: ViewStyle;
+  textInputOutlineSmall: TextStyle;
+  flexRow: ViewStyle;
   buttons: ViewStyle;
   button: TextStyle;
   buttonGray: TextStyle;
@@ -268,14 +269,19 @@ export class LightTheme {
       width: typography.fontSize * 16,
     };
 
-    // TODO: Rename to flexRowFlexWrap.
-    this.row = {
+    this.textInputOutlineSmall = {
+      ...this.textSmall,
+      ...this.borderGrayLight,
+      paddingHorizontal: typography.lineHeight / 4,
+      width: '100%',
+    };
+
+    this.flexRow = {
       flexDirection: 'row',
-      flexWrap: 'wrap',
     };
 
     this.buttons = {
-      ...this.row,
+      ...this.flexRow,
       marginHorizontal: -(typography.lineHeight / 4),
     };
 

@@ -4,7 +4,6 @@ import { Text, TextInput, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import Button from '../components/Button';
 import Layout from '../components/Layout';
-import Link from '../components/Link';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import { pageTitles } from './_app';
@@ -55,31 +54,13 @@ const EmailInput: React.FunctionComponent = () => {
   );
 };
 
-const Footer: React.FunctionComponent = () => {
-  const { theme } = useAppContext();
-  return (
-    <View style={theme.layoutFooter}>
-      <Text style={theme.layoutFooterText}>
-        <Link href="https://github.com/steida/actualtasks">
-          <FormattedMessage defaultMessage="made" id="madeBy" />
-        </Link>
-        {' by '}
-        <Link href="https://twitter.com/steida">steida</Link> for {''}
-        <Link href="https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3">
-          satoshis
-        </Link>
-      </Text>
-    </View>
-  );
-};
-
 const Me: React.FunctionComponent = () => {
   const { intl, theme } = useAppContext();
   const title = intl.formatMessage(pageTitles.me);
   const [backupAndSyncShown, setBackupAndSyncShown] = React.useState(false);
 
   return (
-    <Layout title={title} footer={<Footer />}>
+    <Layout title={title}>
       <View style={theme.buttons}>
         <DarkModeButton />
       </View>
