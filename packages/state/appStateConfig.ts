@@ -54,7 +54,7 @@ type AppState1 = DeepReadonly<{
 export type AppState = AppState1;
 
 // This is the index undeletable taskList for index URL.
-const indexTaskListId = 'actual';
+export const indexTaskListId = 'actual';
 const indexTaskList: DeepReadonly<TaskList1> = {
   ...createTaskList(),
   id: indexTaskListId,

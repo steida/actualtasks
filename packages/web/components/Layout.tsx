@@ -1,6 +1,5 @@
 /* eslint-env browser */
 import Head from 'next/head';
-import { withRouter } from 'next/router';
 import React, { useEffect, FunctionComponent } from 'react';
 import {
   findNodeHandle,
@@ -14,7 +13,6 @@ import { FormattedMessage } from 'react-intl';
 import Gravatar from './Gravatar';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
-import { AppHref } from '../types';
 import Link from './Link';
 import useWindowWidth from '../hooks/useWindowWidth';
 import TaskLists from './TaskLists';
@@ -48,21 +46,19 @@ const ViewerGravatar: FunctionComponent = () => {
   );
 };
 
-const LayoutHeader = withRouter(({ router }) => {
+const LayoutHeader = () => {
   const { theme } = useAppContext();
-  const personHref: AppHref =
-    router && router.pathname === '/' ? '/me' : { pathname: '/' };
 
   return (
     <View style={theme.layoutHeader}>
       <Text style={theme.text}>
-        <Link prefetch href={personHref}>
+        <Link prefetch href="/me">
           <ViewerGravatar />
         </Link>
       </Text>
     </View>
   );
-});
+};
 
 const LayoutFooter: React.FunctionComponent = () => {
   const { theme } = useAppContext();

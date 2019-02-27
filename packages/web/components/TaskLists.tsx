@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from 'react';
+import { indexTaskListId } from '@app/state/appStateConfig';
 import useAppContext from '../hooks/useAppContext';
 import Link from './Link';
 import useAppState from '../hooks/useAppState';
@@ -17,7 +18,7 @@ const TaskLists: FunctionComponent = () => {
           return (
             <Link
               style={[theme.button, theme.buttonSmall]}
-              href="/me"
+              href={taskList.id === indexTaskListId ? '/' : '/me'}
               key={taskList.id}
             >
               {taskList.name}
