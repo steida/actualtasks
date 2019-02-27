@@ -8,9 +8,8 @@ const TaskListLink: FunctionComponent<LinkProps> = props => {
   const { theme } = useAppContext();
   return (
     <Link
-      // activeStyle
-      // proc vlastne button?
-      style={[theme.button, theme.buttonSmall]}
+      activeStyle={theme.textSmall}
+      style={theme.textSmallGray}
       href={props.href}
     >
       {props.children}
@@ -42,13 +41,10 @@ const TaskLists: FunctionComponent = () => {
 };
 
 const Menu: FunctionComponent = () => {
-  const { theme } = useAppContext();
   return (
     <>
       <TaskLists />
-      <Link style={[theme.button, theme.buttonSmall]} href="/add">
-        +
-      </Link>
+      <TaskListLink href="/add">+</TaskListLink>
     </>
   );
 };
