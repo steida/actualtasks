@@ -25,7 +25,7 @@ const DarkModeButton: React.FunctionComponent = () => {
     });
   };
   return (
-    <Button big onPress={toggleViewerDarkMode}>
+    <Button size="big" onPress={toggleViewerDarkMode}>
       {emoji}
     </Button>
   );
