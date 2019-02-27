@@ -165,14 +165,13 @@ const Layout: FunctionComponent<LayoutProps> = props => {
               theme.layoutBody,
               { flexDirection: isSmallScreen ? 'column' : 'row' },
             ]}
-            ref={layoutBodyRef}
           >
             {isSmallScreen === false && <LayoutMenu screenSize={screenSize} />}
             <ScrollView
               style={theme.layoutContentScrollView}
               contentContainerStyle={theme.layoutContentScrollViewContent}
             >
-              {props.children}
+              <View ref={layoutBodyRef}>{props.children}</View>
             </ScrollView>
             {isSmallScreen === true && <LayoutMenu screenSize={screenSize} />}
           </View>
