@@ -1,13 +1,13 @@
 /* eslint-env browser */
 import Head from 'next/head';
 import { withRouter } from 'next/router';
-import React from 'react';
+import React, { useEffect, FunctionComponent } from 'react';
 import {
   findNodeHandle,
+  ScrollView,
   StyleSheet,
   Text,
   View,
-  ScrollView,
 } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import Gravatar from './Gravatar';
@@ -15,7 +15,7 @@ import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import { AppHref } from '../types';
 import Link from './Link';
-import Button from './Button';
+import useWindowWidth from '../hooks/useWindowWidth';
 
 let initialRender = true;
 
@@ -23,13 +23,15 @@ interface LayoutContextType {
   focusLayoutBody: () => void;
 }
 
+type ScreenSize = 'small' | 'other';
+
 export const LayoutContext = React.createContext<LayoutContextType>({
   focusLayoutBody: () => {
     throw new Error('No LayoutContext.Provider');
   },
 });
 
-const ViewerGravatar: React.FunctionComponent = () => {
+const ViewerGravatar: FunctionComponent = () => {
   const { theme } = useAppContext();
   const [email] = useAppState(state => state.viewer.email);
   const displayEmail = isEmail(email) ? email : '';
@@ -60,12 +62,41 @@ const LayoutHeader = withRouter(({ router }) => {
   );
 });
 
+interface LayoutMenuProps {
+  menu?: React.ReactElement;
+  screenSize: ScreenSize;
+}
+
+const LayoutMenu: FunctionComponent<LayoutMenuProps> = props => {
+  const { theme } = useAppContext();
+  const isSmallScreen = props.screenSize === 'small';
+  return (
+    <ScrollView
+      horizontal={isSmallScreen}
+      style={
+        isSmallScreen
+          ? theme.layoutMenuScrollViewSmallScreen
+          : theme.layoutMenuScrollViewOtherScreen
+      }
+      contentContainerStyle={[
+        theme.layoutMenuScrollViewContent,
+        {
+          flexDirection: isSmallScreen ? 'row' : 'column',
+        },
+      ]}
+    >
+      {props.menu}
+    </ScrollView>
+  );
+};
+
 interface LayoutProps {
   title: string;
+  menu?: React.ReactElement;
   footer?: React.ReactElement;
 }
 
-const Layout: React.FunctionComponent<LayoutProps> = props => {
+const Layout: FunctionComponent<LayoutProps> = props => {
   const { theme } = useAppContext();
   const [htmlBackgroundColor] = React.useMemo(() => {
     return [StyleSheet.flatten(theme.layout).backgroundColor || '#fff'];
@@ -86,11 +117,12 @@ const Layout: React.FunctionComponent<LayoutProps> = props => {
     if (node.contains(document.activeElement)) {
       return;
     }
+    // TODO: Why outline none?
     layoutBodyRef.current.setNativeProps({ style: { outline: 'none' } });
     layoutBodyRef.current.focus();
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     maybeFocusLayoutBody();
   }, [maybeFocusLayoutBody]);
 
@@ -98,6 +130,11 @@ const Layout: React.FunctionComponent<LayoutProps> = props => {
     if (!layoutBodyRef.current) return;
     layoutBodyRef.current.focus();
   };
+
+  const windowWidth = useWindowWidth();
+  const screenSize: ScreenSize =
+    windowWidth && windowWidth > 600 ? 'other' : 'small';
+  const isSmallScreen = screenSize === 'small';
 
   return (
     <>
@@ -109,42 +146,25 @@ const Layout: React.FunctionComponent<LayoutProps> = props => {
       <LayoutContext.Provider value={{ focusLayoutBody }}>
         <View style={theme.layout}>
           <LayoutHeader />
-          <View style={theme.layoutBody} ref={layoutBodyRef}>
+          <View
+            style={[
+              theme.layoutBody,
+              { flexDirection: isSmallScreen ? 'column' : 'row' },
+            ]}
+            ref={layoutBodyRef}
+          >
+            {isSmallScreen === false && (
+              <LayoutMenu screenSize={screenSize} menu={props.menu} />
+            )}
             <ScrollView
-              style={theme.layoutScrollViewSidebar}
-              contentContainerStyle={theme.layoutScrollViewContainer}
-            >
-              <Button type="gray" size="small">
-                slate se imho
-              </Button>
-              <Button type="gray" size="small">
-                jako, jo
-              </Button>
-              <Button type="gray" size="small">
-                fooooo
-              </Button>
-              <Button type="gray" size="small">
-                Je možný{' '}
-              </Button>
-              <Button type="gray" size="small">
-                fooooo
-              </Button>
-              <Button type="gray" size="small">
-                ACDC
-              </Button>
-              <Button type="gray" size="small">
-                fooooo
-              </Button>
-              <Button type="gray" size="small">
-                fooooo
-              </Button>
-            </ScrollView>
-            <ScrollView
-              style={theme.layoutScrollView}
-              contentContainerStyle={theme.layoutScrollViewContainer}
+              style={theme.layoutContentScrollView}
+              contentContainerStyle={theme.layoutContentScrollViewContent}
             >
               {props.children}
             </ScrollView>
+            {isSmallScreen === true && (
+              <LayoutMenu screenSize={screenSize} menu={props.menu} />
+            )}
           </View>
           {props.footer}
         </View>

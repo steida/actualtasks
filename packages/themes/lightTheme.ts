@@ -92,9 +92,11 @@ export class LightTheme {
   layout: ViewStyle;
   layoutHeader: ViewStyle;
   layoutBody: ViewStyle;
-  layoutScrollView: ViewStyle;
-  layoutScrollViewContainer: ViewStyle;
-  layoutScrollViewSidebar: ViewStyle;
+  layoutMenuScrollViewContent: ViewStyle;
+  layoutMenuScrollViewSmallScreen: ViewStyle;
+  layoutMenuScrollViewOtherScreen: ViewStyle;
+  layoutContentScrollView: ViewStyle;
+  layoutContentScrollViewContent: ViewStyle;
   layoutFooter: ViewStyle;
   layoutFooterText: TextStyle;
   link: TextStyle;
@@ -193,29 +195,37 @@ export class LightTheme {
     this.layoutHeader = {
       justifyContent: 'flex-end',
       flexDirection: 'row',
-      padding: dimensions.spaceSmall,
+      padding: dimensions.space,
     };
 
     this.layoutBody = {
       flex: 1,
-      flexDirection: 'row',
     };
 
-    this.layoutScrollView = {
-      flex: 1,
-    };
-
-    this.layoutScrollViewContainer = {
+    const layoutScrollViewPadding = {
       // It's must to ensure focus outline is visible.
       padding: dimensions.spaceSmall,
     };
 
-    this.layoutScrollViewSidebar = {
-      ...this.layoutScrollView,
+    this.layoutMenuScrollViewSmallScreen = {
+      flexGrow: 0,
+    };
+
+    this.layoutMenuScrollViewOtherScreen = {
       maxWidth: typography.fontSize * 10,
-      paddingStart: dimensions.space,
-      // borderRightWidth: 1,
-      // borderRightColor: colors.grayLight,
+    };
+
+    this.layoutMenuScrollViewContent = {
+      ...layoutScrollViewPadding,
+    };
+
+    this.layoutContentScrollView = {
+      flex: 1,
+    };
+
+    this.layoutContentScrollViewContent = {
+      ...layoutScrollViewPadding,
+      maxWidth: 800,
     };
 
     this.layoutFooter = {
