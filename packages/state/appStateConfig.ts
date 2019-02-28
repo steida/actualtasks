@@ -22,6 +22,7 @@ interface User1 {
 export interface TaskList1 {
   id: string;
   createdAt: number;
+  // Max length 32. TODO: Enforce it in AppStateProvider setAppState.
   name: string;
   slate: {
     document: {
@@ -56,8 +57,7 @@ export type AppState = AppState1;
 // This is the index undeletable taskList for index URL.
 export const indexTaskListId = 'actual';
 const indexTaskList: DeepReadonly<TaskList1> = {
-  ...createTaskList(),
-  id: indexTaskListId,
+  ...createTaskList(indexTaskListId),
   createdAt: 0,
 };
 
