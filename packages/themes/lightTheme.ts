@@ -84,6 +84,7 @@ export class LightTheme {
   text: TextStyle;
   textSmall: TextStyle;
   textSmallGray: TextStyle;
+  bold: TextStyle;
   marginBottom: ViewStyle;
   marginTop: ViewStyle;
   paragraph: TextStyle;
@@ -98,7 +99,6 @@ export class LightTheme {
   layoutContentScrollView: ViewStyle;
   layoutContentScrollViewContent: ViewStyle;
   layoutFooter: ViewStyle;
-  layoutFooterText: TextStyle;
   link: TextStyle;
   linkActive: TextStyle;
   spacer: ViewStyle;
@@ -106,6 +106,7 @@ export class LightTheme {
   textInputOutline: TextStyle;
   textInputOutlineSmall: TextStyle;
   flexRow: ViewStyle;
+  flexColumn: ViewStyle;
   buttons: ViewStyle;
   button: TextStyle;
   buttonGray: TextStyle;
@@ -118,7 +119,6 @@ export class LightTheme {
   validationError: TextStyle;
   marginStartAuto: ViewStyle;
   label: TextStyle;
-
   labelInvalid: TextStyle;
   task: ViewStyle;
   taskCheckbox: ViewStyle;
@@ -136,7 +136,8 @@ export class LightTheme {
   taskDepth9: ViewStyle;
   lineThrough: TextStyle;
   flex1: ViewStyle;
-  sidebar: ViewStyle;
+  marginHorizontal: ViewStyle;
+  negativeMarginHorizontal: ViewStyle;
 
   constructor(colors: Colors, dimensions: Dimensions) {
     const typography = createTypography({
@@ -160,6 +161,10 @@ export class LightTheme {
     this.textSmallGray = {
       ...this.textSmall,
       color: colors.gray,
+    };
+
+    this.bold = {
+      fontWeight: 'bold',
     };
 
     this.marginBottom = {
@@ -191,6 +196,7 @@ export class LightTheme {
     this.layout = {
       backgroundColor: colors.background,
       flex: 1,
+      // No padding nor margin here. We need full width because of scrollbar.
     };
 
     this.layoutHeader = {
@@ -214,6 +220,7 @@ export class LightTheme {
 
     this.layoutMenuScrollViewOtherScreen = {
       maxWidth: typography.fontSize * 10,
+      paddingHorizontal: dimensions.spaceSmall,
     };
 
     this.layoutMenuScrollViewContent = {
@@ -230,13 +237,7 @@ export class LightTheme {
     };
 
     this.layoutFooter = {
-      paddingVertical: dimensions.spaceSmall,
-    };
-
-    this.layoutFooterText = {
-      ...this.text,
-      ...typography.scale(-1),
-      textAlign: 'center',
+      paddingVertical: dimensions.space,
     };
 
     this.link = {
@@ -278,6 +279,10 @@ export class LightTheme {
 
     this.flexRow = {
       flexDirection: 'row',
+    };
+
+    this.flexColumn = {
+      flexDirection: 'column',
     };
 
     this.buttons = {
@@ -410,19 +415,12 @@ export class LightTheme {
       flex: 1,
     };
 
-    this.sidebar = {
-      // paddingHorizontal: dimensions.spaceSmall,
-      // position: 'absolute',
-      // width: 160,
-      // top: 0,
-      // left: -166,
-      // bottom: 0,
-      // paddingVertical: dimensions.spaceSmall,
-      // backgroundColor: '#444',
-      // TODO: Show only when offseted.
-      // borderRightWidth: 1,
-      // borderRightColor: colors.grayLight,
-      // borderRadius: 16,
+    this.marginHorizontal = {
+      marginHorizontal: typography.lineHeight / 4,
+    };
+
+    this.negativeMarginHorizontal = {
+      marginHorizontal: -(typography.lineHeight / 4),
     };
   }
 }

@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { indexTaskListId } from '@app/state/appStateConfig';
+import { View } from 'react-native';
 import useAppState from '../hooks/useAppState';
 import useAppContext from '../hooks/useAppContext';
 import Link, { LinkProps } from './Link';
@@ -8,8 +9,8 @@ const TaskListLink: FunctionComponent<LinkProps> = props => {
   const { theme } = useAppContext();
   return (
     <Link
-      activeStyle={theme.textSmall}
-      style={theme.textSmallGray}
+      activeStyle={[theme.textSmall, theme.bold]}
+      style={[theme.textSmallGray, theme.bold, theme.marginHorizontal]}
       href={props.href}
     >
       {props.children}
@@ -40,12 +41,23 @@ const TaskLists: FunctionComponent = () => {
   );
 };
 
-const Menu: FunctionComponent = () => {
+interface MenuProps {
+  isSmallScreen: boolean;
+}
+
+const Menu: FunctionComponent<MenuProps> = props => {
+  const { theme } = useAppContext();
+
   return (
-    <>
+    <View
+      style={[
+        theme.negativeMarginHorizontal,
+        props.isSmallScreen ? theme.flexRow : theme.flexColumn,
+      ]}
+    >
       <TaskLists />
       <TaskListLink href="/add">+</TaskListLink>
-    </>
+    </View>
   );
 };
 

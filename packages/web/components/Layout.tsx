@@ -9,7 +9,6 @@ import {
   View,
 } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
-import { FormattedMessage } from 'react-intl';
 import Gravatar from './Gravatar';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
@@ -60,24 +59,6 @@ const LayoutHeader = () => {
   );
 };
 
-const LayoutFooter: React.FunctionComponent = () => {
-  const { theme } = useAppContext();
-  return (
-    <View style={theme.layoutFooter}>
-      <Text style={theme.layoutFooterText}>
-        <Link href="https://github.com/steida/actualtasks">
-          <FormattedMessage defaultMessage="made" id="madeBy" />
-        </Link>
-        {' by '}
-        <Link href="https://twitter.com/steida">steida</Link> for {''}
-        <Link href="https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3">
-          satoshis
-        </Link>
-      </Text>
-    </View>
-  );
-};
-
 interface LayoutMenuProps {
   screenSize: ScreenSize;
 }
@@ -100,14 +81,13 @@ const LayoutMenu: FunctionComponent<LayoutMenuProps> = props => {
         },
       ]}
     >
-      <Menu />
+      <Menu isSmallScreen={isSmallScreen} />
     </ScrollView>
   );
 };
 
 interface LayoutProps {
   title: string;
-  noFooter?: boolean;
 }
 
 const Layout: FunctionComponent<LayoutProps> = props => {
@@ -175,7 +155,6 @@ const Layout: FunctionComponent<LayoutProps> = props => {
             </ScrollView>
             {isSmallScreen === true && <LayoutMenu screenSize={screenSize} />}
           </View>
-          {!props.noFooter && <LayoutFooter />}
         </View>
       </LayoutContext.Provider>
     </>

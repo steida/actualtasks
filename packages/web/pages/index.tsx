@@ -9,7 +9,7 @@ const Index: FunctionComponent = () => {
   const title = intl.formatMessage(pageTitles.index);
 
   return (
-    <Layout title={title} noFooter>
+    <Layout title={title}>
       <Tasks />
     </Layout>
   );

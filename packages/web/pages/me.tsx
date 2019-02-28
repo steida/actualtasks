@@ -7,6 +7,7 @@ import Layout from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import { pageTitles } from './_app';
+import Link from '../components/Link';
 
 export const messages = defineMessages({
   backupAndSync: {
@@ -54,6 +55,24 @@ const EmailInput: React.FunctionComponent = () => {
   );
 };
 
+const LayoutFooter: React.FunctionComponent = () => {
+  const { theme } = useAppContext();
+  return (
+    <View style={theme.layoutFooter}>
+      <Text style={theme.text}>
+        <Link href="https://github.com/steida/actualtasks">
+          <FormattedMessage defaultMessage="made" id="madeBy" />
+        </Link>
+        {' by '}
+        <Link href="https://twitter.com/steida">steida</Link> for {''}
+        <Link href="https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3">
+          satoshis
+        </Link>
+      </Text>
+    </View>
+  );
+};
+
 const Me: React.FunctionComponent = () => {
   const { intl, theme } = useAppContext();
   const title = intl.formatMessage(pageTitles.me);
@@ -85,6 +104,7 @@ const Me: React.FunctionComponent = () => {
           </View>
         </View>
       )}
+      <LayoutFooter />
     </Layout>
   );
 };
