@@ -8,7 +8,8 @@
     "react": "^16.8.2",
     "react-art": "^16.8.2",
     "react-dom": "^16.8.2",
-    "react-native-web": "^0.10.0"
+    "react-native-web": "^0.10.0",
+    "simple-random": "^1.0.3"
   },
   "devDependencies": {
     "@types/react": "^16.8.4",

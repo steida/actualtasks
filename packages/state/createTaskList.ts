@@ -1,6 +1,6 @@
 import { DeepReadonly } from 'utility-types';
 import { TaskList1 } from './appStateConfig';
-import createClientId from './createClientId';
+import createClientId from './lib/appstate/createClientId';
 
 const createTaskList = (id?: string): DeepReadonly<TaskList1> => {
   return {
