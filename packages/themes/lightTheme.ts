@@ -306,7 +306,8 @@ export class LightTheme {
 
     this.buttonSmall = {
       ...typography.scale(-1),
-      marginVertical: 0,
+      paddingVertical: typography.lineHeight / 16,
+      ...this.bold,
     };
 
     // Button helper styles. It can be refactored but this is fine enough.
