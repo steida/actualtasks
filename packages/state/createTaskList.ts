@@ -26,12 +26,4 @@ const createTaskList = (name: string): TaskList => {
   };
 };
 
-// The id of undeletable TaskList for index URL.
-export const rootTaskListId = 'actual';
-
-export const createRootTaskList = (): TaskList => {
-  const taskList = createTaskList('Actual');
-  return { ...taskList, id: rootTaskListId, createdAt: 0 };
-};
-
 export default createTaskList;

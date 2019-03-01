@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
-import { rootTaskListId } from '@app/state/createTaskList';
 import { View } from 'react-native';
+import { rootTaskListId } from '@app/state/appStateConfig';
 import useAppState from '../hooks/useAppState';
 import useAppContext from '../hooks/useAppContext';
 import Link, { LinkProps } from './Link';
