@@ -5,7 +5,6 @@ import { AppState1 } from './types';
 
 const name = 'actualtasks';
 export const rootTaskListId = 'actual';
-export const rootTaskListCreateAt = 0;
 
 const migrations = [
   (): AppState1 => {
@@ -13,8 +12,8 @@ const migrations = [
       taskLists: [
         {
           id: rootTaskListId,
-          createdAt: rootTaskListCreateAt,
-          name,
+          createdAt: 0,
+          name: 'actual',
           slate: {
             document: {
               nodes: [

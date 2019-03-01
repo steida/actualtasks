@@ -28,9 +28,13 @@ const TaskLists: FunctionComponent = () => {
         .slice(0) // Because taskLists is immutable and sort mutates.
         .sort()
         .map(taskList => {
+          const isRoot = taskList.id === rootTaskListId;
           return (
             <TaskListLink
-              href={taskList.id === rootTaskListId ? '/' : '/me'}
+              href={{
+                pathname: '/',
+                query: isRoot ? null : { id: taskList.id },
+              }}
               key={taskList.id}
             >
               {taskList.name}

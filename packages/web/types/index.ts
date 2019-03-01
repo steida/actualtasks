@@ -1,8 +1,7 @@
 export type AppHref =
-  | '/'
   | {
       pathname: '/';
-      query?: { id: string };
+      query: { id: string } | null;
     }
   | 'https://twitter.com/steida'
   | 'https://github.com/steida/actualtasks'

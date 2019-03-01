@@ -33,9 +33,7 @@ const Link: React.FunctionComponent<LinkProps> = props => {
     const linkQuery = typeof href === 'object' ? href.query : null;
     return (
       linkPathname === router.pathname &&
-      (linkQuery == null
-        ? true
-        : JSON.stringify(linkQuery) === JSON.stringify(router.query))
+      JSON.stringify(linkQuery || {}) === JSON.stringify(router.query || {})
     );
   };
 
