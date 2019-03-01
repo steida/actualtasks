@@ -61,7 +61,7 @@ const LayoutFooter: React.FunctionComponent = () => {
   const { theme } = useAppContext();
   return (
     <View style={theme.layoutFooter}>
-      <Text style={theme.text}>
+      <Text style={theme.textSmall}>
         <Link href="https://github.com/steida/actualtasks">
           <FormattedMessage defaultMessage="made" id="madeBy" />
         </Link>
