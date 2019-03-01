@@ -49,7 +49,7 @@ const NameInput: React.FunctionComponent = () => {
         maxLength={32}
       />
       <ValidationError error={errors.name} />
-      <View style={[theme.buttons, theme.marginTop]}>
+      <View style={theme.buttons}>
         <Button onPress={handleSubmitEditing} size="small" type="primary">
           <FormattedMessage defaultMessage="Add" id="add" />
         </Button>
