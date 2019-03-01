@@ -28,7 +28,7 @@ const AppStateProvider: React.FunctionComponent<
   AppStateProviderProps
 > = props => {
   const { name, migrations } = props.config;
-  const { current: callbacks } = React.useRef<Callback[]>([]);
+  const { current: callbacks } = React.useRef(new Set<Callback>());
   const loadedRef = React.useRef(false);
   const appStateRef = React.useRef<object | null>(null);
 
@@ -61,6 +61,10 @@ const AppStateProvider: React.FunctionComponent<
 
   const setAppStateRef = (state: object) => {
     appStateRef.current = state;
+    // Note Set forEach has a different behavior than Array forEach.
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/forEach
+    // If callbacks were an array, dispatch could and would break forEach order.
+    // forEach on the cloned array did not help entirely, not sure why.
     callbacks.forEach(callback => callback());
     saveThrottled();
   };
@@ -116,9 +120,9 @@ const AppStateProvider: React.FunctionComponent<
   const context = React.useRef<AppStateContextType>({
     getAppState,
     subscribe(callback) {
-      callbacks.push(callback);
+      callbacks.add(callback);
       return () => {
-        callbacks.splice(callbacks.indexOf(callback), 1);
+        callbacks.delete(callback);
       };
     },
     setAppState(callback) {

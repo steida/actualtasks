@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import AppStateContext, { SetAppState } from './AppStateContext';
 
 // Example:
@@ -15,22 +15,24 @@ interface UseAppState<State> {
 const createUseAppStateHook = <State extends object>(): UseAppState<State> => {
   const useAppState = (selector?: (state: State) => any) => {
     const context = useContext(AppStateContext);
+    const { current: initialSelector } = useRef(selector);
 
-    const getSelectedState = () =>
-      selector ? selector(context.getAppState()) : null;
+    const getSelectedState = useCallback(() => {
+      return initialSelector ? initialSelector(context.getAppState()) : null;
+    }, [context, initialSelector]);
 
     const [state, setState] = useState(() => getSelectedState());
 
     useEffect(() => {
-      if (selector == null) return;
+      if (initialSelector == null) return;
       return context.subscribe(() => {
         // We don't have to memo anything.
         // https://reactjs.org/docs/hooks-reference.html#bailing-out-of-a-state-update
         setState(getSelectedState());
       });
-    }, [context, getSelectedState, selector]);
+    }, [context, getSelectedState, initialSelector]);
 
-    return selector ? state : context.setAppState;
+    return initialSelector ? state : context.setAppState;
   };
 
   return useAppState;
