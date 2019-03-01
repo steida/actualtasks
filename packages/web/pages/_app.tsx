@@ -6,7 +6,6 @@ import { defineMessages, IntlProvider } from 'react-intl';
 import IntlProviderFix from '../components/IntlProviderFix';
 import ThemeConsumer from '../components/ThemeConsumer';
 import AppContext from '../contexts/AppContext';
-import WasRendered from '../contexts/WasRenderedContext';
 import HideBeforeClientIsReady from '../components/HideBeforeClientIsReady';
 
 interface MyAppProps {
@@ -14,11 +13,7 @@ interface MyAppProps {
   pageProps: {};
 }
 
-interface MyAppState {
-  wasRendered: boolean;
-}
-
-export default class MyApp extends App<MyAppProps, MyAppState> {
+export default class MyApp extends App<MyAppProps> {
   static localStorageKey = 'actualtasks';
 
   static async getInitialProps(): Promise<MyAppProps> {
@@ -30,42 +25,31 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
     return props;
   }
 
-  state = {
-    wasRendered: false,
-  };
-
-  componentDidMount() {
-    this.setState({ wasRendered: true });
-  }
-
   render() {
     const { Component: Page, initialNow, pageProps } = this.props;
-    const { wasRendered } = this.state;
 
     return (
       <Container>
         <AppStateProvider config={appStateConfig}>
-          <WasRendered.Provider value={wasRendered}>
-            <IntlProvider
-              locale="en"
-              initialNow={initialNow}
-              textComponent={React.Fragment}
-            >
-              <IntlProviderFix>
-                {intl => (
-                  <ThemeConsumer>
-                    {theme => (
-                      <AppContext.Provider value={{ intl, theme }}>
-                        <HideBeforeClientIsReady>
-                          <Page {...pageProps} />
-                        </HideBeforeClientIsReady>
-                      </AppContext.Provider>
-                    )}
-                  </ThemeConsumer>
-                )}
-              </IntlProviderFix>
-            </IntlProvider>
-          </WasRendered.Provider>
+          <IntlProvider
+            locale="en"
+            initialNow={initialNow}
+            textComponent={React.Fragment}
+          >
+            <IntlProviderFix>
+              {intl => (
+                <ThemeConsumer>
+                  {theme => (
+                    <AppContext.Provider value={{ intl, theme }}>
+                      <HideBeforeClientIsReady>
+                        <Page {...pageProps} />
+                      </HideBeforeClientIsReady>
+                    </AppContext.Provider>
+                  )}
+                </ThemeConsumer>
+              )}
+            </IntlProviderFix>
+          </IntlProvider>
         </AppStateProvider>
       </Container>
     );
