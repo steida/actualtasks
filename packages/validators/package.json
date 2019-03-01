@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@app/state": "1.0.0",
     "validator": "^10.11.0"
   },
   "devDependencies": {

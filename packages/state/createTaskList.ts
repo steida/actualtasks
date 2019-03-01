@@ -1,12 +1,11 @@
-import { DeepReadonly } from 'utility-types';
 import { TaskList } from './types';
 import createClientId from './lib/appstate/createClientId';
 
-const createTaskList = (): DeepReadonly<TaskList> => {
+const createTaskList = (name: string): TaskList => {
   return {
     id: createClientId(),
     createdAt: Date.now(),
-    name: 'Actual',
+    name,
     slate: {
       document: {
         nodes: [
@@ -30,8 +29,8 @@ const createTaskList = (): DeepReadonly<TaskList> => {
 // The id of undeletable TaskList for index URL.
 export const rootTaskListId = 'actual';
 
-export const createRootTaskList = (): DeepReadonly<TaskList> => {
-  const taskList = createTaskList();
+export const createRootTaskList = (): TaskList => {
+  const taskList = createTaskList('Actual');
   return { ...taskList, id: rootTaskListId, createdAt: 0 };
 };
 

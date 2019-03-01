@@ -1,5 +1,3 @@
-import { DeepReadonly } from 'utility-types';
-
 // Remember:
 //  1) Make everything strict. It will simplify migrations and DX.
 //  2) Never ever change any interface nor type. Always add a new version.
@@ -35,10 +33,10 @@ export interface TaskList1 {
   };
 }
 
-export type AppState1 = DeepReadonly<{
+export interface AppState1 {
   viewer: User1;
   taskLists: TaskList1[];
-}>;
+}
 
 // interface AppState2 {
 //   viewer: User;
