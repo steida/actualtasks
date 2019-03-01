@@ -1,0 +1,49 @@
+import { DeepReadonly } from 'utility-types';
+
+// Remember:
+//  1) Make everything strict. It will simplify migrations and DX.
+//  2) Never ever change any interface nor type. Always add a new version.
+//  3) Then add a migration step.
+// That's all. Now state migration is unbreakable.
+
+interface User1 {
+  email: string;
+  darkMode: boolean;
+}
+
+export interface TaskList1 {
+  id: string;
+  createdAt: number;
+  // creatorEmail: string; // Will be set when shared.
+  // Max length 32. TODO: Enforce it in AppStateProvider setAppState.
+  name: string;
+  slate: {
+    document: {
+      nodes: {
+        data: {
+          completed: boolean;
+          depth: number;
+        };
+        nodes: {
+          leaves: { text: string }[];
+          object: 'text';
+        }[];
+        object: 'block';
+        type: 'task';
+      }[];
+    };
+  };
+}
+
+export type AppState1 = DeepReadonly<{
+  viewer: User1;
+  taskLists: TaskList1[];
+}>;
+
+// interface AppState2 {
+//   viewer: User;
+//   fok: string;
+// }
+
+export type AppState = AppState1;
+export type TaskList = TaskList1;

@@ -1,10 +1,10 @@
 import { DeepReadonly } from 'utility-types';
-import { TaskList1 } from './appStateConfig';
+import { TaskList } from './types';
 import createClientId from './lib/appstate/createClientId';
 
-const createTaskList = (id?: string): DeepReadonly<TaskList1> => {
+const createTaskList = (): DeepReadonly<TaskList> => {
   return {
-    id: id == null ? createClientId() : id,
+    id: createClientId(),
     createdAt: Date.now(),
     name: 'Actual',
     slate: {
@@ -25,6 +25,14 @@ const createTaskList = (id?: string): DeepReadonly<TaskList1> => {
       },
     },
   };
+};
+
+// The id of undeletable TaskList for index URL.
+export const rootTaskListId = 'actual';
+
+export const createRootTaskList = (): DeepReadonly<TaskList> => {
+  const taskList = createTaskList();
+  return { ...taskList, id: rootTaskListId, createdAt: 0 };
 };
 
 export default createTaskList;

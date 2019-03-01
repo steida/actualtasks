@@ -11,12 +11,11 @@ import { pageTitles } from './_app';
 const NameInput: React.FunctionComponent = () => {
   const { theme } = useAppContext();
   const [name, setName] = useState('');
-  // const viewer = useAppState(state => state.viewer)
-  // const setAppState = useAppState()
-  // use setAppState? nebo optional?
-  // const [appState, setAppState] = useAppState(state => state);
   // const setAppState = useSetAppState()
   const handleSubmitEditing = () => {
+    // const validate name?
+    // validate task? jo
+    // validateShortName
     // if (name.length < 1) return;
     const taskList = createTaskList();
     // eslint-disable-next-line no-console

@@ -8,11 +8,15 @@ const email = (value: string) => !isEmail(value) && 'EMAIL';
 const min5 = (value: string) => value.length < 5 && 'MIN_5_CHARS';
 const max1024 = (value: string) => value.length > 1024 && 'MAX_1024_CHARS';
 const max140 = (value: string) => value.length > 140 && 'MAX_140_CHARS';
+const max32 = (value: string) => value.length > 32 && 'MAX_32_CHARS';
 
 // Fields.
 
 export const validateEmail = (value: string) =>
   required(value) || email(value) || null;
+
+export const validateShortName = (value: string) =>
+  required(value) || max32(value) || null;
 
 export const validatePassword = (value: string) =>
   required(value) || min5(value) || max1024(value) || null;

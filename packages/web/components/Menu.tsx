@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { indexTaskListId } from '@app/state/appStateConfig';
+import { rootTaskListId } from '@app/state/createTaskList';
 import { View } from 'react-native';
 import useAppState from '../hooks/useAppState';
 import useAppContext from '../hooks/useAppContext';
@@ -30,7 +30,7 @@ const TaskLists: FunctionComponent = () => {
         .map(taskList => {
           return (
             <TaskListLink
-              href={taskList.id === indexTaskListId ? '/' : '/me'}
+              href={taskList.id === rootTaskListId ? '/' : '/me'}
               key={taskList.id}
             >
               {taskList.name}
