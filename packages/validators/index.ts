@@ -15,7 +15,7 @@ const max32 = (value: string) => value.length > 32 && 'MAX_32_CHARS';
 export const validateEmail = (value: string) =>
   required(value) || email(value) || null;
 
-export const validateShortName = (value: string) =>
+export const validateMax32Chars = (value: string) =>
   required(value) || max32(value) || null;
 
 export const validatePassword = (value: string) =>

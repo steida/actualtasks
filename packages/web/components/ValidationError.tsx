@@ -1,7 +1,11 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Text } from 'react-native';
-import { Max1024CharsError, Max140CharsError } from '@app/validators/types';
+import {
+  Max32CharsError,
+  Max1024CharsError,
+  Max140CharsError,
+} from '@app/validators/types';
 import useAppContext from '../hooks/useAppContext';
 
 // '%future added value' is reminder that GraphQL services often expand in
@@ -9,7 +13,12 @@ import useAppContext from '../hooks/useAppContext';
 // https://github.com/facebook/relay/issues/2351#issuecomment-368958022
 
 interface ValidationErrorProps {
-  error?: Max140CharsError | Max1024CharsError | null | '%future added value';
+  error?:
+    | Max32CharsError
+    | Max140CharsError
+    | Max1024CharsError
+    | null
+    | '%future added value';
 }
 
 const ValidationError: React.FunctionComponent<ValidationErrorProps> = ({
@@ -37,6 +46,7 @@ const ValidationError: React.FunctionComponent<ValidationErrorProps> = ({
             defaultMessage="Please fill out this field."
           />
         );
+      case 'MAX_32_CHARS':
       case 'MAX_140_CHARS':
       case 'MAX_1024_CHARS':
         return (

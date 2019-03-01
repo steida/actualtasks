@@ -3,6 +3,9 @@
 //  2) Never ever change any interface nor type. Always add a new version.
 //  3) Then add a migration step.
 // That's all. Now state migration is unbreakable.
+// FAQ: Why it's not versionless like GraphQL?
+// Because locally, without a brittle network, we have a control.
+// GraphQL must deal with client suddently getting a new version of data.
 
 interface User1 {
   email: string;
