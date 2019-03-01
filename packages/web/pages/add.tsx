@@ -6,30 +6,32 @@ import validateTaskList from '@app/validators/validateTaskList';
 import Button from '../components/Button';
 import Layout from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
-// import useAppState from '../hooks/useAppState';
+import useAppState from '../hooks/useAppState';
 import { pageTitles } from './_app';
-import ValidationError from '../components/ValidationError';
+import ValidationError, {
+  hasValidationError,
+} from '../components/ValidationError';
 
+// TODO: This will be reusable field component within reusable form.
 const NameInput: React.FunctionComponent = () => {
   const { theme } = useAppContext();
   const [name, setName] = useState('');
   const [errors, setErrors] = useState<ReturnType<typeof validateTaskList>>({
     name: null,
   });
-  // const setAppState = useSetAppState()
+  const setAppState = useAppState();
+
   const handleSubmitEditing = () => {
     const taskList = createTaskList(name);
     const errors = validateTaskList(taskList);
-    if (Object.keys(errors).length > 0) {
+    if (hasValidationError(errors)) {
       setErrors(errors);
       return;
     }
-    // jak to promitnout? return type of validateTask? proc ne!
-    // eslint-disable-next-line no-console
-    console.log(errors);
-
-    // eslint-disable-next-line no-console
-    console.log(taskList.id);
+    setAppState(state => {
+      state.taskLists.push(taskList);
+    });
+    // TODO: Redirect.
   };
 
   return (
