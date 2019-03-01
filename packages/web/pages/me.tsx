@@ -17,7 +17,8 @@ export const messages = defineMessages({
 });
 
 const DarkModeButton: React.FunctionComponent = () => {
-  const [darkMode, setAppState] = useAppState(state => state.viewer.darkMode);
+  const darkMode = useAppState(state => state.viewer.darkMode);
+  const setAppState = useAppState();
   const emoji = darkMode ? '🌛' : '🌤';
   const toggleViewerDarkMode = () => {
     setAppState(({ viewer }) => {
@@ -33,7 +34,8 @@ const DarkModeButton: React.FunctionComponent = () => {
 
 const EmailInput: React.FunctionComponent = () => {
   const { theme } = useAppContext();
-  const [email, setAppState] = useAppState(state => state.viewer.email);
+  const email = useAppState(state => state.viewer.email);
+  const setAppState = useAppState();
   const setViewerEmail = (email: string) =>
     setAppState(({ viewer }) => {
       viewer.email = email;

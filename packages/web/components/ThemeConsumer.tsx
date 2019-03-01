@@ -8,7 +8,7 @@ interface ThemeConsumer {
 }
 
 const ThemeConsumer: React.FunctionComponent<ThemeConsumer> = props => {
-  const [darkMode] = useAppState(state => state.viewer.darkMode);
+  const darkMode = useAppState(state => state.viewer.darkMode);
   const theme = darkMode ? darkTheme : lightTheme;
   return props.children(theme);
 };

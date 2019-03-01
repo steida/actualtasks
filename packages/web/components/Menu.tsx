@@ -19,7 +19,7 @@ const TaskListLink: FunctionComponent<LinkProps> = props => {
 };
 
 const TaskLists: FunctionComponent = () => {
-  const [taskLists] = useAppState(state => state.taskLists);
+  const taskLists = useAppState(state => state.taskLists);
   // ✎ for edit? menu for active tasklist?
   // const isActive = true;
   return (

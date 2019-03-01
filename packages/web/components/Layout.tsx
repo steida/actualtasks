@@ -32,7 +32,7 @@ export const LayoutContext = React.createContext<LayoutContextType>({
 
 const ViewerGravatar: FunctionComponent = () => {
   const { theme } = useAppContext();
-  const [email] = useAppState(state => state.viewer.email);
+  const email = useAppState(state => state.viewer.email);
   const displayEmail = isEmail(email) ? email : '';
   if (!displayEmail) return <>👤</>;
   return (

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Text, TextInput, View } from 'react-native';
-// import createTaskList from '@app/state/createTaskList';
+import createTaskList from '@app/state/createTaskList';
 import Button from '../components/Button';
 import Layout from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
@@ -11,11 +11,16 @@ import { pageTitles } from './_app';
 const NameInput: React.FunctionComponent = () => {
   const { theme } = useAppContext();
   const [name, setName] = useState('');
+  // const viewer = useAppState(state => state.viewer)
+  // const setAppState = useAppState()
   // use setAppState? nebo optional?
-  // const [, setAppState] = useAppState(state => state);
+  // const [appState, setAppState] = useAppState(state => state);
+  // const setAppState = useSetAppState()
   const handleSubmitEditing = () => {
     // if (name.length < 1) return;
-    // const taskList = createTaskList();
+    const taskList = createTaskList();
+    // eslint-disable-next-line no-console
+    console.log(taskList.id);
   };
 
   return (

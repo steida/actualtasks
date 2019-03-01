@@ -49,6 +49,7 @@ const AppStateProvider: React.FunctionComponent<
     // universal (React + React Native) storage like WatermelonDB.
     const data: StorageData = { version, state };
     try {
+      // We can optimize AsyncStorage. For example, we can split object by keys.
       await AsyncStorage.setItem(name, JSON.stringify(data));
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -126,6 +127,7 @@ const AppStateProvider: React.FunctionComponent<
           'useAppState: setAppState can not be called before state is loaded.',
         );
       const nextState = produce(getAppState(), callback);
+      // TODO: Schema validation.
       setAppStateRef(nextState);
     },
   });
