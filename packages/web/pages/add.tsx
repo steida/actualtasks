@@ -4,7 +4,6 @@ import { View } from 'react-native';
 import createTaskList from '@app/state/createTaskList';
 import validateTaskList from '@app/validators/validateTaskList';
 import Router from 'next/router';
-import Button from '../components/Button';
 import Layout from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
@@ -12,6 +11,7 @@ import { pageTitles } from './_app';
 import { hasValidationError } from '../components/ValidationError';
 import { AppHref } from '../types';
 import TextInputWithLabelAndError from '../components/TextInputWithLabelAndError';
+import FormButton from '../components/FormButton';
 
 const Add: FunctionComponent = () => {
   const { intl } = useAppContext();
@@ -52,9 +52,7 @@ const Add: FunctionComponent = () => {
         maxLength="short"
       />
       <View style={theme.buttons}>
-        <Button onPress={handleSubmitEditing} size="small" type="primary">
-          <FormattedMessage defaultMessage="Add" id="add" />
-        </Button>
+        <FormButton label="add" onPress={handleSubmitEditing} />
       </View>
     </Layout>
   );

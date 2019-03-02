@@ -7,7 +7,7 @@ type Type = 'text' | 'primary' | 'secondary' | 'danger' | 'gray';
 
 type Size = 'big' | 'normal' | 'small';
 
-interface ButtonProps extends TouchableOpacityProps {
+export interface ButtonProps extends TouchableOpacityProps {
   size?: Size;
   type?: Type;
 }
