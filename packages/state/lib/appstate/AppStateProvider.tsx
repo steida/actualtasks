@@ -98,10 +98,11 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
         .slice(data.version)
         .reduce((state, migration) => migration(state), data.state);
       setAppStateRef(state);
-      setLoaded(true);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      setLoaded(true);
     }
   };
 
