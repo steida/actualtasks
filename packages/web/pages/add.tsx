@@ -3,6 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { Text, TextInput, View } from 'react-native';
 import createTaskList from '@app/state/createTaskList';
 import validateTaskList from '@app/validators/validateTaskList';
+import Router from 'next/router';
 import Button from '../components/Button';
 import Layout from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
@@ -11,6 +12,7 @@ import { pageTitles } from './_app';
 import ValidationError, {
   hasValidationError,
 } from '../components/ValidationError';
+import { AppHref } from '../types';
 
 // TODO: This will be reusable field component within reusable form.
 const NameInput: React.FunctionComponent = () => {
@@ -31,7 +33,11 @@ const NameInput: React.FunctionComponent = () => {
     setAppState(state => {
       state.taskLists[taskList.id] = taskList;
     });
-    // TODO: Redirect.
+    const href: AppHref = {
+      pathname: '/',
+      query: { id: taskList.id },
+    };
+    Router.push(href);
   };
 
   return (
