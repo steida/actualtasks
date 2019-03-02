@@ -1,3 +1,5 @@
+// TODO: For typed parsing, use gcanti/io-ts.
+
 export type AppHref =
   | {
       pathname: '/';
