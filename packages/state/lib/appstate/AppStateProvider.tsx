@@ -1,6 +1,12 @@
 import produce from 'immer';
 import throttle from 'lodash.throttle';
-import React, { useState, useRef, FunctionComponent } from 'react';
+import React, {
+  useState,
+  useRef,
+  FunctionComponent,
+  useMemo,
+  useEffect,
+} from 'react';
 import { AsyncStorage } from 'react-native';
 import AppStateContext, {
   AppStateContextType,
@@ -64,7 +70,7 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
     }
   };
 
-  const saveThrottled = React.useMemo(() => throttle(save, 500), [save]);
+  const saveThrottled = useMemo(() => throttle(save, 500), [save]);
 
   const setAppStateRef = (state: object) => {
     appStateRef.current = state;
@@ -99,7 +105,7 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     load();
   }, [load]);
 
@@ -116,7 +122,7 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const isBrowser = typeof window !== 'undefined';
     if (!isBrowser) return;
     // eslint-disable-next-line no-undef
@@ -130,7 +136,7 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
 
   // Always the same value, so Context consumers will not be updated on
   // appState change. We use subscribed callbacks instead.
-  const context = React.useRef<AppStateContextType>({
+  const context = useRef<AppStateContextType>({
     getAppState,
     subscribe(callback) {
       callbacks.add(callback);
