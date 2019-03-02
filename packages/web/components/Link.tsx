@@ -1,10 +1,10 @@
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
-import { withRouter, WithRouterProps } from 'next/router';
 import React from 'react';
-import { Platform, TextStyle, Text, StyleProp } from 'react-native';
+import { Platform, Text, TextStyle, StyleProp } from 'react-native';
 import { Assign, Omit, Overwrite } from 'utility-types';
 import useAppContext from '../hooks/useAppContext';
 import { AppHref } from '../types';
+import useRouteIsActive from '../hooks/useRouteIsActive';
 
 export type LinkProps = Assign<
   Overwrite<
@@ -16,7 +16,7 @@ export type LinkProps = Assign<
       href: AppHref;
     }
   >,
-  WithRouterProps & {
+  {
     style?: StyleProp<TextStyle>;
     activeStyle?: StyleProp<TextStyle>;
   }
@@ -24,31 +24,22 @@ export type LinkProps = Assign<
 
 const Link: React.FunctionComponent<LinkProps> = props => {
   const { theme } = useAppContext();
-  const [isActive, setIsActive] = React.useState(false);
-  const { children, style, activeStyle, router, href, ...rest } = props;
-
-  const routeIsActive = () => {
-    if (router == null) return false;
-    const linkPathname = typeof href === 'object' ? href.pathname : href;
-    const linkQuery = typeof href === 'object' ? href.query : null;
-    return (
-      linkPathname === router.pathname &&
-      JSON.stringify(linkQuery || {}) === JSON.stringify(router.query || {})
-    );
-  };
+  const [hasHover, setHasHover] = React.useState(false);
+  const { children, style, activeStyle, href, ...rest } = props;
+  const routeIsActive = useRouteIsActive(href);
 
   return (
     <NextLink {...rest} href={href} passHref>
       <Text
-        accessibilityRole="link"
         style={[
           style || theme.link,
-          (isActive || routeIsActive()) && (activeStyle || theme.linkActive),
+          (hasHover || routeIsActive) && (activeStyle || theme.linkActive),
         ]}
+        accessibilityRole="link"
         {...Platform.select({
           web: {
-            onMouseEnter: () => setIsActive(true),
-            onMouseLeave: () => setIsActive(false),
+            onMouseEnter: () => setHasHover(true),
+            onMouseLeave: () => setHasHover(false),
           },
         })}
       >
@@ -58,4 +49,4 @@ const Link: React.FunctionComponent<LinkProps> = props => {
   );
 };
 
-export default withRouter(Link);
+export default Link;

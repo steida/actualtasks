@@ -5,6 +5,7 @@ import React from 'react';
 import { defineMessages, IntlProvider } from 'react-intl';
 import { View } from 'react-native';
 import IntlProviderFix from '../components/IntlProviderFix';
+import RouterProviderFix from '../components/RouterProviderFix';
 import ThemeConsumer from '../components/ThemeConsumer';
 import AppContext from '../contexts/AppContext';
 
@@ -56,13 +57,17 @@ export default class MyApp extends App<MyAppProps> {
           >
             <IntlProviderFix>
               {intl => (
-                <ThemeConsumer>
-                  {theme => (
-                    <AppContext.Provider value={{ intl, theme }}>
-                      <Page {...pageProps} />
-                    </AppContext.Provider>
+                <RouterProviderFix>
+                  {router => (
+                    <ThemeConsumer>
+                      {theme => (
+                        <AppContext.Provider value={{ intl, theme, router }}>
+                          <Page {...pageProps} />
+                        </AppContext.Provider>
+                      )}
+                    </ThemeConsumer>
                   )}
-                </ThemeConsumer>
+                </RouterProviderFix>
               )}
             </IntlProviderFix>
           </IntlProvider>

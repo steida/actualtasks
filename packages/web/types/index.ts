@@ -9,4 +9,8 @@ export type AppHref =
   | 'https://github.com/steida/actualtasks'
   | 'https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3'
   | '/me'
-  | '/add';
+  | '/add'
+  | {
+      pathname: '/edit';
+      query: { id: string } | null;
+    };

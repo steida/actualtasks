@@ -14,7 +14,6 @@ import ValidationError, {
 } from '../components/ValidationError';
 import { AppHref } from '../types';
 
-// TODO: This will be reusable field component within reusable form.
 const NameInput: React.FunctionComponent = () => {
   const { theme } = useAppContext();
   const [name, setName] = useState('');
