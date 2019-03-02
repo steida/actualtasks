@@ -7,13 +7,13 @@ import Link, { LinkProps } from './Link';
 import useRouteIsActive from '../hooks/useRouteIsActive';
 import { AppHref } from '../types';
 
-const MenuLink: FunctionComponent<LinkProps> = props => {
+const MenuLink: FunctionComponent<LinkProps> = ({ style, ...rest }) => {
   const { theme } = useAppContext();
   return (
     <Link
       activeStyle={[theme.textSmall, theme.bold]}
-      style={[theme.textSmallGray, theme.bold, theme.paddingHorizontal]}
-      {...props}
+      style={[theme.textSmallGray, theme.bold, theme.paddingHorizontal, style]}
+      {...rest}
     />
   );
 };
@@ -37,8 +37,14 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
   const routeIsActive = useRouteIsActive(isIndexPage ? indexHref : editHref);
   return (
     <View style={theme.flexRow}>
-      <MenuLink href={indexHref}>{props.children}</MenuLink>
-      {routeIsActive && <MenuLink href={editHref}>☰</MenuLink>}
+      <MenuLink style={!routeIsActive && theme.flex1} href={indexHref}>
+        {props.children}
+      </MenuLink>
+      {routeIsActive && (
+        <MenuLink style={routeIsActive && theme.flex1} href={editHref}>
+          ☰
+        </MenuLink>
+      )}
     </View>
   );
 };
