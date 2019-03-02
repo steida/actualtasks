@@ -4,17 +4,42 @@ import { rootTaskListId } from '@app/state/appStateConfig';
 import useAppState from '../hooks/useAppState';
 import useAppContext from '../hooks/useAppContext';
 import Link, { LinkProps } from './Link';
+import useRouteIsActive from '../hooks/useRouteIsActive';
+import { AppHref } from '../types';
 
-const TaskListLink: FunctionComponent<LinkProps> = props => {
+const MenuLink: FunctionComponent<LinkProps> = props => {
   const { theme } = useAppContext();
   return (
     <Link
       activeStyle={[theme.textSmall, theme.bold]}
-      style={[theme.textSmallGray, theme.bold, theme.marginHorizontal]}
-      href={props.href}
-    >
-      {props.children}
-    </Link>
+      style={[theme.textSmallGray, theme.bold, theme.paddingHorizontal]}
+      {...props}
+    />
+  );
+};
+
+interface TaskListLinkProps {
+  id: string;
+}
+
+const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
+  const { theme, router } = useAppContext();
+  const isRoot = props.id === rootTaskListId;
+  const indexHref: AppHref = {
+    pathname: '/',
+    query: isRoot ? null : { id: props.id },
+  };
+  const editHref: AppHref = {
+    pathname: '/edit',
+    query: { id: props.id },
+  };
+  const isIndexPage = router.pathname === indexHref.pathname;
+  const routeIsActive = useRouteIsActive(isIndexPage ? indexHref : editHref);
+  return (
+    <View style={theme.flexRow}>
+      <MenuLink href={indexHref}>{props.children}</MenuLink>
+      {routeIsActive && <MenuLink href={editHref}>☰</MenuLink>}
+    </View>
   );
 };
 
@@ -24,20 +49,11 @@ const TaskLists: FunctionComponent = () => {
     return Object.values(taskLists).sort((a, b) => a.createdAt - b.createdAt);
   }, [taskLists]);
 
-  // ✎ for edit? menu for active tasklist?
-  // const isActive = true;
   return (
     <>
       {sortedTaskLists.map(taskList => {
-        const isRoot = taskList.id === rootTaskListId;
         return (
-          <TaskListLink
-            href={{
-              pathname: '/',
-              query: isRoot ? null : { id: taskList.id },
-            }}
-            key={taskList.id}
-          >
+          <TaskListLink id={taskList.id} key={taskList.id}>
             {taskList.name}
           </TaskListLink>
         );
@@ -61,7 +77,7 @@ const Menu: FunctionComponent<MenuProps> = props => {
       ]}
     >
       <TaskLists />
-      <TaskListLink href="/add">+</TaskListLink>
+      <MenuLink href="/add">+</MenuLink>
     </View>
   );
 };

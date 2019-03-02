@@ -137,6 +137,7 @@ export class LightTheme {
   lineThrough: TextStyle;
   flex1: ViewStyle;
   marginHorizontal: ViewStyle;
+  paddingHorizontal: ViewStyle;
   negativeMarginHorizontal: ViewStyle;
 
   constructor(colors: Colors, dimensions: Dimensions) {
@@ -418,6 +419,10 @@ export class LightTheme {
 
     this.marginHorizontal = {
       marginHorizontal: typography.lineHeight / 4,
+    };
+
+    this.paddingHorizontal = {
+      paddingHorizontal: typography.lineHeight / 4,
     };
 
     this.negativeMarginHorizontal = {
