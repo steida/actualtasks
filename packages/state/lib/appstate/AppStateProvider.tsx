@@ -1,6 +1,6 @@
 import produce from 'immer';
 import throttle from 'lodash.throttle';
-import React from 'react';
+import React, { useState, useRef, FunctionComponent } from 'react';
 import { AsyncStorage } from 'react-native';
 import AppStateContext, {
   AppStateContextType,
@@ -21,16 +21,23 @@ interface Config {
 
 interface AppStateProviderProps {
   config: Config;
-  children: React.ReactChild;
+  children: React.ReactNode;
+  splashScreen?: React.ReactNode;
 }
 
-const AppStateProvider: React.FunctionComponent<
-  AppStateProviderProps
-> = props => {
+const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
   const { name, migrations } = props.config;
-  const { current: callbacks } = React.useRef(new Set<Callback>());
-  const loadedRef = React.useRef(false);
-  const appStateRef = React.useRef<object | null>(null);
+  const { current: callbacks } = useRef(new Set<Callback>());
+  const [loaded, setLoaded] = useState(false);
+  const appStateRef = useRef<object | null>(null);
+
+  // AppState is ref, because state changes are propagated to listeners.
+  // Initial value is created by migrations.
+  // After the initial render, a value from local storage is loaded, maybe
+  // migrated, then set, so registered hooks are maybe updated.
+  // Why double rendering? Because we have to match initial state from the
+  // server with initial render, then we can use state from local storage.
+  // In future, we can fetch end-to-end encrypted state from the server.
 
   // https://reactjs.org/docs/hooks-faq.html#how-to-create-expensive-objects-lazily
   const getAppState = () => {
@@ -62,9 +69,16 @@ const AppStateProvider: React.FunctionComponent<
   const setAppStateRef = (state: object) => {
     appStateRef.current = state;
     // Note Set forEach has a different behavior than Array forEach.
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/forEach
-    // If callbacks were an array, dispatch could and would break forEach order.
-    // forEach on the cloned array did not help entirely, not sure why.
+    // "Each value is visited once, except in the case when it was deleted and
+    // re-added before forEach() has finished. callback is not invoked for
+    // values deleted before being visited. New values added before forEach()
+    // has finished will be visited."
+    // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/forEach
+    // If callbacks were an array, dispatch could and would break forEach.
+    // forEach on the cloned array did not help entirely.
+    // Anyway, React team will provide publish more guidance on subscribing to
+    // third party data sources soon.
+    // https://github.com/facebook/react/issues/14988#issuecomment-468616077
     callbacks.forEach(callback => callback());
     saveThrottled();
   };
@@ -78,11 +92,10 @@ const AppStateProvider: React.FunctionComponent<
         .slice(data.version)
         .reduce((state, migration) => migration(state), data.state);
       setAppStateRef(state);
+      setLoaded(true);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-    } finally {
-      loadedRef.current = true;
     }
   };
 
@@ -126,7 +139,7 @@ const AppStateProvider: React.FunctionComponent<
       };
     },
     setAppState(callback) {
-      if (!loadedRef.current)
+      if (!loaded)
         throw Error(
           'useAppState: setAppState can not be called before state is loaded.',
         );
@@ -139,6 +152,7 @@ const AppStateProvider: React.FunctionComponent<
   return (
     <AppStateContext.Provider value={context.current}>
       {props.children}
+      {loaded === false && props.splashScreen}
     </AppStateContext.Provider>
   );
 };

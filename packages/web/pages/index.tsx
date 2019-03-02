@@ -7,6 +7,10 @@ import { pageTitles } from './_app';
 
 const Index: FunctionComponent<WithRouterProps> = () => {
   const { intl } = useAppContext();
+  // const viewer = useAppState(state => state.viewer);
+  // // eslint-disable-next-line no-console
+  // console.log(viewer);
+
   const title = intl.formatMessage(pageTitles.index);
   return <Layout title={title}>{/* <Tasks /> */}</Layout>;
 };

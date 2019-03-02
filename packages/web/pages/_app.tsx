@@ -3,10 +3,25 @@ import { AppStateProvider } from '@app/state/lib/appstate';
 import App, { Container } from 'next/app';
 import React from 'react';
 import { defineMessages, IntlProvider } from 'react-intl';
+import { View } from 'react-native';
 import IntlProviderFix from '../components/IntlProviderFix';
 import ThemeConsumer from '../components/ThemeConsumer';
 import AppContext from '../contexts/AppContext';
-import HideBeforeClientIsReady from '../components/HideBeforeClientIsReady';
+
+const SplashScreen = () => {
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        backgroundColor: '#fff',
+      }}
+    />
+  );
+};
 
 interface MyAppProps {
   initialNow: number;
@@ -30,7 +45,10 @@ export default class MyApp extends App<MyAppProps> {
 
     return (
       <Container>
-        <AppStateProvider config={appStateConfig}>
+        <AppStateProvider
+          config={appStateConfig}
+          splashScreen={<SplashScreen />}
+        >
           <IntlProvider
             locale="en"
             initialNow={initialNow}
@@ -41,9 +59,7 @@ export default class MyApp extends App<MyAppProps> {
                 <ThemeConsumer>
                   {theme => (
                     <AppContext.Provider value={{ intl, theme }}>
-                      <HideBeforeClientIsReady>
-                        <Page {...pageProps} />
-                      </HideBeforeClientIsReady>
+                      <Page {...pageProps} />
                     </AppContext.Provider>
                   )}
                 </ThemeConsumer>
