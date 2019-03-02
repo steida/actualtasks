@@ -1,11 +1,11 @@
 // Remember:
-//  1) Make everything strict. It will simplify migrations and DX.
-//  2) Never ever change any interface nor type. Always add a new version.
-//  3) Then add a migration step.
-// That's all. Now state migration is unbreakable.
-// FAQ: Why it's not versionless like GraphQL?
-// Because locally, without a brittle network, we have a control.
-// GraphQL must deal with client suddently getting a new version of data.
+//  1 Make everything strict. It simplifies migrations and DX.
+//  2 Never change any interface. Always add a new version with a migration.
+//  3 Collections are objects instead of arrays. We don't need "sorted"
+//    information and we want fast joins without Array findIndex method.
+// That's all.
+// We don't need nullable and versionless API like with GraphQL, because data
+// are local and client is shipped with migrations.
 
 interface User1 {
   email: string;
@@ -38,7 +38,7 @@ export interface TaskList1 {
 
 export interface AppState1 {
   viewer: User1;
-  taskLists: TaskList1[];
+  taskLists: { [key: string]: TaskList1 };
 }
 
 // interface AppState2 {

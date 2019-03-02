@@ -815,9 +815,9 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "11.10.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.10.0.tgz#08eeb736ae678ccf9ca0922063f3a08795894ede"
-  integrity sha512-6Mb9+PPq9UzRpQrlPzZAbhEvodWDTnsIakddUAtSDpKYF6eu5zAdW31n8x7UZStvqGnDC7dCJnvU188ylv/Ytw==
+  version "11.10.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.10.1.tgz#3798bc942c187a2935a49472db3c5227eb39cdfc"
+  integrity sha512-VzvYpjW6sm5PJlYBGXt+XFmYvrDS4XLtVykTS6d3yiOWpCLc+cYwSjp++lmVL7iw4V301NVonMFzcqe4AKFQYA==
 
 "@types/prop-types@*":
   version "15.7.0"
@@ -2475,9 +2475,9 @@ eslint-restricted-globals@^0.1.1:
   integrity sha1-NfDVy8ZMLj7WLpO0saevBbp+1Nc=
 
 eslint-scope@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-scope/-/eslint-scope-4.0.0.tgz#50bf3071e9338bcdc43331794a0cb533f0136172"
-  integrity sha512-1G6UTDi7Jc1ELFwnR58HV4fK9OQK4S6N985f166xqXxpjU6plxFISJa2Ba9KCQuFa8RCnj/lSFJbHo7UFDBnUA==
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/eslint-scope/-/eslint-scope-4.0.1.tgz#dc3e21b1129fe4f61509a025db075fe7ba3abdba"
+  integrity sha512-PeQeU4s1Pr0LXLZ+YF7aYaZirFDw23ssCKeahBqZqa8aM9Si9jSx7MoSKhAl3m+VM9oqnGSMdLYZ2QzB09aQnw==
   dependencies:
     esrecurse "^4.1.0"
     estraverse "^4.1.1"

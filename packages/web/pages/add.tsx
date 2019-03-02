@@ -29,7 +29,7 @@ const NameInput: React.FunctionComponent = () => {
       return;
     }
     setAppState(state => {
-      state.taskLists.push(taskList);
+      state.taskLists[taskList.id] = taskList;
     });
     // TODO: Redirect.
   };
