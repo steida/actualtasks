@@ -8,8 +8,14 @@ import {
 } from '@app/validators/types';
 import useAppContext from '../hooks/useAppContext';
 
+export type ValidationErrorType =
+  | Max32CharsError
+  | Max140CharsError
+  | Max1024CharsError
+  | null;
+
 interface ValidationErrorProps {
-  error?: Max32CharsError | Max140CharsError | Max1024CharsError | null;
+  error?: ValidationErrorType;
 }
 
 const ValidationError: React.FunctionComponent<ValidationErrorProps> = ({

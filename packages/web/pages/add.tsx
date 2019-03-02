@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, FunctionComponent } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Text, TextInput, View } from 'react-native';
+import { View } from 'react-native';
 import createTaskList from '@app/state/createTaskList';
 import validateTaskList from '@app/validators/validateTaskList';
 import Router from 'next/router';
@@ -9,12 +9,14 @@ import Layout from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import { pageTitles } from './_app';
-import ValidationError, {
-  hasValidationError,
-} from '../components/ValidationError';
+import { hasValidationError } from '../components/ValidationError';
 import { AppHref } from '../types';
+import TextInputWithLabelAndError from '../components/TextInputWithLabelAndError';
 
-const NameInput: React.FunctionComponent = () => {
+const Add: FunctionComponent = () => {
+  const { intl } = useAppContext();
+  const title = intl.formatMessage(pageTitles.add);
+
   const { theme } = useAppContext();
   const [name, setName] = useState('');
   const [errors, setErrors] = useState<ReturnType<typeof validateTaskList>>({
@@ -40,36 +42,20 @@ const NameInput: React.FunctionComponent = () => {
   };
 
   return (
-    <>
-      <Text style={theme.label}>
-        <FormattedMessage defaultMessage="Name" id="nameLabel" />
-      </Text>
-      <TextInput
-        onChangeText={text => setName(text)}
-        style={theme.textInputOutline}
-        enablesReturnKeyAutomatically
-        blurOnSubmit={false}
-        onSubmitEditing={handleSubmitEditing}
+    <Layout title={title}>
+      <TextInputWithLabelAndError
+        label={<FormattedMessage defaultMessage="Name" id="taskNameLabel" />}
         value={name}
-        maxLength={32}
+        onChangeText={text => setName(text)}
+        error={errors.name}
+        onSubmitEditing={handleSubmitEditing}
+        maxLength="short"
       />
-      <ValidationError error={errors.name} />
       <View style={theme.buttons}>
         <Button onPress={handleSubmitEditing} size="small" type="primary">
           <FormattedMessage defaultMessage="Add" id="add" />
         </Button>
       </View>
-    </>
-  );
-};
-
-const Add: React.FunctionComponent = () => {
-  const { intl } = useAppContext();
-  const title = intl.formatMessage(pageTitles.add);
-
-  return (
-    <Layout title={title}>
-      <NameInput />
     </Layout>
   );
 };
