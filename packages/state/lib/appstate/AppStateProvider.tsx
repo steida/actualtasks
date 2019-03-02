@@ -139,10 +139,6 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
       };
     },
     setAppState(callback) {
-      if (!loaded)
-        throw Error(
-          'useAppState: setAppState can not be called before state is loaded.',
-        );
       const nextState = produce(getAppState(), callback);
       // TODO: Schema validation.
       setAppStateRef(nextState);
