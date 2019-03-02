@@ -107,8 +107,8 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
   };
 
   useEffect(() => {
-    load();
-  }, [load]);
+    if (!loaded) load();
+  }, [load, loaded]);
 
   const syncStorage = async (event: StorageEvent) => {
     if (event.key !== name) return;
