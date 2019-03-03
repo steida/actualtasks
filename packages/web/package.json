@@ -27,7 +27,8 @@
     "react-intl": "^2.7.2",
     "react-native-web": "^0.10.0",
     "slate": "^0.44.10",
-    "slate-react": "^0.21.16"
+    "slate-react": "^0.21.16",
+    "lodash.throttle": "^4.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
