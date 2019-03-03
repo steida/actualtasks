@@ -11,6 +11,7 @@ const MenuLink: FunctionComponent<LinkProps> = ({ style, ...rest }) => {
   const { theme } = useAppContext();
   return (
     <Link
+      prefetch
       activeStyle={[theme.textSmall, theme.bold]}
       style={[theme.textSmallGray, theme.bold, theme.paddingHorizontal, style]}
       {...rest}
