@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useMemo } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { rootTaskListId } from '@app/state/appStateConfig';
 import useAppState from '../hooks/useAppState';
 import useAppContext from '../hooks/useAppContext';
@@ -43,7 +43,7 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
       </MenuLink>
       {routeIsActive && (
         <MenuLink style={routeIsActive && theme.flex1} href={editHref}>
-          ☰
+          <Text style={theme.noBold}>☰</Text>
         </MenuLink>
       )}
     </View>

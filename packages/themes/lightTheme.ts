@@ -85,6 +85,7 @@ export class LightTheme {
   textSmall: TextStyle;
   textSmallGray: TextStyle;
   bold: TextStyle;
+  noBold: TextStyle;
   marginBottom: ViewStyle;
   marginTop: ViewStyle;
   paragraph: TextStyle;
@@ -166,6 +167,10 @@ export class LightTheme {
 
     this.bold = {
       fontWeight: 'bold',
+    };
+
+    this.noBold = {
+      fontWeight: 'normal',
     };
 
     this.marginBottom = {
