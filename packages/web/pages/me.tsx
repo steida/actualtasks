@@ -6,8 +6,8 @@ import Button from '../components/Button';
 import Layout from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
-import { pageTitles } from './_app';
 import Link from '../components/Link';
+import usePageTitles from '../hooks/usePageTitles';
 
 export const messages = defineMessages({
   backupAndSync: {
@@ -77,11 +77,11 @@ const LayoutFooter: React.FunctionComponent = () => {
 
 const Me: React.FunctionComponent = () => {
   const { intl, theme } = useAppContext();
-  const title = intl.formatMessage(pageTitles.me);
+  const pageTitles = usePageTitles();
   const [backupAndSyncShown, setBackupAndSyncShown] = React.useState(false);
 
   return (
-    <Layout title={title}>
+    <Layout title={pageTitles.me}>
       <View style={theme.buttons}>
         <DarkModeButton />
       </View>

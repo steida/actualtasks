@@ -2,7 +2,7 @@ import appStateConfig from '@app/state/appStateConfig';
 import { AppStateProvider } from '@app/state/lib/appstate';
 import App, { Container } from 'next/app';
 import React from 'react';
-import { defineMessages, IntlProvider } from 'react-intl';
+import { IntlProvider } from 'react-intl';
 import { View } from 'react-native';
 import IntlProviderFix from '../components/IntlProviderFix';
 import RouterProviderFix from '../components/RouterProviderFix';
@@ -76,20 +76,3 @@ export default class MyApp extends App<MyAppProps> {
     );
   }
 }
-
-// Page titles can not be collocated within pages because that would defeat
-// code splitting. One nav component would import many whole pages.
-export const pageTitles = defineMessages({
-  index: {
-    defaultMessage: 'Actual Tasks',
-    id: 'pageTitles.index',
-  },
-  me: {
-    defaultMessage: 'Me',
-    id: 'pageTitles.me',
-  },
-  add: {
-    defaultMessage: 'Add',
-    id: 'pageTitles.add',
-  },
-});

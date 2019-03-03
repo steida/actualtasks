@@ -1,13 +1,11 @@
-import React from 'react';
-import { pageTitles } from './_app';
+import React, { FunctionComponent } from 'react';
 import Layout from '../components/Layout';
-import useAppContext from '../hooks/useAppContext';
+import usePageTitles from '../hooks/usePageTitles';
 
-const Edit: React.FunctionComponent = () => {
-  const { intl } = useAppContext();
-  const title = intl.formatMessage(pageTitles.add);
-
-  return <Layout title={title}>{/* <NameInput /> */}</Layout>;
+const Edit: FunctionComponent = () => {
+  const pageTitles = usePageTitles();
+  // const taskLists = useAppState(state => state.taskLists);
+  return <Layout title={pageTitles.edit('foo')}>{/* <NameInput /> */}</Layout>;
 };
 
 export default Edit;

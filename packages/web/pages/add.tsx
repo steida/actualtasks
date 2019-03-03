@@ -7,16 +7,14 @@ import Router from 'next/router';
 import Layout from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
-import { pageTitles } from './_app';
 import { hasValidationError } from '../components/ValidationError';
 import { AppHref } from '../types';
 import TextInputWithLabelAndError from '../components/TextInputWithLabelAndError';
 import FormButton from '../components/FormButton';
+import usePageTitles from '../hooks/usePageTitles';
 
 const Add: FunctionComponent = () => {
-  const { intl } = useAppContext();
-  const title = intl.formatMessage(pageTitles.add);
-
+  const pageTitles = usePageTitles();
   const { theme } = useAppContext();
   const [name, setName] = useState('');
   const [errors, setErrors] = useState<ReturnType<typeof validateTaskList>>({
@@ -42,7 +40,7 @@ const Add: FunctionComponent = () => {
   };
 
   return (
-    <Layout title={title}>
+    <Layout title={pageTitles.add}>
       <TextInputWithLabelAndError
         label={<FormattedMessage defaultMessage="Name" id="taskNameLabel" />}
         value={name}
