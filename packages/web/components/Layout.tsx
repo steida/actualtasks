@@ -102,8 +102,8 @@ const Layout: FunctionComponent<LayoutProps> = props => {
     if (node.contains(document.activeElement)) {
       return;
     }
-    // TODO: Why I had outline none? Because of esc? I think we can remove it.
-    // layoutBodyRef.current.setNativeProps({ style: { outline: 'none' } });
+    // Remove outline, because outline shall be shown only on key action.
+    layoutBodyRef.current.setNativeProps({ style: { outline: 'none' } });
     layoutBodyRef.current.focus();
   };
 
