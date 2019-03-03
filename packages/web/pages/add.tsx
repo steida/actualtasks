@@ -13,8 +13,7 @@ import TextInputWithLabelAndError from '../components/TextInputWithLabelAndError
 import FormButton from '../components/FormButton';
 import usePageTitles from '../hooks/usePageTitles';
 
-const Add: FunctionComponent = () => {
-  const pageTitles = usePageTitles();
+const Form: FunctionComponent = () => {
   const { theme } = useAppContext();
   const [name, setName] = useState('');
   const [errors, setErrors] = useState<ReturnType<typeof validateTaskList>>({
@@ -40,7 +39,7 @@ const Add: FunctionComponent = () => {
   };
 
   return (
-    <Layout title={pageTitles.add}>
+    <>
       <TextInputWithLabelAndError
         label={<FormattedMessage defaultMessage="Name" id="taskNameLabel" />}
         value={name}
@@ -52,6 +51,16 @@ const Add: FunctionComponent = () => {
       <View style={theme.buttons}>
         <FormButton label="add" onPress={handleSubmitEditing} />
       </View>
+    </>
+  );
+};
+
+const Add: FunctionComponent = () => {
+  const pageTitles = usePageTitles();
+  return (
+    <Layout title={pageTitles.add}>
+      {/* Form, so the whole page will not be rerendered on any keypress. */}
+      <Form />
     </Layout>
   );
 };
