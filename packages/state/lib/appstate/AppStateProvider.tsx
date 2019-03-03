@@ -33,7 +33,7 @@ interface AppStateProviderProps {
 
 const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
   const { name, migrations } = props.config;
-  const { current: callbacks } = useRef(new Set<Callback>());
+  const { current: callbacks } = useRef<Callback[]>([]);
   const [loaded, setLoaded] = useState(false);
   const appStateRef = useRef<object | null>(null);
 
@@ -72,20 +72,13 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
 
   const saveThrottled = useMemo(() => throttle(save, 500), [save]);
 
-  const setAppStateRef = (state: object) => {
+  const setAppStateRef = (state: object, noCallbacks?: boolean) => {
     appStateRef.current = state;
-    // Note Set forEach has a different behavior than Array forEach.
-    // "Each value is visited once, except in the case when it was deleted and
-    // re-added before forEach() has finished. callback is not invoked for
-    // values deleted before being visited. New values added before forEach()
-    // has finished will be visited."
-    // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/forEach
-    // If callbacks were an array, dispatch could and would break forEach.
-    // forEach on the cloned array did not help entirely.
-    // Anyway, React team will provide publish more guidance on subscribing to
-    // third party data sources soon.
-    // https://github.com/facebook/react/issues/14988#issuecomment-468616077
-    callbacks.forEach(callback => callback());
+    // Load don't have run callbacks because app will be rerendered on loaded.
+    // Load don't have to save state because it will be saved on change anyway.
+    if (noCallbacks === true) return;
+    // Maybe we don't have to clone callbacks because setState is async, but...
+    [...callbacks].forEach(callback => callback());
     saveThrottled();
   };
 
@@ -97,7 +90,7 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
       const state = migrations
         .slice(data.version)
         .reduce((state, migration) => migration(state), data.state);
-      setAppStateRef(state);
+      setAppStateRef(state, true);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -140,9 +133,9 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
   const context = useRef<AppStateContextType>({
     getAppState,
     subscribe(callback) {
-      callbacks.add(callback);
+      callbacks.push(callback);
       return () => {
-        callbacks.delete(callback);
+        callbacks.splice(callbacks.indexOf(callback), 1);
       };
     },
     setAppState(callback) {
@@ -152,8 +145,11 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
     },
   });
 
+  // Note how we reset the whole tree on loaded via key.
+  // That's because new app state have to force update all local initial states.
+  // https://twitter.com/estejs/status/1102238792382062593
   return (
-    <AppStateContext.Provider value={context.current}>
+    <AppStateContext.Provider key={loaded.toString()} value={context.current}>
       {props.children}
       {loaded === false && props.splashScreen}
     </AppStateContext.Provider>
