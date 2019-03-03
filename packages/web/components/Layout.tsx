@@ -18,17 +18,7 @@ import Menu from './Menu';
 
 let initialRender = true;
 
-interface LayoutContextType {
-  focusLayoutBody: () => void;
-}
-
 type ScreenSize = 'small' | 'other';
-
-export const LayoutContext = React.createContext<LayoutContextType>({
-  focusLayoutBody: () => {
-    throw new Error('No LayoutContext.Provider');
-  },
-});
 
 const ViewerGravatar: FunctionComponent = () => {
   const { theme } = useAppContext();
@@ -106,24 +96,20 @@ const Layout: FunctionComponent<LayoutProps> = props => {
       initialRender = false;
       return;
     }
+
     // Do not focus if something is already focused.
     const node = (findNodeHandle(layoutBodyRef.current) as unknown) as Element;
     if (node.contains(document.activeElement)) {
       return;
     }
-    // TODO: Why outline none?
-    layoutBodyRef.current.setNativeProps({ style: { outline: 'none' } });
+    // TODO: Why I had outline none? Because of esc? I think we can remove it.
+    // layoutBodyRef.current.setNativeProps({ style: { outline: 'none' } });
     layoutBodyRef.current.focus();
   };
 
   useEffect(() => {
     maybeFocusLayoutBody();
   }, [maybeFocusLayoutBody]);
-
-  const focusLayoutBody = () => {
-    if (!layoutBodyRef.current) return;
-    layoutBodyRef.current.focus();
-  };
 
   const windowWidth = useWindowWidth();
   const screenSize: ScreenSize =
@@ -137,26 +123,24 @@ const Layout: FunctionComponent<LayoutProps> = props => {
         <meta name="theme-color" content={htmlBackgroundColor} />
         <style>{`html { background-color: ${htmlBackgroundColor} } `}</style>
       </Head>
-      <LayoutContext.Provider value={{ focusLayoutBody }}>
-        <View style={theme.layout}>
-          <LayoutHeader />
-          <View
-            style={[
-              theme.layoutBody,
-              { flexDirection: isSmallScreen ? 'column' : 'row' },
-            ]}
+      <View style={theme.layout}>
+        <LayoutHeader />
+        <View
+          style={[
+            theme.layoutBody,
+            { flexDirection: isSmallScreen ? 'column' : 'row' },
+          ]}
+        >
+          {isSmallScreen === false && <LayoutMenu screenSize={screenSize} />}
+          <ScrollView
+            style={theme.layoutContentScrollView}
+            contentContainerStyle={theme.layoutContentScrollViewContent}
           >
-            {isSmallScreen === false && <LayoutMenu screenSize={screenSize} />}
-            <ScrollView
-              style={theme.layoutContentScrollView}
-              contentContainerStyle={theme.layoutContentScrollViewContent}
-            >
-              <View ref={layoutBodyRef}>{props.children}</View>
-            </ScrollView>
-            {isSmallScreen === true && <LayoutMenu screenSize={screenSize} />}
-          </View>
+            <View ref={layoutBodyRef}>{props.children}</View>
+          </ScrollView>
+          {isSmallScreen === true && <LayoutMenu screenSize={screenSize} />}
         </View>
-      </LayoutContext.Provider>
+      </View>
     </>
   );
 };
