@@ -1,18 +1,20 @@
 // Remember:
-//  1 Make everything strict. It simplifies migrations and DX.
-//  2 Never change any interface. Always add a new version with a migration.
-//  3 Collections are objects instead of arrays. We don't need "sorted"
-//    information and we want fast joins without Array findIndex method.
+//  - Make everything strict. It simplifies migrations and DX.
+//  - Never change any type. Always add a new version with a migration.
+//  - Collections are objects instead of arrays. We don't need "sorted"
+//    information and we want fast joins without Array findIndex.
 // That's all.
 // We don't need nullable and versionless API like with GraphQL, because data
 // are local and client is shipped with migrations.
+
+// "Immutable" types. Never ever change them once the app is in production.
 
 interface User1 {
   email: string;
   darkMode: boolean;
 }
 
-export interface TaskList1 {
+interface TaskList1 {
   id: string;
   createdAt: number;
   // creatorEmail: string; // Will be set when shared.
@@ -26,7 +28,7 @@ export interface TaskList1 {
           depth: number;
         };
         nodes: {
-          leaves: { text: string }[];
+          leaves: { text: string; object: 'leaf' }[];
           object: 'text';
         }[];
         object: 'block';
@@ -35,6 +37,8 @@ export interface TaskList1 {
     };
   };
 }
+
+// Use these types only in the app state config.
 
 export interface AppState1 {
   viewer: User1;
@@ -46,6 +50,8 @@ export interface AppState1 {
 //   viewer: User;
 //   fok: string;
 // }
+
+// Use these types only in the app.
 
 export type AppState = AppState1;
 export type TaskList = TaskList1;

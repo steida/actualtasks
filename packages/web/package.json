@@ -40,7 +40,7 @@
     "@types/react-intl": "^2.3.14",
     "@types/react-native": "^0.57.38",
     "@types/slate": "^0.44.0",
-    "@types/slate-react": "^0.20.3",
+    "@types/slate-react": "^0.21.0",
     "@types/styled-jsx": "^2.2.7",
     "@zeit/next-bundle-analyzer": "^0.1.2",
     "@zeit/next-typescript": "^1.1.1",
