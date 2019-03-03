@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, FunctionComponent } from 'react';
 import { defineMessages, FormattedMessage } from 'react-intl';
 import { Text, TextInput, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
@@ -16,7 +16,7 @@ export const messages = defineMessages({
   },
 });
 
-const DarkModeButton: React.FunctionComponent = () => {
+const DarkModeButton: FunctionComponent = () => {
   const darkMode = useAppState(state => state.viewer.darkMode);
   const setAppState = useAppState();
   const emoji = darkMode ? '🌛' : '🌤';
@@ -32,7 +32,7 @@ const DarkModeButton: React.FunctionComponent = () => {
   );
 };
 
-const EmailInput: React.FunctionComponent = () => {
+const EmailInput: FunctionComponent = () => {
   const { theme } = useAppContext();
   const email = useAppState(state => state.viewer.email);
   const setAppState = useAppState();
@@ -57,7 +57,7 @@ const EmailInput: React.FunctionComponent = () => {
   );
 };
 
-const LayoutFooter: React.FunctionComponent = () => {
+const Footer: FunctionComponent = () => {
   const { theme } = useAppContext();
   return (
     <View style={theme.layoutFooter}>
@@ -75,13 +75,12 @@ const LayoutFooter: React.FunctionComponent = () => {
   );
 };
 
-const Me: React.FunctionComponent = () => {
+const Form = () => {
   const { intl, theme } = useAppContext();
-  const pageTitles = usePageTitles();
-  const [backupAndSyncShown, setBackupAndSyncShown] = React.useState(false);
+  const [backupAndSyncShown, setBackupAndSyncShown] = useState(false);
 
   return (
-    <Layout title={pageTitles.me}>
+    <>
       <View style={theme.buttons}>
         <DarkModeButton />
       </View>
@@ -106,7 +105,17 @@ const Me: React.FunctionComponent = () => {
           </View>
         </View>
       )}
-      <LayoutFooter />
+      <Footer />
+    </>
+  );
+};
+
+const Me: FunctionComponent = () => {
+  const pageTitles = usePageTitles();
+
+  return (
+    <Layout title={pageTitles.me}>
+      <Form />
     </Layout>
   );
 };
