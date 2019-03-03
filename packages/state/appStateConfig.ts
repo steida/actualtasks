@@ -1,7 +1,8 @@
 import { AppState1 } from './types';
 
-// Remember, never ever change anything here without a migration step.
-// Migrations must be immutable. Do not use helpers which can change.
+// Remember:
+//  1) Never ever change anything here without a migration step.
+//  2) Migrations code must be immutable aka write once. Don't import anything.
 
 const name = 'actualtasks';
 export const rootTaskListId = 'actual';
@@ -33,6 +34,7 @@ const migrations = [
           },
         },
       },
+      archivedTaskLists: {},
       viewer: {
         darkMode: false,
         email: '',

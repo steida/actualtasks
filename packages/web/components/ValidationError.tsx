@@ -64,6 +64,6 @@ const ValidationError: React.FunctionComponent<ValidationErrorProps> = ({
 
 export default ValidationError;
 
-export const hasValidationError = (errors: object) => {
-  return Object.entries(errors).find(([, value]) => value != null);
+export const hasValidationError = (errors: object): boolean => {
+  return Object.entries(errors).find(([, value]) => value != null) != null;
 };

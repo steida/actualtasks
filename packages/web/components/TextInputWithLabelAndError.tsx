@@ -7,7 +7,7 @@ interface TextInputWithLabelAndErrorProps {
   value: string;
   onChangeText: (text: string) => any;
   error: ValidationErrorType;
-  onSubmitEditing: () => any;
+  onSubmitEditing?: () => any;
   label: ReactNode;
   maxLength: 'short' | 'medium';
 }

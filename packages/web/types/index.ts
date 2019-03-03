@@ -1,9 +1,7 @@
-// TODO: For typed parsing, use gcanti/io-ts.
-
 export type AppHref =
   | {
       pathname: '/';
-      query: { id: string } | null;
+      query?: { id: string } | null;
     }
   | 'https://twitter.com/steida'
   | 'https://github.com/steida/actualtasks'

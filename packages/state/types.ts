@@ -39,6 +39,7 @@ export interface TaskList1 {
 export interface AppState1 {
   viewer: User1;
   taskLists: { [key: string]: TaskList1 };
+  archivedTaskLists: { [key: string]: TaskList1 };
 }
 
 // interface AppState2 {
