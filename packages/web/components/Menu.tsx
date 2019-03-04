@@ -26,6 +26,7 @@ interface TaskListLinkProps {
 
 const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
   const { theme, router } = useAppContext();
+  const name = useAppState(state => state.taskLists[props.id].name);
   const isRoot = props.id === rootTaskListId;
   const indexHref: AppHref = {
     pathname: '/',
@@ -48,7 +49,7 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
         style={!routeIsActive && theme.flex1}
         href={indexHref}
       >
-        {props.children}
+        {name}
       </MenuLink>
       {routeIsActive && (
         <MenuLink
@@ -67,19 +68,20 @@ const TaskLists: FunctionComponent = () => {
   const taskLists = useAppState(state => state.taskLists);
   const sortedTaskLists = useMemo(() => {
     return Object.values(taskLists).sort((a, b) => a.createdAt - b.createdAt);
-  }, [taskLists]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, Object.values(taskLists).map(item => item.createdAt));
 
-  return (
-    <>
-      {sortedTaskLists.map(taskList => {
-        return (
-          <TaskListLink id={taskList.id} key={taskList.id}>
-            {taskList.name}
-          </TaskListLink>
-        );
-      })}
-    </>
-  );
+  const children = useMemo(() => {
+    return (
+      <>
+        {sortedTaskLists.map(taskList => (
+          <TaskListLink id={taskList.id} key={taskList.id} />
+        ))}
+      </>
+    );
+  }, [sortedTaskLists]);
+
+  return children;
 };
 
 interface MenuProps {
