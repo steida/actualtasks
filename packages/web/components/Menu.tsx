@@ -6,6 +6,7 @@ import useAppContext from '../hooks/useAppContext';
 import Link, { LinkProps } from './Link';
 import useRouteIsActive from '../hooks/useRouteIsActive';
 import { AppHref } from '../types';
+import KeyboardNavigableView from './KeyboardNavigableView';
 
 const MenuLink: FunctionComponent<LinkProps> = ({ style, ...rest }) => {
   const { theme } = useAppContext();
@@ -34,15 +35,27 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
     pathname: '/edit',
     query: { id: props.id },
   };
+  const indexRouteIsActive = useRouteIsActive(indexHref);
+  const editRouteIsActive = useRouteIsActive(editHref);
   const isIndexPage = router.pathname === indexHref.pathname;
-  const routeIsActive = useRouteIsActive(isIndexPage ? indexHref : editHref);
+  const routeIsActive = isIndexPage ? indexRouteIsActive : editRouteIsActive;
+  const accessible = indexRouteIsActive || editRouteIsActive;
+
   return (
     <View style={theme.flexRow}>
-      <MenuLink style={!routeIsActive && theme.flex1} href={indexHref}>
+      <MenuLink
+        accessible={accessible}
+        style={!routeIsActive && theme.flex1}
+        href={indexHref}
+      >
         {props.children}
       </MenuLink>
       {routeIsActive && (
-        <MenuLink style={routeIsActive && theme.flex1} href={editHref}>
+        <MenuLink
+          accessible={false}
+          style={routeIsActive && theme.flex1}
+          href={editHref}
+        >
           <Text style={theme.noBold}>☰</Text>
         </MenuLink>
       )}
@@ -75,17 +88,21 @@ interface MenuProps {
 
 const Menu: FunctionComponent<MenuProps> = props => {
   const { theme } = useAppContext();
+  const newHref = '/add';
+  const newIsActive = useRouteIsActive(newHref);
 
   return (
-    <View
+    <KeyboardNavigableView
       style={[
         theme.negativeMarginHorizontal,
         props.isSmallScreen ? theme.flexRow : theme.flexColumn,
       ]}
     >
       <TaskLists />
-      <MenuLink href="/add">+</MenuLink>
-    </View>
+      <MenuLink accessible={newIsActive} href={newHref}>
+        +
+      </MenuLink>
+    </KeyboardNavigableView>
   );
 };
 

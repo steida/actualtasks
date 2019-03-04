@@ -17,6 +17,7 @@ export type LinkProps = Assign<
     }
   >,
   {
+    accessible?: boolean;
     style?: StyleProp<TextStyle>;
     activeStyle?: StyleProp<TextStyle>;
   }
@@ -25,7 +26,7 @@ export type LinkProps = Assign<
 const Link: React.FunctionComponent<LinkProps> = props => {
   const { theme } = useAppContext();
   const [hasHover, setHasHover] = React.useState(false);
-  const { children, style, activeStyle, href, ...rest } = props;
+  const { children, accessible, style, activeStyle, href, ...rest } = props;
   const routeIsActive = useRouteIsActive(href);
 
   return (
@@ -36,6 +37,7 @@ const Link: React.FunctionComponent<LinkProps> = props => {
           (hasHover || routeIsActive) && (activeStyle || theme.linkActive),
         ]}
         accessibilityRole="link"
+        accessible={accessible}
         {...Platform.select({
           web: {
             onMouseEnter: () => setHasHover(true),
