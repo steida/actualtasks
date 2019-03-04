@@ -31,6 +31,12 @@ interface AppStateProviderProps {
   splashScreen?: React.ReactNode;
 }
 
+// I hope Relay will make this lib obsolete one day.
+// AppStateProvider can not handle nested updates ideally.
+// Sure we can pass state manually to pure components, but it's more like
+// a workaround than a fine solution.
+// https://twitter.com/estejs/status/1102371722567868416
+
 const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
   const { name, migrations } = props.config;
   const { current: callbacks } = useRef<Callback[]>([]);
