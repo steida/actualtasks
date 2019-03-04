@@ -76,8 +76,8 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
     }
   };
 
-  // Isn't saveThrottled always recreated? No, AppStateProvider renders 2x only.
-  const saveThrottled = useMemo(() => throttle(save, 500), [save]);
+  // saveThrottled is memoized per render, which happens only twice.
+  const saveThrottled = useMemo(() => throttle(save, 1000), [save]);
 
   const setAppStateRef = (state: object, noCallbacks?: boolean) => {
     appStateRef.current = state;

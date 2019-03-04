@@ -1,12 +1,14 @@
 import { TaskList as TaskListType } from '@app/state/types';
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useMemo } from 'react';
 import { Editor, RenderNodeProps } from 'slate-react';
 import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
 // @ts-ignore
 import { createElement } from 'react-native-web';
 import { Text, View, ViewStyle, StyleProp } from 'react-native';
 import { Overwrite } from 'utility-types';
+import throttle from 'lodash.throttle';
 import useAppContext from '../hooks/useAppContext';
+import useAppState from '../hooks/useAppState';
 
 type TaskType = TaskListType['slate']['document']['nodes'][0];
 type TaskTypeData = TaskType['data'];
@@ -94,14 +96,15 @@ const Task: FunctionComponent<TaskProps> = props => {
 };
 
 interface TaskListProps {
-  taskList: TaskListType;
+  id: string;
 }
 
-const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
-  const [editorValue] = useState(() => {
+const TaskList: FunctionComponent<TaskListProps> = ({ id }) => {
+  const taskListSlate = useAppState(state => state.taskLists[id].slate);
+  const [editorValue, setEditorValue] = useState(() => {
     // For SSR.
     KeyUtils.resetGenerator();
-    return Value.fromJSON(taskList.slate);
+    return Value.fromJSON(taskListSlate);
   });
 
   const renderNode = (
@@ -122,11 +125,31 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     }
   };
 
+  const setAppState = useAppState();
+
+  const saveThrottled = useMemo(() => {
+    return throttle((value: Value) => {
+      setAppState(state => {
+        const json: any = value.toJSON();
+        state.taskLists[id].slate = json;
+      });
+    }, 1000);
+  }, [setAppState, id]);
+
+  const handleEditorChange = ({ value }: { value: Value }) => {
+    // TODO: Validate value. Slate can fail. In such case, log it and revert.
+    setEditorValue(value);
+    const documentHasBeenChanged = value.document !== editorValue.document;
+    if (documentHasBeenChanged) {
+      saveThrottled(value);
+    }
+  };
+
   return (
     <Editor
       // autoFocus does not work reliable.
       autoCorrect={false}
-      // onChange={handleEditorChange}
+      onChange={handleEditorChange}
       // onKeyDown={handleKeyDown}
       // ref={editorRef}
       renderNode={renderNode}
