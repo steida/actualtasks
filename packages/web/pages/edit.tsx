@@ -1,9 +1,10 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Text, View } from 'react-native';
 import validateTaskList from '@app/validators/validateTaskList';
 import Router from 'next/router';
 import { rootTaskListId } from '@app/state/appStateConfig';
+import { TaskList } from '@app/state/types';
 import Layout from '../components/Layout';
 import usePageTitles from '../hooks/usePageTitles';
 import useAppStateTaskListByRouter from '../hooks/useAppStateTaskListByRouter';
@@ -15,24 +16,33 @@ import FormButton from '../components/FormButton';
 import { hasValidationError } from '../components/ValidationError';
 import { AppHref } from '../types';
 
-const Edit: FunctionComponent = () => {
+interface FormProps {
+  taskList: TaskList;
+}
+
+const Form: FunctionComponent<FormProps> = ({ taskList }) => {
   const { theme } = useAppContext();
-  const pageTitles = usePageTitles();
-  const taskList = useAppStateTaskListByRouter();
-  const title = useTaskListTitle(taskList, true);
+  const [name, setName] = useState(taskList.name);
+  const [errors, setErrors] = useState<ReturnType<typeof validateTaskList>>({
+    name: null,
+  });
   const setAppState = useAppState();
 
-  if (taskList == null)
-    return (
-      <Layout title={title}>
-        <Text style={theme.text}>{title}</Text>
-      </Layout>
-    );
-
-  const handleNameChange = (name: string) => {
+  const handleSavePress = () => {
+    const newTaskList = { ...taskList, name };
+    const errors = validateTaskList(newTaskList);
+    if (hasValidationError(errors)) {
+      setErrors(errors);
+      return;
+    }
     setAppState(state => {
       state.taskLists[taskList.id].name = name;
     });
+    const href: AppHref = {
+      pathname: '/',
+      query: { id: taskList.id },
+    };
+    Router.push(href);
   };
 
   const handleArchivePress = () => {
@@ -47,27 +57,44 @@ const Edit: FunctionComponent = () => {
     Router.push(href);
   };
 
-  const errors = validateTaskList(taskList);
   const isRootTaskList = taskList.id === rootTaskListId;
 
   return (
-    <Layout title={pageTitles.edit(title)}>
+    <>
       <TextInputWithLabelAndError
         label={<FormattedMessage defaultMessage="Name" id="taskNameLabel" />}
-        value={taskList.name}
-        onChangeText={handleNameChange}
+        value={name}
+        onChangeText={text => setName(text)}
+        onSubmitEditing={handleSavePress}
         error={errors.name}
         maxLength="short"
       />
       <View style={theme.buttons}>
+        <FormButton label="save" onPress={handleSavePress} />
         {!isRootTaskList && (
-          <FormButton
-            disabled={hasValidationError(errors)}
-            label="archive"
-            onPress={handleArchivePress}
-          />
+          <FormButton label="archive" onPress={handleArchivePress} />
         )}
       </View>
+    </>
+  );
+};
+
+const Edit: FunctionComponent = () => {
+  const { theme } = useAppContext();
+  const pageTitles = usePageTitles();
+  const taskList = useAppStateTaskListByRouter();
+  const title = useTaskListTitle(taskList, true);
+
+  if (taskList == null)
+    return (
+      <Layout title={title}>
+        <Text style={theme.text}>{title}</Text>
+      </Layout>
+    );
+
+  return (
+    <Layout title={pageTitles.edit(title)}>
+      <Form taskList={taskList} key={taskList.id} />
     </Layout>
   );
 };
