@@ -1,6 +1,6 @@
 /* eslint-env browser */
 import Head from 'next/head';
-import React, { useEffect, FunctionComponent } from 'react';
+import React, { useEffect, FunctionComponent, useMemo, useRef } from 'react';
 import {
   findNodeHandle,
   ScrollView,
@@ -82,10 +82,10 @@ interface LayoutProps {
 
 const Layout: FunctionComponent<LayoutProps> = props => {
   const { theme } = useAppContext();
-  const [htmlBackgroundColor] = React.useMemo(() => {
+  const [htmlBackgroundColor] = useMemo(() => {
     return [StyleSheet.flatten(theme.layout).backgroundColor || '#fff'];
   }, [theme.layout]);
-  const layoutBodyRef = React.useRef<View>(null);
+  const layoutBodyRef = useRef<View>(null);
 
   // https://medium.com/@robdel12/single-page-apps-routers-are-broken-255daa310cf
   // Useful for accessibility and key navigation.
