@@ -1,5 +1,5 @@
 import { Dimensions, ScaledSize } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 // Null, because we can measure width only after client initial render.
 let lastWindowWidth: number | null = null;
@@ -9,19 +9,22 @@ const useWindowWidth = () => {
     lastWindowWidth,
   );
 
-  const setWindowWidthWithGlobal = (width: number) => {
+  const setWindowWidthWithGlobal = useCallback((width: number) => {
     lastWindowWidth = width;
     setWindowWidth(width);
-  };
+  }, []);
 
   useEffect(() => {
     if (windowWidth != null) return;
     setWindowWidthWithGlobal(Dimensions.get('window').width);
   }, [setWindowWidthWithGlobal, windowWidth]);
 
-  const handleDimensionChange = ({ window }: { window: ScaledSize }) => {
-    setWindowWidthWithGlobal(window.width);
-  };
+  const handleDimensionChange = useCallback(
+    ({ window }: { window: ScaledSize }) => {
+      setWindowWidthWithGlobal(window.width);
+    },
+    [setWindowWidthWithGlobal],
+  );
 
   useEffect(() => {
     Dimensions.addEventListener('change', handleDimensionChange);
