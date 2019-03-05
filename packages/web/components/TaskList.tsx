@@ -15,6 +15,7 @@ import { Overwrite } from 'utility-types';
 import throttle from 'lodash.throttle';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
+import useScreenSize from '../hooks/useScreenSize';
 
 type TaskType = TaskListType['slate']['document']['nodes'][0];
 type TaskTypeTypeProp = TaskType['type'];
@@ -81,7 +82,6 @@ const TaskItem: FunctionComponent<TaskProps> = props => {
     props.dispatch({ type: 'toggle', payload: props.node });
   }, [props]);
 
-  // console.log(React.Children.toArray(props.children)[0].props.block.count());
   return (
     <View {...props.attributes} style={[theme.task, depthStyle]}>
       <View style={theme.taskCheckboxWrapper}>
@@ -254,15 +254,16 @@ const TaskList: FunctionComponent<TaskListProps> = ({ id }) => {
     saveThrottled(value);
   };
 
+  const screenSize = useScreenSize();
+
   return (
     <Editor
-      // autoFocus does not work reliable.
+      autoFocus={!screenSize.phoneOnly}
       autoCorrect={false}
       spellCheck={false}
       onChange={handleEditorChange}
       // onKeyDown={handleKeyDown}
       ref={editorRef}
-      // ref={editorRef}
       renderNode={renderNode}
       value={editorValue}
     />
