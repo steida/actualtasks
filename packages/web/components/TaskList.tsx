@@ -5,7 +5,6 @@ import React, {
   useReducer,
   Dispatch,
   useCallback,
-  useRef,
 } from 'react';
 import { Editor, RenderNodeProps } from 'slate-react';
 import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
@@ -114,12 +113,14 @@ interface TaskListProps {
 }
 
 const TaskList: FunctionComponent<TaskListProps> = ({ id }) => {
+  const taskListSlate = useAppState(state => state.taskLists[id].slate);
+
   const nodeToTaskDataWithKey = (node: TaskNode): TaskTypeDataWithKey => ({
     key: node.key,
     ...getTaskData(node),
   });
 
-  const editorRef = useRef<Editor>(null);
+  const editorRef = React.useRef<Editor>(null);
 
   const getEditor = () => {
     const { current } = editorRef;
@@ -210,18 +211,14 @@ const TaskList: FunctionComponent<TaskListProps> = ({ id }) => {
     }
   };
 
-  const initReducer = (taskListSlate: TaskListType['slate'] | null) => {
+  const initReducer = (taskListSlate: TaskListType['slate']) => {
     KeyUtils.resetGenerator(); // For SSR.
-    return taskListSlate ? Value.fromJSON(taskListSlate) : new Value();
+    return Value.fromJSON(taskListSlate);
   };
-
-  // Remember, useAppState selector must be pure. Otherwise, it can fail.
-  const taskLists = useAppState(state => state.taskLists);
-  const taskList = id in taskLists ? taskLists[id] : null;
 
   const [editorValue, dispatch] = useReducer(
     editorValueReducer,
-    taskList ? taskList.slate : null,
+    taskListSlate,
     initReducer,
   );
 
