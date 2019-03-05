@@ -152,7 +152,7 @@ const KeyboardNavigableView: FunctionComponent<ViewProps> = props => {
     };
   }, [getViewElement, handleFocusin, handleKeydown]);
 
-  return <View ref={viewRef}>{props.children}</View>;
+  return <View {...props} ref={viewRef} />;
 };
 
 export default KeyboardNavigableView;
