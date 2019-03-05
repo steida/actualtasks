@@ -85,7 +85,12 @@ const TaskItem: FunctionComponent<TaskProps> = props => {
   return (
     <View {...props.attributes} style={[theme.task, depthStyle]}>
       <View style={theme.taskCheckboxWrapper}>
-        <div contentEditable={false}>
+        <div
+          // To prevent errror: "IndexSizeError: Failed to execute 'getRangeAt'
+          // on 'Selection': 0 is not a valid index."
+          style={{ userSelect: 'none' }}
+          contentEditable={false}
+        >
           <Checkbox
             style={[
               theme.taskCheckbox,
