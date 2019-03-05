@@ -66,10 +66,11 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
 
 const TaskLists: FunctionComponent = () => {
   const taskLists = useAppState(state => state.taskLists);
+  // TODO: Memoize subselect somehow.
+  // https://github.com/facebook/react/issues/15011
   const sortedTaskLists = useMemo(() => {
     return Object.values(taskLists).sort((a, b) => a.createdAt - b.createdAt);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, Object.values(taskLists).map(item => item.createdAt));
+  }, [taskLists]);
 
   const children = useMemo(() => {
     return (
