@@ -7,6 +7,7 @@ import Link, { LinkProps } from './Link';
 import useRouteIsActive from '../hooks/useRouteIsActive';
 import { AppHref } from '../types';
 import KeyboardNavigableView from './KeyboardNavigableView';
+import useScreenSize from '../hooks/useScreenSize';
 
 const MenuLink: FunctionComponent<LinkProps> = ({ style, ...rest }) => {
   const { theme } = useAppContext();
@@ -85,12 +86,9 @@ const TaskLists: FunctionComponent = () => {
   return children;
 };
 
-interface MenuProps {
-  isSmallScreen: boolean;
-}
-
-const Menu: FunctionComponent<MenuProps> = props => {
+const Menu: FunctionComponent = () => {
   const { theme } = useAppContext();
+  const screenSize = useScreenSize();
   const newHref = '/add';
   const newIsActive = useRouteIsActive(newHref);
 
@@ -98,7 +96,7 @@ const Menu: FunctionComponent<MenuProps> = props => {
     <KeyboardNavigableView
       style={[
         theme.negativeMarginHorizontal,
-        props.isSmallScreen ? theme.flexRow : theme.flexColumn,
+        screenSize.phoneOnly ? theme.flexRow : theme.flexColumn,
       ]}
     >
       <TaskLists />

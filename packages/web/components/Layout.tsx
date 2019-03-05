@@ -13,12 +13,10 @@ import Gravatar from './Gravatar';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import Link from './Link';
-import useWindowWidth from '../hooks/useWindowWidth';
 import Menu from './Menu';
+import useScreenSize from '../hooks/useScreenSize';
 
 let initialRender = true;
-
-type ScreenSize = 'small' | 'other';
 
 const ViewerGravatar: FunctionComponent = () => {
   const { theme } = useAppContext();
@@ -49,29 +47,25 @@ const LayoutHeader = () => {
   );
 };
 
-interface LayoutMenuProps {
-  screenSize: ScreenSize;
-}
-
-const LayoutMenu: FunctionComponent<LayoutMenuProps> = props => {
+const LayoutMenu: FunctionComponent = () => {
   const { theme } = useAppContext();
-  const isSmallScreen = props.screenSize === 'small';
+  const screenSize = useScreenSize();
   return (
     <ScrollView
-      horizontal={isSmallScreen}
+      horizontal={screenSize.phoneOnly}
       style={
-        isSmallScreen
+        screenSize.phoneOnly
           ? theme.layoutMenuScrollViewSmallScreen
           : theme.layoutMenuScrollViewOtherScreen
       }
       contentContainerStyle={[
         theme.layoutMenuScrollViewContent,
         {
-          flexDirection: isSmallScreen ? 'row' : 'column',
+          flexDirection: screenSize.phoneOnly ? 'row' : 'column',
         },
       ]}
     >
-      <Menu isSmallScreen={isSmallScreen} />
+      <Menu />
     </ScrollView>
   );
 };
@@ -111,10 +105,7 @@ const Layout: FunctionComponent<LayoutProps> = props => {
     maybeFocusLayoutBody();
   }, [maybeFocusLayoutBody]);
 
-  const windowWidth = useWindowWidth();
-  const screenSize: ScreenSize =
-    windowWidth && windowWidth > 600 ? 'other' : 'small';
-  const isSmallScreen = screenSize === 'small';
+  const screenSize = useScreenSize();
 
   return (
     <>
@@ -128,17 +119,17 @@ const Layout: FunctionComponent<LayoutProps> = props => {
         <View
           style={[
             theme.layoutBody,
-            { flexDirection: isSmallScreen ? 'column' : 'row' },
+            { flexDirection: screenSize.phoneOnly ? 'column' : 'row' },
           ]}
         >
-          {isSmallScreen === false && <LayoutMenu screenSize={screenSize} />}
+          {!screenSize.phoneOnly && <LayoutMenu />}
           <ScrollView
             style={theme.layoutContentScrollView}
             contentContainerStyle={theme.layoutContentScrollViewContent}
           >
             <View ref={layoutBodyRef}>{props.children}</View>
           </ScrollView>
-          {isSmallScreen === true && <LayoutMenu screenSize={screenSize} />}
+          {screenSize.phoneOnly && <LayoutMenu />}
         </View>
       </View>
     </>
