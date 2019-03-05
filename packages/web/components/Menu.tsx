@@ -27,7 +27,6 @@ interface TaskListLinkProps {
 
 const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
   const { theme, router } = useAppContext();
-  const name = useAppState(state => state.taskLists[props.id].name);
   const isRoot = props.id === rootTaskListId;
   const indexHref: AppHref = {
     pathname: '/',
@@ -42,6 +41,12 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
   const isIndexPage = router.pathname === indexHref.pathname;
   const routeIsActive = isIndexPage ? indexRouteIsActive : editRouteIsActive;
   const accessible = indexRouteIsActive || editRouteIsActive;
+
+  // Remember, useAppState selector must be pure. Otherwise, it can fail.
+  const taskLists = useAppState(state => state.taskLists);
+  const taskList = props.id in taskLists ? taskLists[props.id] : null;
+  if (taskList == null) return null;
+  const { name } = taskList;
 
   return (
     <View style={theme.flexRow}>
