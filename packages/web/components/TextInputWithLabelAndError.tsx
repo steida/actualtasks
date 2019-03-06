@@ -4,6 +4,7 @@ import ValidationError, { ValidationErrorType } from './ValidationError';
 import useAppContext from '../hooks/useAppContext';
 
 interface TextInputWithLabelAndErrorProps {
+  autoFocus?: boolean;
   value: string;
   onChangeText: (text: string) => any;
   error: ValidationErrorType;
@@ -20,6 +21,7 @@ const TextInputWithLabelAndError: FunctionComponent<
     <>
       <Text style={theme.label}>{props.label}</Text>
       <TextInput
+        autoFocus={props.autoFocus}
         onChangeText={props.onChangeText}
         style={theme.textInputOutline}
         enablesReturnKeyAutomatically

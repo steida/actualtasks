@@ -10,8 +10,8 @@ export const rootTaskListId = 'actual';
 const migrations = [
   (): AppState1 => {
     return {
-      taskLists: {
-        [rootTaskListId]: {
+      taskLists: [
+        {
           id: rootTaskListId,
           createdAt: 0,
           name: 'actual',
@@ -35,8 +35,8 @@ const migrations = [
             },
           },
         },
-      },
-      archivedTaskLists: {},
+      ],
+      archivedTaskLists: [],
       viewer: {
         darkMode: false,
         email: '',

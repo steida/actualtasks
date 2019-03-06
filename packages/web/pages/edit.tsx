@@ -36,7 +36,8 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
       return;
     }
     setAppState(state => {
-      state.taskLists[taskList.id].name = name;
+      const index = state.taskLists.findIndex(t => t.id === taskList.id);
+      state.taskLists[index].name = name;
     });
     const href: AppHref = {
       pathname: '/',
@@ -47,9 +48,9 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
 
   const handleArchivePress = () => {
     setAppState(state => {
-      const archivedTaskList = state.taskLists[taskList.id];
-      delete state.taskLists[taskList.id];
-      state.archivedTaskLists[archivedTaskList.id] = archivedTaskList;
+      const index = state.taskLists.findIndex(t => t.id === taskList.id);
+      state.taskLists.splice(index, 1);
+      state.archivedTaskLists.push(taskList);
     });
     const href: AppHref = {
       pathname: '/',

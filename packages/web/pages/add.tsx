@@ -12,6 +12,7 @@ import { AppHref } from '../types';
 import TextInputWithLabelAndError from '../components/TextInputWithLabelAndError';
 import FormButton from '../components/FormButton';
 import usePageTitles from '../hooks/usePageTitles';
+import useScreenSize from '../hooks/useScreenSize';
 
 const Form: FunctionComponent = () => {
   const { theme } = useAppContext();
@@ -29,7 +30,7 @@ const Form: FunctionComponent = () => {
       return;
     }
     setAppState(state => {
-      state.taskLists[taskList.id] = taskList;
+      state.taskLists.push(taskList);
     });
     const href: AppHref = {
       pathname: '/',
@@ -38,9 +39,12 @@ const Form: FunctionComponent = () => {
     Router.push(href);
   };
 
+  const screenSize = useScreenSize();
+
   return (
     <>
       <TextInputWithLabelAndError
+        autoFocus={!screenSize.phoneOnly}
         label={<FormattedMessage defaultMessage="Name" id="taskNameLabel" />}
         value={name}
         onChangeText={text => setName(text)}

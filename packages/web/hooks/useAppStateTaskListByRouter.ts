@@ -11,9 +11,7 @@ const useAppStateTaskListByRouter = () => {
       typeof router.query.id === 'string' &&
       router.query.id) ||
     rootTaskListId;
-  // One weird trick, how to force null type. TypeScript otherwise always
-  // returns TaskList. It should return TaskList | null imho.
-  return taskLists[taskListId] != null ? taskLists[taskListId] : null;
+  return taskLists.find(t => t.id === taskListId);
 };
 
 export default useAppStateTaskListByRouter;

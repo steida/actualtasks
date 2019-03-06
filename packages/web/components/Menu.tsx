@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { rootTaskListId } from '@app/state/appStateConfig';
+import { TaskList } from '@app/state/types';
 import useAppState from '../hooks/useAppState';
 import useAppContext from '../hooks/useAppContext';
 import Link, { LinkProps } from './Link';
@@ -22,20 +23,19 @@ const MenuLink: FunctionComponent<LinkProps> = ({ style, ...rest }) => {
 };
 
 interface TaskListLinkProps {
-  id: string;
+  taskList: TaskList;
 }
 
-const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
+const TaskListLink: FunctionComponent<TaskListLinkProps> = ({ taskList }) => {
   const { theme, router } = useAppContext();
-  const name = useAppState(state => state.taskLists[props.id].name);
-  const isRoot = props.id === rootTaskListId;
+  const isRoot = taskList.id === rootTaskListId;
   const indexHref: AppHref = {
     pathname: '/',
-    query: isRoot ? null : { id: props.id },
+    query: isRoot ? null : { id: taskList.id },
   };
   const editHref: AppHref = {
     pathname: '/edit',
-    query: { id: props.id },
+    query: { id: taskList.id },
   };
   const indexRouteIsActive = useRouteIsActive(indexHref);
   const editRouteIsActive = useRouteIsActive(editHref);
@@ -50,7 +50,7 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = props => {
         style={!routeIsActive && theme.flex1}
         href={indexHref}
       >
-        {name}
+        {taskList.name}
       </MenuLink>
       {routeIsActive && (
         <MenuLink
@@ -70,14 +70,14 @@ const TaskLists: FunctionComponent = () => {
   // TODO: Memoize subselect somehow.
   // https://github.com/facebook/react/issues/15011
   const sortedTaskLists = useMemo(() => {
-    return Object.values(taskLists).sort((a, b) => a.createdAt - b.createdAt);
+    return taskLists.sort((a, b) => a.createdAt - b.createdAt);
   }, [taskLists]);
 
   const children = useMemo(() => {
     return (
       <>
         {sortedTaskLists.map(taskList => (
-          <TaskListLink id={taskList.id} key={taskList.id} />
+          <TaskListLink taskList={taskList} key={taskList.id} />
         ))}
       </>
     );

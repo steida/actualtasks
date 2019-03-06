@@ -109,12 +109,10 @@ const TaskItem: FunctionComponent<TaskProps> = props => {
 };
 
 interface TaskListProps {
-  id: string;
+  taskList: TaskListType;
 }
 
-const TaskList: FunctionComponent<TaskListProps> = ({ id }) => {
-  const taskListSlate = useAppState(state => state.taskLists[id].slate);
-
+const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
   const nodeToTaskDataWithKey = (node: TaskNode): TaskTypeDataWithKey => ({
     key: node.key,
     ...getTaskData(node),
@@ -218,7 +216,7 @@ const TaskList: FunctionComponent<TaskListProps> = ({ id }) => {
 
   const [editorValue, dispatch] = useReducer(
     editorValueReducer,
-    taskListSlate,
+    taskList.slate,
     initReducer,
   );
 
@@ -240,11 +238,12 @@ const TaskList: FunctionComponent<TaskListProps> = ({ id }) => {
   const saveThrottled = useMemo(() => {
     return throttle((value: Value) => {
       setAppState(state => {
-        const json: any = value.toJSON();
-        state.taskLists[id].slate = json;
+        const index = state.taskLists.findIndex(t => t.id === taskList.id);
+        if (index === -1) return;
+        state.taskLists[index].slate = value.toJSON() as TaskListType['slate'];
       });
     }, 1000);
-  }, [setAppState, id]);
+  }, [setAppState, taskList]);
 
   const handleEditorChange = ({ value }: { value: Value }) => {
     // TODO: Validate value. Slate can fail. In such case, log it and revert.
