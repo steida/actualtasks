@@ -39,7 +39,7 @@ const LayoutHeader = () => {
   return (
     <View style={theme.layoutHeader}>
       <Text style={theme.text}>
-        <Link prefetch href="/me">
+        <Link activeStyle={theme.linkImageActive} prefetch href="/me">
           <ViewerGravatar />
         </Link>
       </Text>

@@ -102,6 +102,7 @@ export class LightTheme {
   layoutFooter: ViewStyle;
   link: TextStyle;
   linkActive: TextStyle;
+  linkImageActive: ViewStyle;
   spacer: ViewStyle;
   borderGrayLight: ViewStyle;
   textInputOutline: TextStyle;
@@ -255,6 +256,10 @@ export class LightTheme {
 
     this.linkActive = {
       textDecorationLine: 'underline',
+    };
+
+    this.linkImageActive = {
+      opacity: 0.7,
     };
 
     this.spacer = {
