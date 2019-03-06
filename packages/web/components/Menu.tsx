@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent } from 'react';
 import { Text, View } from 'react-native';
 import { rootTaskListId } from '@app/state/appStateConfig';
 import { TaskList } from '@app/state/types';
@@ -23,10 +23,14 @@ const MenuLink: FunctionComponent<LinkProps> = ({ style, ...rest }) => {
 };
 
 interface TaskListLinkProps {
+  accessible: boolean;
   taskList: TaskList;
 }
 
-const TaskListLink: FunctionComponent<TaskListLinkProps> = ({ taskList }) => {
+const TaskListLink: FunctionComponent<TaskListLinkProps> = ({
+  accessible,
+  taskList,
+}) => {
   const { theme, router } = useAppContext();
   const isRoot = taskList.id === rootTaskListId;
   const indexHref: AppHref = {
@@ -41,12 +45,11 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = ({ taskList }) => {
   const editRouteIsActive = useRouteIsActive(editHref);
   const isIndexPage = router.pathname === indexHref.pathname;
   const routeIsActive = isIndexPage ? indexRouteIsActive : editRouteIsActive;
-  const accessible = indexRouteIsActive || editRouteIsActive;
 
   return (
     <View style={theme.flexRow}>
       <MenuLink
-        accessible={accessible}
+        accessible={accessible || indexRouteIsActive || editRouteIsActive}
         style={!routeIsActive && theme.flex1}
         href={indexHref}
       >
@@ -67,23 +70,19 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = ({ taskList }) => {
 
 const TaskLists: FunctionComponent = () => {
   const taskLists = useAppState(state => state.taskLists);
-  // TODO: Memoize subselect somehow.
-  // https://github.com/facebook/react/issues/15011
-  const sortedTaskLists = useMemo(() => {
-    return taskLists.sort((a, b) => a.createdAt - b.createdAt);
-  }, [taskLists]);
 
-  const children = useMemo(() => {
-    return (
-      <>
-        {sortedTaskLists.map(taskList => (
-          <TaskListLink taskList={taskList} key={taskList.id} />
-        ))}
-      </>
-    );
-  }, [sortedTaskLists]);
-
-  return children;
+  return (
+    <>
+      {taskLists.map((taskList, index) => (
+        <TaskListLink
+          // At least one link must be accessible.
+          accessible={index === 0}
+          taskList={taskList}
+          key={taskList.id}
+        />
+      ))}
+    </>
+  );
 };
 
 const Menu: FunctionComponent = () => {
