@@ -15,6 +15,7 @@ import useAppState from '../hooks/useAppState';
 import FormButton from '../components/FormButton';
 import { hasValidationError } from '../components/ValidationError';
 import { AppHref } from '../types';
+import useScreenSize from '../hooks/useScreenSize';
 
 interface FormProps {
   taskList: TaskList;
@@ -59,10 +60,12 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
   };
 
   const isRootTaskList = taskList.id === rootTaskListId;
+  const screenSize = useScreenSize();
 
   return (
     <>
       <TextInputWithLabelAndError
+        autoFocus={!screenSize.phoneOnly}
         label={<FormattedMessage defaultMessage="Name" id="taskNameLabel" />}
         value={name}
         onChangeText={text => setName(text)}
