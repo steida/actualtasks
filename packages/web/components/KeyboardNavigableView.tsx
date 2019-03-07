@@ -24,7 +24,9 @@ const KeyboardNavigableView: FunctionComponent<ViewProps> = props => {
     const element = getViewElement();
     if (element == null) return [];
     // https://github.com/necolas/react-native-web/blob/master/docs/guides/accessibility.md
-    // Bug imho. We should not have to specify tabindex
+    // Bug imho. We should not have to specify tabindex.
+    // Hmm, Necolas said it's ok. Maybe we don't need data-focusable attr.
+    // We will see.
     // https://github.com/necolas/react-native-web/issues/1266
     const selector = '[data-focusable="true"], [tabindex]';
     const list = element.querySelectorAll<HTMLElement>(selector);
