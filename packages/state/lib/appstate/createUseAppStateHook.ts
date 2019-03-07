@@ -7,6 +7,10 @@ import AppStateContext, { SetAppState } from './AppStateContext';
 // const viewer = useAppState(state => state.viewer);
 // const setAppState = useAppState();
 
+// Tips:
+// To optimize useEffect, use useCallback on selector in caller.
+// To bail out of a state update, return null.
+
 interface UseAppState<State> {
   <SelectedState>(selector: (state: State) => SelectedState): SelectedState;
   (): SetAppState<State>;
