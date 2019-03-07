@@ -2445,9 +2445,9 @@ eslint-plugin-jsx-a11y@^6.2.1:
     jsx-ast-utils "^2.0.1"
 
 eslint-plugin-react-hooks@^1.2.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-1.4.0.tgz#ad86001e05519368e55a888b1b31004b8e2ae8f6"
-  integrity sha512-fMGlzztW/5hSQT0UBnlPwulao0uF8Kyp0Uv6PA81lzmcDz2LBtthkWQaE8Wz2F2kEe7mSRDgK8ABEFK1ipeDxw==
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-1.5.0.tgz#cdd958cfff55bd5fa4f84db90d1490fb5ca4ae2b"
+  integrity sha512-iwDuWR2ReRgvJsNm8fXPtTKdg78IVQF8I4+am3ntztPf/+nPnWZfArFu6aXpaC75/iCYRrkqI8nPCYkxJstmpA==
 
 eslint-plugin-react@^7.12.4:
   version "7.12.4"
@@ -4939,9 +4939,9 @@ react-is@^16.3.2, react-is@^16.8.1:
   integrity sha512-PVadd+WaUDOAciICm/J1waJaSvgq+4rHE/K70j0PFqKhkTBsPv/82UGQJNXAngz1fOQLLxI6z1sEDmJDQhCTAA==
 
 react-native-web@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/react-native-web/-/react-native-web-0.10.0.tgz#7c67a25d1262f01d462b3a11cc603aef47537d18"
-  integrity sha512-swqplCGSOL1PPFyFf9fnFdLYyFWP9P0tdI5xxmURirjtZH2P+1pF61ApUu5s8Hx8uHDqMXwmVauydXI2sv7tGA==
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/react-native-web/-/react-native-web-0.10.1.tgz#94a8a4b0a18fd03cf5d75fb41f87bd8c3ded753f"
+  integrity sha512-Mpjx7nFPyH3W/BSaEqLWlG0rqqSfG/St+ri/heRXRyZZOl4IoS/2GDhKDJinojHUCgm2BdmvNqN53zWupiU6eQ==
   dependencies:
     array-find-index "^1.0.2"
     create-react-class "^15.6.2"
