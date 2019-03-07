@@ -55,14 +55,11 @@ const getTaskData = (node: TaskNode): TaskTypeData => {
 const Uneditable: FunctionComponent = props => {
   return (
     <>
-      <div
-        // To prevent errror: "IndexSizeError: Failed to execute 'getRangeAt'
-        // on 'Selection': 0 is not a valid index."
-        // style={{ userSelect: 'none' }}
-        contentEditable={false}
-      >
-        {props.children}
-      </div>
+      <div contentEditable={false}>{props.children}</div>
+      {/* 
+        To prevent errror: "IndexSizeError: Failed to execute 'getRangeAt'
+        on 'Selection': 0 is not a valid index."
+      */}
       <style jsx>{`
         div {
           user-select: none;
