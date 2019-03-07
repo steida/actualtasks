@@ -52,6 +52,26 @@ const getTaskData = (node: TaskNode): TaskTypeData => {
   };
 };
 
+const Uneditable: FunctionComponent = props => {
+  return (
+    <>
+      <div
+        // To prevent errror: "IndexSizeError: Failed to execute 'getRangeAt'
+        // on 'Selection': 0 is not a valid index."
+        // style={{ userSelect: 'none' }}
+        contentEditable={false}
+      >
+        {props.children}
+      </div>
+      <style jsx>{`
+        div {
+          user-select: none;
+        }
+      `}</style>
+    </>
+  );
+};
+
 interface TaskProps extends RenderNodeProps {
   dispatch: Dispatch<Action>;
 }
@@ -85,12 +105,7 @@ const TaskItem: FunctionComponent<TaskProps> = props => {
   return (
     <View {...props.attributes} style={[theme.task, depthStyle]}>
       <View style={theme.taskCheckboxWrapper}>
-        <div
-          // To prevent errror: "IndexSizeError: Failed to execute 'getRangeAt'
-          // on 'Selection': 0 is not a valid index."
-          style={{ userSelect: 'none' }}
-          contentEditable={false}
-        >
+        <Uneditable>
           <Checkbox
             style={[
               theme.taskCheckbox,
@@ -99,7 +114,7 @@ const TaskItem: FunctionComponent<TaskProps> = props => {
             checked={data.completed}
             onChange={handleCheckboxChange}
           />
-        </div>
+        </Uneditable>
       </View>
       <Text style={[theme.text, data.completed && theme.lineThrough]}>
         {props.children}
