@@ -1,5 +1,6 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent, useMemo, useCallback } from 'react';
 import { Text } from 'react-native';
+import { AppState } from '@app/state/types';
 import Layout from '../components/Layout';
 import useAppContext from '../hooks/useAppContext';
 import useAppStateTaskListByRouter from '../hooks/useAppStateTaskListByRouter';
@@ -17,9 +18,12 @@ const TaskListOrNotFound: FunctionComponent<MaybeTaskListProps> = ({
   taskListId,
 }) => {
   const { theme } = useAppContext();
-  const taskList = useAppState(state =>
-    state.taskLists.find(t => t.id === taskListId),
+  const taskListSelector = useCallback(
+    (state: AppState) => state.taskLists.find(t => t.id === taskListId),
+    [taskListId],
   );
+  const taskList = useAppState(taskListSelector);
+  // console.log(title, taskList && taskList.id, taskListId);
   if (taskList == null) return <Text style={theme.text}>{title}</Text>;
   /* https://twitter.com/estejs/status/1102238792382062593 */
   return <TaskList taskList={taskList} key={taskListId} />;
@@ -30,7 +34,8 @@ const Index: FunctionComponent = () => {
   const title = useTaskListTitle(taskList);
   const taskListId = taskList && taskList.id;
 
-  // Render Layout only when necessary.
+  // Render Layout only when necessary. This prevents rerender the whole Layout
+  // when some unrelated data are chagned.
   return useMemo(
     () => (
       <Layout title={title}>

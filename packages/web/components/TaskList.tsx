@@ -234,16 +234,17 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
   };
 
   const setAppState = useAppState();
+  const taskListId = taskList.id;
 
   const saveThrottled = useMemo(() => {
     return throttle((value: Value) => {
       setAppState(state => {
-        const index = state.taskLists.findIndex(t => t.id === taskList.id);
+        const index = state.taskLists.findIndex(t => t.id === taskListId);
         if (index === -1) return;
         state.taskLists[index].slate = value.toJSON() as TaskListType['slate'];
       });
     }, 1000);
-  }, [setAppState, taskList]);
+  }, [setAppState, taskListId]);
 
   const handleEditorChange = ({ value }: { value: Value }) => {
     // TODO: Validate value. Slate can fail. In such case, log it and revert.
