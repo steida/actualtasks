@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { Text, View } from 'react-native';
 import { rootTaskListId } from '@app/state/appStateConfig';
-import { TaskList } from '@app/state/types';
 import useAppState from '../hooks/useAppState';
 import useAppContext from '../hooks/useAppContext';
 import Link, { LinkProps } from './Link';
@@ -24,60 +23,60 @@ const MenuLink: FunctionComponent<LinkProps> = ({ style, ...rest }) => {
 
 interface TaskListLinkProps {
   accessible: boolean;
-  taskList: TaskList;
+  taskListId: string;
+  taskListName: string;
 }
 
-const TaskListLink: FunctionComponent<TaskListLinkProps> = ({
-  accessible,
-  taskList,
-}) => {
-  const { theme, router } = useAppContext();
-  const isRoot = taskList.id === rootTaskListId;
-  const indexHref: AppHref = {
-    pathname: '/',
-    query: isRoot ? null : { id: taskList.id },
-  };
-  const editHref: AppHref = {
-    pathname: '/edit',
-    query: { id: taskList.id },
-  };
-  const indexRouteIsActive = useRouteIsActive(indexHref);
-  const editRouteIsActive = useRouteIsActive(editHref);
-  const isIndexPage = router.pathname === indexHref.pathname;
-  const routeIsActive = isIndexPage ? indexRouteIsActive : editRouteIsActive;
+const TaskListLink: FunctionComponent<TaskListLinkProps> = React.memo(
+  ({ accessible, taskListId, taskListName }) => {
+    const { theme, router } = useAppContext();
+    const isRoot = taskListId === rootTaskListId;
+    const indexHref: AppHref = {
+      pathname: '/',
+      query: isRoot ? null : { id: taskListId },
+    };
+    const editHref: AppHref = {
+      pathname: '/edit',
+      query: { id: taskListId },
+    };
+    const indexRouteIsActive = useRouteIsActive(indexHref);
+    const editRouteIsActive = useRouteIsActive(editHref);
+    const isIndexPage = router.pathname === indexHref.pathname;
+    const routeIsActive = isIndexPage ? indexRouteIsActive : editRouteIsActive;
 
-  return (
-    <View style={theme.flexRow}>
-      <MenuLink
-        accessible={accessible || indexRouteIsActive || editRouteIsActive}
-        style={!routeIsActive && theme.flex1}
-        href={indexHref}
-      >
-        {taskList.name}
-      </MenuLink>
-      {routeIsActive && (
+    return (
+      <View style={theme.flexRow}>
         <MenuLink
-          accessible={false}
-          style={routeIsActive && theme.flex1}
-          href={editHref}
+          accessible={accessible || indexRouteIsActive || editRouteIsActive}
+          style={!routeIsActive && theme.flex1}
+          href={indexHref}
         >
-          <Text style={theme.noBold}>☰</Text>
+          {taskListName}
         </MenuLink>
-      )}
-    </View>
-  );
-};
+        {routeIsActive && (
+          <MenuLink
+            accessible={false}
+            style={routeIsActive && theme.flex1}
+            href={editHref}
+          >
+            <Text style={theme.noBold}>☰</Text>
+          </MenuLink>
+        )}
+      </View>
+    );
+  },
+);
 
 const TaskLists: FunctionComponent = () => {
   const taskLists = useAppState(state => state.taskLists);
-
   return (
     <>
       {taskLists.map((taskList, index) => (
         <TaskListLink
           // At least one link must be accessible.
           accessible={index === 0}
-          taskList={taskList}
+          taskListId={taskList.id}
+          taskListName={taskList.name}
           key={taskList.id}
         />
       ))}
