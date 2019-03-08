@@ -232,18 +232,17 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     initReducer,
   );
 
-  const renderNode = (
-    props: RenderNodeProps,
-    _editor: CoreEditor,
-    next: () => any,
-  ) => {
-    switch (props.node.type) {
-      case taskTypeTypeProp:
-        return <TaskItem {...props} dispatch={dispatch} />;
-      default:
-        return next();
-    }
-  };
+  const renderNode = useCallback(
+    (props: RenderNodeProps, _editor: CoreEditor, next: () => any) => {
+      switch (props.node.type) {
+        case taskTypeTypeProp:
+          return <TaskItem {...props} dispatch={dispatch} />;
+        default:
+          return next();
+      }
+    },
+    [],
+  );
 
   const setAppState = useAppState();
   const taskListId = taskList.id;
@@ -258,13 +257,22 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     }, 1000);
   }, [setAppState, taskListId]);
 
-  const handleEditorChange = ({ value }: { value: Value }) => {
-    // TODO: Validate value. Slate can fail. In such case, log it and revert.
-    dispatch({ type: 'update', payload: value });
-    const documentHasBeenChanged = value.document !== editorValue.document;
-    if (!documentHasBeenChanged) return;
-    saveThrottled(value);
-  };
+  // editorValue.document, so we don't save on selection change.
+  const handleEditorChange = useCallback(
+    ({ value }: { value: Value }) => {
+      // TODO: Validate value. Slate can fail. In such case, log it and revert.
+      dispatch({ type: 'update', payload: value });
+      const documentHasBeenChanged = value.document !== editorValue.document;
+      if (!documentHasBeenChanged) return;
+      saveThrottled(value);
+    },
+    [editorValue.document, saveThrottled],
+  );
+
+  // vsude useCallback? vsude!
+  // const handleEditorKeyDown = () => {
+  //   //
+  // };
 
   const screenSize = useScreenSize();
 
@@ -274,7 +282,7 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
       autoCorrect={false}
       spellCheck={false}
       onChange={handleEditorChange}
-      // onKeyDown={handleKeyDown}
+      // onKeyDown={handleEditorKeyDown}
       ref={editorRef}
       renderNode={renderNode}
       value={editorValue}
