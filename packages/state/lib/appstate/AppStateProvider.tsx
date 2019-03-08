@@ -6,6 +6,7 @@ import React, {
   FunctionComponent,
   useMemo,
   useEffect,
+  useCallback,
 } from 'react';
 import { AsyncStorage } from 'react-native';
 import AppStateContext, {
@@ -52,16 +53,16 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
   // In future, we can fetch end-to-end encrypted state from the server.
 
   // https://reactjs.org/docs/hooks-faq.html#how-to-create-expensive-objects-lazily
-  const getAppState = () => {
+  const getAppState = useCallback(() => {
     const state = appStateRef.current;
     if (state != null) return state;
     return (appStateRef.current = migrations.reduce(
       (state, migration) => migration(state),
       {},
     ));
-  };
+  }, [migrations]);
 
-  const save = async () => {
+  const save = useCallback(async () => {
     const state = getAppState();
     const version = migrations.length;
     // Atomic object is easy and solid. For bigger datasets, we can use another
@@ -74,22 +75,25 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
       // eslint-disable-next-line no-console
       console.log(error);
     }
-  };
+  }, [getAppState, migrations.length, name]);
 
   // saveThrottled is memoized per render, which happens only twice.
   const saveThrottled = useMemo(() => throttle(save, 1000), [save]);
 
-  const setAppStateRef = (state: object, noCallbacks?: boolean) => {
-    appStateRef.current = state;
-    // Load don't have run callbacks because app will be rerendered on loaded.
-    // Load don't have to save state because it will be saved on change anyway.
-    if (noCallbacks === true) return;
-    // Maybe we don't have to clone callbacks because setState is async, but...
-    [...callbacks].forEach(callback => callback());
-    saveThrottled();
-  };
+  const setAppStateRef = useCallback(
+    (state: object, noCallbacks?: boolean) => {
+      appStateRef.current = state;
+      // Load don't have run callbacks because app will be rerendered on loaded.
+      // Load don't have to save state because it will be saved on change anyway.
+      if (noCallbacks === true) return;
+      // Maybe we don't have to clone callbacks because setState is async, but...
+      [...callbacks].forEach(callback => callback());
+      saveThrottled();
+    },
+    [callbacks, saveThrottled],
+  );
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const value = await AsyncStorage.getItem(name);
       if (value == null) return;
@@ -104,24 +108,27 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
     } finally {
       setLoaded(true);
     }
-  };
+  }, [migrations, name, setAppStateRef]);
 
   useEffect(() => {
     if (!loaded) load();
   }, [load, loaded]);
 
-  const syncStorage = async (event: StorageEvent) => {
-    if (event.key !== name) return;
-    try {
-      const value = await AsyncStorage.getItem(name);
-      if (value == null) return;
-      const data: StorageData = JSON.parse(value);
-      setAppStateRef(data.state);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  };
+  const syncStorage = useCallback(
+    async (event: StorageEvent) => {
+      if (event.key !== name) return;
+      try {
+        const value = await AsyncStorage.getItem(name);
+        if (value == null) return;
+        const data: StorageData = JSON.parse(value);
+        setAppStateRef(data.state);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    },
+    [name, setAppStateRef],
+  );
 
   useEffect(() => {
     const isBrowser = typeof window !== 'undefined';
