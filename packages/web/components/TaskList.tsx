@@ -124,6 +124,10 @@ interface TaskListProps {
   taskList: TaskListType;
 }
 
+// TaskList holds Slate editor state, because of immutable.js, we can not
+// serialize and deserialize whole editor state on every key stroke.
+// Therefore, editor state is browser tab specific aka not live updated.
+// TODO: Once Slate will switch to plain objects, move state to local storage.
 const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
   const nodeToTaskDataWithKey = (node: TaskNode): TaskTypeDataWithKey => ({
     key: node.key,
