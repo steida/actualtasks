@@ -83,7 +83,7 @@ const Layout: FunctionComponent<LayoutProps> = props => {
 
   // https://medium.com/@robdel12/single-page-apps-routers-are-broken-255daa310cf
   // Useful for accessibility and key navigation.
-  const maybeFocusLayoutBody = () => {
+  useEffect(() => {
     if (!layoutBodyRef.current) return;
     // Do not focus on the initial render.
     if (initialRender === true) {
@@ -99,11 +99,7 @@ const Layout: FunctionComponent<LayoutProps> = props => {
     // Remove outline, because outline shall be shown only on key action.
     layoutBodyRef.current.setNativeProps({ style: { outline: 'none' } });
     layoutBodyRef.current.focus();
-  };
-
-  useEffect(() => {
-    maybeFocusLayoutBody();
-  }, [maybeFocusLayoutBody]);
+  });
 
   const screenSize = useScreenSize();
 
