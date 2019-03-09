@@ -23,10 +23,9 @@ const TaskListOrNotFound: FunctionComponent<MaybeTaskListProps> = ({
     [taskListId],
   );
   const taskList = useAppState(taskListSelector);
-  // console.log(title, taskList && taskList.id, taskListId);
   if (taskList == null) return <Text style={theme.text}>{title}</Text>;
   /* https://twitter.com/estejs/status/1102238792382062593 */
-  return <TaskList taskList={taskList} key={taskListId} />;
+  return <TaskList taskList={taskList} key={taskList.id} />;
 };
 
 const Index: FunctionComponent = () => {
