@@ -13,6 +13,7 @@ import { createElement } from 'react-native-web';
 import { Text, View, ViewStyle, StyleProp } from 'react-native';
 import { Overwrite } from 'utility-types';
 import throttle from 'lodash.throttle';
+import { isHotkey } from 'is-hotkey';
 import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import useScreenSize from '../hooks/useScreenSize';
@@ -27,7 +28,9 @@ type TaskNode = RenderNodeProps['node'];
 
 type Action =
   | { type: 'update'; payload: Value }
-  | { type: 'toggle'; payload: TaskNode }
+  | { type: 'toggle'; tasks: TaskTypeDataWithKey[] }
+  | { type: 'moveHorizontal'; tasks: TaskTypeDataWithKey[]; forward: boolean }
+  | { type: 'moveVertical'; task: TaskTypeDataWithKey; forward: boolean }
   | { type: 'archive' };
 
 const taskTypeTypeProp: TaskTypeTypeProp = 'task';
@@ -52,13 +55,18 @@ const getTaskData = (node: TaskNode): TaskTypeData => {
   };
 };
 
+const nodeToTaskDataWithKey = (node: TaskNode): TaskTypeDataWithKey => ({
+  key: node.key,
+  ...getTaskData(node),
+});
+
 const Uneditable: FunctionComponent = props => {
   return (
     <>
       <div contentEditable={false}>{props.children}</div>
       {/* 
-        To prevent errror: "IndexSizeError: Failed to execute 'getRangeAt'
-        on 'Selection': 0 is not a valid index."
+        To fix errror: "IndexSizeError: Failed to execute 'getRangeAt'
+        on 'Selection': 0 is not a valid index." and some others.
       */}
       <style jsx>{`
         div {
@@ -96,7 +104,10 @@ const TaskItem: FunctionComponent<TaskProps> = props => {
   const depthStyle = getTaskDepthStyle();
 
   const handleCheckboxChange = useCallback(() => {
-    props.dispatch({ type: 'toggle', payload: props.node });
+    props.dispatch({
+      type: 'toggle',
+      tasks: [nodeToTaskDataWithKey(props.node)],
+    });
   }, [props]);
 
   return (
@@ -129,17 +140,22 @@ interface TaskListProps {
 // Therefore, editor state is browser tab specific aka not live updated.
 // TODO: Once Slate will switch to plain objects, move state to local storage.
 const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
-  const nodeToTaskDataWithKey = (node: TaskNode): TaskTypeDataWithKey => ({
-    key: node.key,
-    ...getTaskData(node),
-  });
-
   const editorRef = React.useRef<Editor>(null);
 
   const getEditor = () => {
     const { current } = editorRef;
     if (current == null) throw new Error('editorRef current is null');
     return current;
+  };
+
+  const getSelectedTasks = (): TaskTypeDataWithKey[] => {
+    const selectedTasks: TaskTypeDataWithKey[] = [];
+    const editor = getEditor();
+    editor.value.blocks.forEach(node => {
+      if (node == null || node.type !== taskTypeTypeProp) return;
+      selectedTasks.push(nodeToTaskDataWithKey(node));
+    });
+    return selectedTasks;
   };
 
   const getTaskIndex = (key: string): number => {
@@ -205,6 +221,67 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     setNodesData(completedTasks);
   };
 
+  const moveHorizontal = (tasks: TaskTypeDataWithKey[], forward: boolean) => {
+    const editor = getEditor();
+    const firstTask = tasks[0];
+    tasks = tasksWithChildren(tasks);
+    const canTab = () => {
+      const taskIndex = getTaskIndex(firstTask.key);
+      if (taskIndex === 0) return false;
+      const previous = editor.value.document.nodes.get(taskIndex - 1);
+      if (previous == null) return false;
+      const previousDepth = getTaskData(previous).depth;
+      const firstDepth = tasks[0].depth;
+      return firstDepth <= previousDepth;
+    };
+    const canShiftTab = () => {
+      return !tasks.some(task => task.depth === 0);
+    };
+    const canChangeDepth = forward ? canTab() : canShiftTab();
+    if (!canChangeDepth) return;
+    const changedTasks = tasks.map(task => ({
+      ...task,
+      depth: task.depth + (forward ? 1 : -1),
+    }));
+    setNodesData(changedTasks);
+  };
+
+  const moveVertical = (task: TaskTypeDataWithKey, forward: boolean) => {
+    const editor = getEditor();
+    const { nodes } = editor.value.document;
+    let index = getTaskIndex(task.key);
+    if (index === 0 && !forward) return;
+    let siblingData = null;
+    while (forward ? index < nodes.count() : index > 0) {
+      index += forward ? 1 : -1;
+      const sibling = nodes.get(index);
+      if (sibling == null) return;
+      siblingData = getTaskData(sibling);
+      if (siblingData.depth <= task.depth) break;
+    }
+    let tasks = tasksWithChildren([task]);
+    const depthChanged = siblingData && siblingData.depth < task.depth;
+    tasks = tasks.map(task => {
+      return {
+        ...task,
+        depth: Math.max(task.depth - (depthChanged ? 1 : 0), 0),
+      };
+    });
+    if (forward) {
+      const task = nodeToTaskDataWithKey(nodes.get(index));
+      index += tasksWithChildren([task]).length - 1;
+      tasks.reverse().forEach((task, i) => {
+        setNodesData([task]);
+        editor.moveNodeByKey(task.key, editor.value.document.key, index - i);
+      });
+    } else {
+      tasks.forEach((task, i) => {
+        setNodesData([task]);
+        editor.moveNodeByKey(task.key, editor.value.document.key, index + i);
+      });
+    }
+  };
+
   // Reducer here is ok.
   // https://twitter.com/dan_abramov/status/1102010979611746304
   const editorValueReducer = (state: Value, action: Action) => {
@@ -215,7 +292,15 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
       case 'update':
         return action.payload;
       case 'toggle': {
-        toggleTasks([nodeToTaskDataWithKey(action.payload)]);
+        toggleTasks(action.tasks);
+        return state;
+      }
+      case 'moveHorizontal': {
+        moveHorizontal(action.tasks, action.forward);
+        return state;
+      }
+      case 'moveVertical': {
+        moveVertical(action.task, action.forward);
         return state;
       }
       case 'archive':
@@ -273,10 +358,48 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     [editorValue.document, saveThrottled],
   );
 
-  // vsude useCallback? vsude!
-  // const handleEditorKeyDown = () => {
-  //   //
-  // };
+  const handleEditorKeyDown = (
+    event: KeyboardEvent,
+    _editor: CoreEditor,
+    next: () => any,
+  ) => {
+    const isAltEnter = isHotkey('alt+enter')(event);
+    if (isAltEnter) {
+      event.preventDefault();
+      dispatch({ type: 'toggle', tasks: getSelectedTasks() });
+      return;
+    }
+
+    const isTab = isHotkey('tab')(event);
+    const isShiftTab = isHotkey('shift+tab')(event);
+    if (isTab || isShiftTab) {
+      event.preventDefault();
+      dispatch({
+        type: 'moveHorizontal',
+        tasks: getSelectedTasks(),
+        forward: isTab,
+      });
+      return;
+    }
+
+    const isMetaUp = isHotkey('meta+up')(event);
+    const isMetaDown = isHotkey('meta+down')(event);
+    if (isMetaUp || isMetaDown) {
+      const tasks = getSelectedTasks();
+      // We know how to vertically move only just one task.
+      if (tasks.length === 1) {
+        event.preventDefault();
+        dispatch({
+          type: 'moveVertical',
+          task: tasks[0],
+          forward: isMetaDown,
+        });
+        return;
+      }
+    }
+
+    return next();
+  };
 
   const screenSize = useScreenSize();
 
@@ -285,10 +408,11 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
       autoFocus={!screenSize.phoneOnly}
       autoCorrect={false}
       spellCheck={false}
-      onChange={handleEditorChange}
-      // onKeyDown={handleEditorKeyDown}
-      ref={editorRef}
       renderNode={renderNode}
+      onChange={handleEditorChange}
+      // @ts-ignore EventHook is wrong. It's KeyboardEvent.
+      onKeyDown={handleEditorKeyDown}
+      ref={editorRef}
       value={editorValue}
     />
   );
