@@ -1,7 +1,7 @@
 import React from 'react';
 import lightTheme, { Theme } from '@app/themes/lightTheme';
 import darkTheme from '@app/themes/darkTheme';
-import useAppState from '../hooks/useAppState';
+import useAppState from '@app/hooks/useAppState';
 
 interface ThemeConsumer {
   children: (theme: Theme) => React.ReactElement<any>;

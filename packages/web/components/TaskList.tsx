@@ -15,8 +15,8 @@ import { Overwrite } from 'utility-types';
 import throttle from 'lodash.throttle';
 import { isHotkey } from 'is-hotkey';
 import useAppContext from '@app/hooks/useAppContext';
-import useAppState from '../hooks/useAppState';
-import useScreenSize from '../hooks/useScreenSize';
+import useAppState from '@app/hooks/useAppState';
+import useScreenSize from '@app/hooks/useScreenSize';
 
 type TaskType = TaskListType['slate']['document']['nodes'][0];
 type TaskTypeTypeProp = TaskType['type'];

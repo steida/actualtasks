@@ -1,6 +1,6 @@
 import { rootTaskListId } from '@app/state/appStateConfig';
 import { TaskList } from '@app/state/types';
-import usePageTitles from './usePageTitles';
+import usePageTitles from '@app/hooks/usePageTitles';
 
 const useTaskListTitle = (taskList: TaskList | undefined, noRoot?: boolean) => {
   const pageTitles = usePageTitles();

@@ -3,11 +3,11 @@ import { defineMessages, FormattedMessage } from 'react-intl';
 import { Text, TextInput, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import useAppContext from '@app/hooks/useAppContext';
+import useAppState from '@app/hooks/useAppState';
+import usePageTitles from '@app/hooks/usePageTitles';
 import Button from '../components/Button';
 import Layout from '../components/Layout';
-import useAppState from '../hooks/useAppState';
 import Link from '../components/Link';
-import usePageTitles from '../hooks/usePageTitles';
 
 export const messages = defineMessages({
   backupAndSync: {

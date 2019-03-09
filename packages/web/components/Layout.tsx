@@ -10,11 +10,11 @@ import {
 } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import useAppContext from '@app/hooks/useAppContext';
+import useAppState from '@app/hooks/useAppState';
+import useScreenSize from '@app/hooks/useScreenSize';
 import Gravatar from './Gravatar';
-import useAppState from '../hooks/useAppState';
 import Link from './Link';
 import Menu from './Menu';
-import useScreenSize from '../hooks/useScreenSize';
 
 let initialRender = true;
 

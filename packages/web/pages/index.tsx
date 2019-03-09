@@ -2,11 +2,11 @@ import React, { FunctionComponent, useMemo, useCallback } from 'react';
 import { Text } from 'react-native';
 import { AppState } from '@app/state/types';
 import useAppContext from '@app/hooks/useAppContext';
+import useAppState from '@app/hooks/useAppState';
+import useTaskListTitle from '@app/hooks/useTaskListTitle';
 import Layout from '../components/Layout';
 import useAppStateTaskListByRouter from '../hooks/useAppStateTaskListByRouter';
-import useTaskListTitle from '../hooks/useTaskListTitle';
 import TaskList from '../components/TaskList';
-import useAppState from '../hooks/useAppState';
 
 interface MaybeTaskListProps {
   title: string;

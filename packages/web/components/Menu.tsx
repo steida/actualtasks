@@ -2,12 +2,12 @@ import React, { FunctionComponent } from 'react';
 import { Text, View } from 'react-native';
 import { rootTaskListId } from '@app/state/appStateConfig';
 import useAppContext from '@app/hooks/useAppContext';
-import useAppState from '../hooks/useAppState';
+import useAppState from '@app/hooks/useAppState';
+import useScreenSize from '@app/hooks/useScreenSize';
 import Link, { LinkProps } from './Link';
 import useRouteIsActive from '../hooks/useRouteIsActive';
 import { AppHref } from '../types';
 import KeyboardNavigableView from './KeyboardNavigableView';
-import useScreenSize from '../hooks/useScreenSize';
 
 const MenuLink: FunctionComponent<LinkProps> = ({ style, ...rest }) => {
   const { theme } = useAppContext();
