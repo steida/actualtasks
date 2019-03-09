@@ -22,9 +22,7 @@ const migrations = [
                   data: { completed: false, depth: 0 },
                   nodes: [
                     {
-                      leaves: [
-                        { text: 'What should be done?', object: 'leaf' },
-                      ],
+                      leaves: [{ text: '', object: 'leaf' }],
                       object: 'text',
                     },
                   ],
