@@ -29,7 +29,11 @@ type TaskNode = RenderNodeProps['node'];
 type Action =
   | { type: 'update'; payload: Value }
   | { type: 'toggle'; tasks: TaskTypeDataWithKey[] }
-  | { type: 'moveHorizontal'; tasks: TaskTypeDataWithKey[]; forward: boolean }
+  | {
+      type: 'moveHorizontal';
+      tasks: TaskTypeDataWithKey[];
+      forward: boolean;
+    }
   | { type: 'moveVertical'; task: TaskTypeDataWithKey; forward: boolean }
   | { type: 'archive' };
 
@@ -221,6 +225,9 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     setNodesData(completedTasks);
   };
 
+  const canShiftTab = (tasks: TaskTypeDataWithKey[]) =>
+    !tasks.some(task => task.depth === 0);
+
   const moveHorizontal = (tasks: TaskTypeDataWithKey[], forward: boolean) => {
     const editor = getEditor();
     const firstTask = tasks[0];
@@ -234,10 +241,7 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
       const firstDepth = tasks[0].depth;
       return firstDepth <= previousDepth;
     };
-    const canShiftTab = () => {
-      return !tasks.some(task => task.depth === 0);
-    };
-    const canChangeDepth = forward ? canTab() : canShiftTab();
+    const canChangeDepth = forward ? canTab() : canShiftTab(tasks);
     if (!canChangeDepth) return;
     const changedTasks = tasks.map(task => ({
       ...task,
@@ -363,6 +367,7 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     _editor: CoreEditor,
     next: () => any,
   ) => {
+    // const nativeEvent
     const isAltEnter = isHotkey('alt+enter')(event);
     if (isAltEnter) {
       event.preventDefault();
@@ -373,10 +378,13 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     const isTab = isHotkey('tab')(event);
     const isShiftTab = isHotkey('shift+tab')(event);
     if (isTab || isShiftTab) {
+      const tasks = getSelectedTasks();
+      // For keyboard navigation UX, shift-tab to leave TaskList.
+      if (isShiftTab && !canShiftTab(tasks)) return;
       event.preventDefault();
       dispatch({
         type: 'moveHorizontal',
-        tasks: getSelectedTasks(),
+        tasks,
         forward: isTab,
       });
       return;
