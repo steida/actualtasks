@@ -16,6 +16,7 @@
     "lint:fix": "yarn lint --fix",
     "tsc": "tsc",
     "build": "wsrun --exclude-missing build",
+    "prod": "yarn build && yarn start",
     "test": "run-s lint tsc",
     "start": "wsrun --exclude-missing start"
   },
