@@ -1,5 +1,5 @@
 import { defineMessages } from 'react-intl';
-import useAppContext from './useAppContext';
+import useAppContext from '@app/hooks/useAppContext';
 
 const messages = defineMessages({
   areYouSure: {

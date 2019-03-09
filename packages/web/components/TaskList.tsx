@@ -14,7 +14,7 @@ import { Text, View, ViewStyle, StyleProp } from 'react-native';
 import { Overwrite } from 'utility-types';
 import throttle from 'lodash.throttle';
 import { isHotkey } from 'is-hotkey';
-import useAppContext from '../hooks/useAppContext';
+import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import useScreenSize from '../hooks/useScreenSize';
 

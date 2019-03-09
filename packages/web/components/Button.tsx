@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
-import useAppContext from '../hooks/useAppContext';
+import useAppContext from '@app/hooks/useAppContext';
 
 // This is mess.
 type Type = 'text' | 'primary' | 'secondary' | 'danger' | 'gray';

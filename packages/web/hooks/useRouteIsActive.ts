@@ -1,4 +1,4 @@
-import useAppContext from './useAppContext';
+import useAppContext from '@app/hooks/useAppContext';
 import { AppHref } from '../types';
 
 const useRouteIsActive = (href: AppHref) => {

@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react';
+import { useSubscription } from '@app/hooks/useSubscription';
 import AppStateContext, { SetAppState } from './AppStateContext';
-import useSubscription from './useSubscription';
 
 // Example:
 // interface AppState { viewer: Viewer }

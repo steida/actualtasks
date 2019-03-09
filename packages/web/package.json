@@ -15,6 +15,7 @@
     "@app/state": "1.0.0",
     "@app/themes": "1.0.0",
     "@app/validators": "1.0.0",
+    "@app/hooks": "1.0.0",
     "immer": "^2.0.0",
     "gravatar": "^1.8.0",
     "immutable": "^3.8.1",

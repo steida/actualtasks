@@ -1,7 +1,7 @@
 import React, { FunctionComponent, ReactNode } from 'react';
 import { Text, TextInput } from 'react-native';
+import useAppContext from '@app/hooks/useAppContext';
 import ValidationError, { ValidationErrorType } from './ValidationError';
-import useAppContext from '../hooks/useAppContext';
 
 interface TextInputWithLabelAndErrorProps {
   autoFocus?: boolean;

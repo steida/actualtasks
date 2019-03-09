@@ -1,6 +1,6 @@
 import { defineMessages } from 'react-intl';
 import { useMemo } from 'react';
-import useAppContext from './useAppContext';
+import useAppContext from '@app/hooks/useAppContext';
 
 export const pageTitles = defineMessages({
   index: {

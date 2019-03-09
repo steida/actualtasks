@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 import { Text, View } from 'react-native';
 import { rootTaskListId } from '@app/state/appStateConfig';
+import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
-import useAppContext from '../hooks/useAppContext';
 import Link, { LinkProps } from './Link';
 import useRouteIsActive from '../hooks/useRouteIsActive';
 import { AppHref } from '../types';

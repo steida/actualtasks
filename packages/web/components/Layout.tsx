@@ -9,8 +9,8 @@ import {
   View,
 } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
+import useAppContext from '@app/hooks/useAppContext';
 import Gravatar from './Gravatar';
-import useAppContext from '../hooks/useAppContext';
 import useAppState from '../hooks/useAppState';
 import Link from './Link';
 import Menu from './Menu';

@@ -1,5 +1,5 @@
 import { rootTaskListId } from '@app/state/appStateConfig';
-import useAppContext from './useAppContext';
+import useAppContext from '@app/hooks/useAppContext';
 import useAppState from './useAppState';
 
 const useAppStateTaskListByRouter = () => {

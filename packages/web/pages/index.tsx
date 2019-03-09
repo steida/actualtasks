@@ -1,8 +1,8 @@
 import React, { FunctionComponent, useMemo, useCallback } from 'react';
 import { Text } from 'react-native';
 import { AppState } from '@app/state/types';
+import useAppContext from '@app/hooks/useAppContext';
 import Layout from '../components/Layout';
-import useAppContext from '../hooks/useAppContext';
 import useAppStateTaskListByRouter from '../hooks/useAppStateTaskListByRouter';
 import useTaskListTitle from '../hooks/useTaskListTitle';
 import TaskList from '../components/TaskList';

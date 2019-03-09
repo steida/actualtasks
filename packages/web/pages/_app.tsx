@@ -4,10 +4,10 @@ import App, { Container } from 'next/app';
 import React from 'react';
 import { IntlProvider } from 'react-intl';
 import { View } from 'react-native';
+import { AppContext } from '@app/hooks/useAppContext';
 import IntlProviderFix from '../components/IntlProviderFix';
 import RouterProviderFix from '../components/RouterProviderFix';
 import ThemeConsumer from '../components/ThemeConsumer';
-import AppContext from '../contexts/AppContext';
 
 const SplashScreen = () => {
   return (
@@ -29,7 +29,11 @@ interface MyAppProps {
   pageProps: {};
 }
 
-export default class MyApp extends App<MyAppProps> {
+interface MyAppState {
+  initialRender: boolean;
+}
+
+export default class MyApp extends App<MyAppProps, MyAppState> {
   static localStorageKey = 'actualtasks';
 
   static async getInitialProps(): Promise<MyAppProps> {
@@ -37,12 +41,20 @@ export default class MyApp extends App<MyAppProps> {
       initialNow: Date.now(),
       pageProps: { data: null },
     };
-
     return props;
+  }
+
+  state = {
+    initialRender: true,
+  };
+
+  componentDidMount() {
+    this.setState({ initialRender: false });
   }
 
   render() {
     const { Component: Page, initialNow, pageProps } = this.props;
+    const { initialRender } = this.state;
 
     return (
       <Container>
@@ -61,7 +73,9 @@ export default class MyApp extends App<MyAppProps> {
                   {router => (
                     <ThemeConsumer>
                       {theme => (
-                        <AppContext.Provider value={{ intl, theme, router }}>
+                        <AppContext.Provider
+                          value={{ intl, theme, router, initialRender }}
+                        >
                           <Page {...pageProps} />
                         </AppContext.Provider>
                       )}

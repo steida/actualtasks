@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-// https://gist.githubusercontent.com/bvaughn/e25397f70e8c65b0ae0d7c90b731b189/raw/ccc3cc72b72a619917dd2f7728bdebac2e3131c1/useSubscription.js
+// https://github.com/facebook/react/pull/15022
 
 // Hook used for safely managing subscriptions in concurrent mode.
 //
@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 // the parameters passed to this hook should be memoized in some way–
 // either by wrapping the entire params object with useMemo()
 // or by wrapping the individual callbacks with useCallback().
-const useSubscription = ({
+export function useSubscription<Value, Source>({
   // This is the thing being subscribed to (e.g. an observable, event dispatcher, etc).
   source,
 
@@ -19,10 +19,10 @@ const useSubscription = ({
   // It should return an unsubscribe function that removes the handler.
   subscribe,
 }: {
-  source: any;
-  getCurrentValue: (source: any) => any;
-  subscribe: any;
-}) => {
+  source: Source;
+  getCurrentValue: (source: Source) => Value;
+  subscribe: (source: Source, callback: Function) => () => void;
+}) {
   // Read the current value from our subscription source.
   // When this value changes, we'll schedule an update with React.
   // It's important to also store the source itself so that we can check for staleness.
@@ -96,6 +96,4 @@ const useSubscription = ({
 
   // Return the current value for our caller to use while rendering.
   return state.value;
-};
-
-export default useSubscription;
+}

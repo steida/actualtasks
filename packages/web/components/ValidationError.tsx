@@ -6,7 +6,7 @@ import {
   Max1024CharsError,
   Max140CharsError,
 } from '@app/validators/types';
-import useAppContext from '../hooks/useAppContext';
+import useAppContext from '@app/hooks/useAppContext';
 
 export type ValidationErrorType =
   | Max32CharsError
