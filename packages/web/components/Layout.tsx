@@ -16,8 +16,6 @@ import Gravatar from './Gravatar';
 import Link from './Link';
 import Menu from './Menu';
 
-let initialRender = true;
-
 const ViewerGravatar: FunctionComponent = () => {
   const { theme } = useAppContext();
   const email = useAppState(state => state.viewer.email);
@@ -75,7 +73,7 @@ interface LayoutProps {
 }
 
 const Layout: FunctionComponent<LayoutProps> = props => {
-  const { theme } = useAppContext();
+  const { theme, initialRender } = useAppContext();
   const [htmlBackgroundColor] = useMemo(() => {
     return [StyleSheet.flatten(theme.layout).backgroundColor || '#fff'];
   }, [theme.layout]);
@@ -86,11 +84,7 @@ const Layout: FunctionComponent<LayoutProps> = props => {
   useEffect(() => {
     if (!layoutBodyRef.current) return;
     // Do not focus on the initial render.
-    if (initialRender === true) {
-      initialRender = false;
-      return;
-    }
-
+    if (initialRender === true) return;
     // Do not focus if something is already focused.
     const node = (findNodeHandle(layoutBodyRef.current) as unknown) as Element;
     if (node.contains(document.activeElement)) {
