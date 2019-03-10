@@ -53,7 +53,7 @@ const Form: FunctionComponent = () => {
         maxLength="short"
       />
       <View style={theme.buttons}>
-        <FormButton label="add" onPress={handleSubmitEditing} />
+        <FormButton title="add" onPress={handleSubmitEditing} />
       </View>
     </>
   );

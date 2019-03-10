@@ -74,9 +74,9 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
         maxLength="short"
       />
       <View style={theme.buttons}>
-        <FormButton label="save" onPress={handleSavePress} />
+        <FormButton title="save" onPress={handleSavePress} />
         {!isRootTaskList && (
-          <FormButton label="archive" onPress={handleArchivePress} />
+          <FormButton title="archive" onPress={handleArchivePress} />
         )}
       </View>
     </>

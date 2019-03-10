@@ -1,36 +1,49 @@
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { defineMessages } from 'react-intl';
+import useAppContext from '@app/hooks/useAppContext';
 import Button, { ButtonProps } from './Button';
 
-type Label = 'add' | 'archive' | 'save';
+type Title = 'add' | 'archive' | 'save';
 
 interface FormButtonProps extends ButtonProps {
-  label: Label;
+  title: Title;
 }
 
-const FormButton = ({ label, ...rest }: FormButtonProps) => {
+const messages = defineMessages({
+  add: {
+    defaultMessage: 'Add',
+    id: 'formButton.add',
+  },
+  save: {
+    defaultMessage: 'Save',
+    id: 'formButton.save',
+  },
+  archive: {
+    defaultMessage: 'Archive',
+    id: 'formButton.archive',
+  },
+});
+
+const FormButton = ({ title: label, ...rest }: FormButtonProps) => {
+  const { intl } = useAppContext();
   const assertNever = (label: never): never => {
     throw new Error(`Unexpected label: ${label}`);
   };
-  const getLabel = (label: Label) => {
-    switch (label) {
+  const getTitle = (title: Title) => {
+    switch (title) {
       case 'add':
-        return <FormattedMessage defaultMessage="Add" id="buttonLabelAdd" />;
+        return intl.formatMessage(messages.add);
       case 'save':
-        return <FormattedMessage defaultMessage="Save" id="buttonLabelSave" />;
+        return intl.formatMessage(messages.save);
       case 'archive':
-        return (
-          <FormattedMessage defaultMessage="Archive" id="buttonLabelArchive" />
-        );
+        return intl.formatMessage(messages.archive);
       default:
-        return assertNever(label);
+        return assertNever(title);
     }
   };
 
   return (
-    <Button size="small" type="secondary" {...rest}>
-      {getLabel(label)}
-    </Button>
+    <Button size="small" type="secondary" {...rest} title={getTitle(label)} />
   );
 };
 

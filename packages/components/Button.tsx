@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import useAppContext from '@app/hooks/useAppContext';
+import title from 'title';
 
-// This is mess.
 type Type = 'text' | 'primary' | 'secondary' | 'danger' | 'gray';
 
 type Size = 'big' | 'normal' | 'small';
@@ -10,11 +10,18 @@ type Size = 'big' | 'normal' | 'small';
 export interface ButtonProps extends TouchableOpacityProps {
   size?: Size;
   type?: Type;
+  title?: string;
 }
 
 const Button: React.FunctionComponent<ButtonProps> = props => {
   const { theme } = useAppContext();
-  const { disabled, type = 'text', size = 'normal', ...rest } = props;
+  const {
+    disabled,
+    type = 'text',
+    size = 'normal',
+    title: buttonTitle,
+    ...rest
+  } = props;
 
   const getStyle = (type: Type) => {
     const assertNever = (type: never) => {
@@ -46,6 +53,7 @@ const Button: React.FunctionComponent<ButtonProps> = props => {
           size === 'small' && theme.buttonSmall,
         ]}
       >
+        {buttonTitle && title(buttonTitle)}
         {props.children}
       </Text>
     </TouchableOpacity>
