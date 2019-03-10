@@ -1,11 +1,12 @@
-import React, { FunctionComponent } from 'react';
-import { FormattedMessage } from 'react-intl';
+import React, { FunctionComponent, useState, useContext } from 'react';
+import { FormattedMessage, defineMessages } from 'react-intl';
 import { Text, TextInput, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
 import Button from '@app/components/Button';
+import { AppStateContext } from '@app/state/lib/appstate';
 import Layout from '../components/Layout';
 
 const DarkModeButton: FunctionComponent = () => {
@@ -55,25 +56,63 @@ const ViewerEmail: FunctionComponent = () => {
   );
 };
 
-// const Backup: FunctionComponent = () => {
-//   const { theme } = useAppContext();
-//   return (
-//     <View style={[theme.buttons, theme.marginBottom]}>
-//       <Button type="primary">
-//         <FormattedMessage defaultMessage="Backup" id="backup" />
-//       </Button>
-//     </View>
-//   );
-// };
+const messages = defineMessages({
+  deleteAllData: {
+    defaultMessage: 'Delete All Data',
+    id: 'mePage.deleteAllData',
+  },
+});
 
-// const Reset: FunctionComponent = () => {
-//   const { theme } = useAppContext();
-//   return (
-//     <View style={[theme.buttons, theme.marginBottom]}>
-//       <Button type="danger" label="Delete all" />
-//     </View>
-//   );
-// };
+const DeleteAllData: FunctionComponent = () => {
+  const { theme, intl } = useAppContext();
+  const [shown, setShown] = useState(false);
+  const viewerEmail = useAppState(state => state.viewer.email);
+  const [email, setEmail] = useState('');
+  const appStateContext = useContext(AppStateContext);
+
+  const handleDeletePress = () => {
+    appStateContext.deleteAppState(() => {
+      // Browser redirect to purge sensitive session data.
+      window.location.href = '/';
+    });
+  };
+
+  return (
+    <>
+      <View style={[theme.buttons, theme.marginBottom]}>
+        <Button
+          type="text"
+          onPress={() => setShown(!shown)}
+          title={intl.formatMessage(messages.deleteAllData)}
+        />
+      </View>
+      {shown && (
+        <View>
+          <TextInput
+            keyboardType="email-address"
+            onChangeText={text => setEmail(text)}
+            style={theme.textInputOutline}
+            value={email}
+          />
+          <Text style={theme.textSmall}>
+            <FormattedMessage
+              defaultMessage="Please type in your email to confirm."
+              id="deleteAllData.explanation"
+            />
+          </Text>
+          <View style={[theme.buttons, theme.marginTop]}>
+            <Button
+              type="danger"
+              disabled={email !== viewerEmail}
+              title={intl.formatMessage(messages.deleteAllData)}
+              onPress={handleDeletePress}
+            />
+          </View>
+        </View>
+      )}
+    </>
+  );
+};
 
 // const Sync: FunctionComponent = () => {
 //   const { theme } = useAppContext();
@@ -97,9 +136,7 @@ const Me: FunctionComponent = () => {
         <DarkModeButton />
       </View>
       <ViewerEmail />
-      {/* <Backup />
-      <Reset />
-      <Sync /> */}
+      <DeleteAllData />
     </Layout>
   );
 };

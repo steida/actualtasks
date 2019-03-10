@@ -157,6 +157,10 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
       // TODO: Schema validation.
       setAppStateRef(nextState);
     },
+    async deleteAppState(callback) {
+      await AsyncStorage.removeItem(name);
+      callback();
+    },
   });
 
   // Note how we reset the whole tree on loaded via key.

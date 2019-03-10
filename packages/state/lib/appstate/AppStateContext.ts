@@ -11,6 +11,8 @@ export interface AppStateContextType {
   getAppState: () => any;
   subscribe: (callback: Callback) => Unsubscribe;
   setAppState: SetAppState;
+  deleteAppState: (callback: () => void) => void;
+  // loadAppState: ()
 }
 
 export default React.createContext<AppStateContextType>({
@@ -21,6 +23,9 @@ export default React.createContext<AppStateContextType>({
     throw Error('useAppState: Please provide AppStateProvider.');
   },
   setAppState() {
+    throw Error('useAppState: Please provide AppStateProvider.');
+  },
+  deleteAppState() {
     throw Error('useAppState: Please provide AppStateProvider.');
   },
 });
