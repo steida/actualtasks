@@ -372,7 +372,6 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     _editor: CoreEditor,
     next: () => any,
   ) => {
-    // const nativeEvent
     const isAltEnter = isHotkey('alt+enter')(event);
     if (isAltEnter) {
       event.preventDefault();
@@ -409,6 +408,19 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
         });
         return;
       }
+    }
+
+    const isEnter = isHotkey('enter')(event);
+    if (isEnter) {
+      const editor = getEditor();
+      const taskHasText = editor.value.blocks.get(0).getText().length > 0;
+      if (taskHasText) return next();
+      dispatch({
+        type: 'moveHorizontal',
+        tasks: getSelectedTasks(),
+        forward: false,
+      });
+      return;
     }
 
     return next();
