@@ -8,11 +8,11 @@ import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
 import useScreenSize from '@app/hooks/useScreenSize';
-import Layout from '../components/Layout';
-import { hasValidationError } from '../components/ValidationError';
+import { hasValidationError } from '@app/components/ValidationError';
+import TextInputWithLabelAndError from '@app/components/TextInputWithLabelAndError';
+import FormButton from '@app/components/FormButton';
 import { AppHref } from '../types';
-import TextInputWithLabelAndError from '../components/TextInputWithLabelAndError';
-import FormButton from '../components/FormButton';
+import Layout from '../components/Layout';
 
 const Form: FunctionComponent = () => {
   const { theme } = useAppContext();

@@ -5,9 +5,9 @@ import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
 import Link, { LinkProps } from './Link';
-import useRouteIsActive from '../hooks/useRouteIsActive';
-import { AppHref } from '../types';
-import KeyboardNavigableView from './KeyboardNavigableView';
+import useRouteIsActive from '../web/hooks/useRouteIsActive';
+import { AppHref } from '../web/types';
+import KeyboardNavigableView from '../web/components/KeyboardNavigableView';
 
 const MenuLink: FunctionComponent<LinkProps> = ({ style, ...rest }) => {
   const { theme } = useAppContext();

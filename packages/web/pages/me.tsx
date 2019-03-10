@@ -5,7 +5,7 @@ import isEmail from 'validator/lib/isEmail';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
-import Button from '../components/Button';
+import Button from '@app/components/Button';
 import Layout from '../components/Layout';
 
 const DarkModeButton: FunctionComponent = () => {

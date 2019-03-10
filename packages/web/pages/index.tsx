@@ -4,9 +4,9 @@ import { AppState } from '@app/state/types';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import useTaskListTitle from '@app/hooks/useTaskListTitle';
+import TaskList from '@app/components/TaskList';
 import Layout from '../components/Layout';
 import useAppStateTaskListByRouter from '../hooks/useAppStateTaskListByRouter';
-import TaskList from '../components/TaskList';
 
 interface MaybeTaskListProps {
   title: string;

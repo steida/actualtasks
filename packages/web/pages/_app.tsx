@@ -5,9 +5,9 @@ import React from 'react';
 import { IntlProvider } from 'react-intl';
 import { View } from 'react-native';
 import { AppContext } from '@app/hooks/useAppContext';
-import IntlProviderFix from '../components/IntlProviderFix';
+import IntlProviderFix from '@app/components/IntlProviderFix';
+import ThemeConsumer from '@app/components/ThemeConsumer';
 import RouterProviderFix from '../components/RouterProviderFix';
-import ThemeConsumer from '../components/ThemeConsumer';
 
 const SplashScreen = () => {
   return (

@@ -8,9 +8,9 @@ import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
 import usePageTitles from '@app/hooks/usePageTitles';
 import { Assign, Omit } from 'utility-types';
-import Gravatar from './Gravatar';
-import Link, { LinkProps } from './Link';
-import Menu from './Menu';
+import Gravatar from '@app/components/Gravatar';
+import Link, { LinkProps } from '@app/components/Link';
+import Menu from '@app/components/Menu';
 
 const ViewerGravatar: FunctionComponent = () => {
   const { theme } = useAppContext();

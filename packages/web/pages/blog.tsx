@@ -3,8 +3,8 @@ import usePageTitles from '@app/hooks/usePageTitles';
 import useAppContext from '@app/hooks/useAppContext';
 import { View, Text } from 'react-native';
 import { FormattedRelative, FormattedDate, FormattedMessage } from 'react-intl';
+import Link from '@app/components/Link';
 import Layout from '../components/Layout';
-import Link from '../components/Link';
 
 // TODO: Move to @app/components/blogposts or somewhere.
 

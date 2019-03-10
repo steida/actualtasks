@@ -3,8 +3,8 @@ import React from 'react';
 import { Platform, Text, TextStyle, StyleProp } from 'react-native';
 import { Assign, Omit, Overwrite } from 'utility-types';
 import useAppContext from '@app/hooks/useAppContext';
-import { AppHref } from '../types';
-import useRouteIsActive from '../hooks/useRouteIsActive';
+import { AppHref } from '../web/types';
+import useRouteIsActive from '../web/hooks/useRouteIsActive';
 
 export type LinkProps = Assign<
   Overwrite<
