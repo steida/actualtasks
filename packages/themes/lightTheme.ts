@@ -93,6 +93,8 @@ export class LightTheme {
   heading2: TextStyle;
   layout: ViewStyle;
   layoutHeader: ViewStyle;
+  layoutHeaderLink: TextStyle;
+  layoutHeaderLinkActive: TextStyle;
   layoutBody: ViewStyle;
   layoutMenuScrollViewContent: ViewStyle;
   layoutMenuScrollViewSmallScreen: ViewStyle;
@@ -141,6 +143,9 @@ export class LightTheme {
   marginHorizontal: ViewStyle;
   paddingHorizontal: ViewStyle;
   negativeMarginHorizontal: ViewStyle;
+  blogPostTitle: TextStyle;
+  blogPostTitleLink: TextStyle;
+  blogPostReadMoreLink: TextStyle;
 
   constructor(colors: Colors, dimensions: Dimensions) {
     const typography = createTypography({
@@ -200,6 +205,25 @@ export class LightTheme {
       ...typography.scale(1),
     };
 
+    this.link = {
+      // Link does not extend text, because link can be in any text and inherits
+      // it's styles like fontFamily and fontSize. Therefore, Link must be always
+      // wrapped by Text.
+      color: colors.primary,
+    };
+
+    this.linkActive = {
+      textDecorationLine: 'underline',
+    };
+
+    this.linkImageActive = {
+      opacity: 0.7,
+    };
+
+    this.spacer = {
+      width: dimensions.spaceSmall,
+    };
+
     this.layout = {
       backgroundColor: colors.background,
       flex: 1,
@@ -210,6 +234,16 @@ export class LightTheme {
       justifyContent: 'flex-end',
       flexDirection: 'row',
       padding: dimensions.space,
+      marginHorizontal: -dimensions.spaceSmall,
+    };
+
+    this.layoutHeaderLink = {
+      ...this.textSmallGray,
+      marginHorizontal: dimensions.spaceSmall,
+    };
+
+    this.layoutHeaderLinkActive = {
+      ...this.link,
     };
 
     this.layoutBody = {
@@ -245,25 +279,6 @@ export class LightTheme {
 
     this.layoutFooter = {
       paddingVertical: dimensions.space,
-    };
-
-    this.link = {
-      // Link does not extend text, because link can be in any text and inherits
-      // it's styles like fontFamily and fontSize. Therefore, Link must be always
-      // wrapped by Text.
-      color: colors.primary,
-    };
-
-    this.linkActive = {
-      textDecorationLine: 'underline',
-    };
-
-    this.linkImageActive = {
-      opacity: 0.7,
-    };
-
-    this.spacer = {
-      width: dimensions.spaceSmall,
     };
 
     this.borderGrayLight = {
@@ -437,6 +452,22 @@ export class LightTheme {
 
     this.negativeMarginHorizontal = {
       marginHorizontal: -(typography.lineHeight / 4),
+    };
+
+    this.blogPostTitle = {
+      ...this.heading2,
+      color: colors.foreground,
+      marginBottom: 0,
+    };
+
+    this.blogPostTitleLink = {
+      ...this.blogPostTitle,
+      ...this.link,
+      ...this.noBold,
+    };
+
+    this.blogPostReadMoreLink = {
+      ...this.textSmallGray,
     };
   }
 }

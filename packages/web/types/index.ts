@@ -10,5 +10,9 @@ export type AppHref =
   | '/add'
   | {
       pathname: '/edit';
-      query: { id: string } | null;
+      query?: { id: string } | null;
+    }
+  | {
+      pathname: '/blog';
+      query?: { id: string } | null;
     };

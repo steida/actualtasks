@@ -1,19 +1,15 @@
 /* eslint-env browser */
 import Head from 'next/head';
 import React, { useEffect, FunctionComponent, useMemo, useRef } from 'react';
-import {
-  findNodeHandle,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
+import usePageTitles from '@app/hooks/usePageTitles';
+import { Assign, Omit } from 'utility-types';
 import Gravatar from './Gravatar';
-import Link from './Link';
+import Link, { LinkProps } from './Link';
 import Menu from './Menu';
 
 const ViewerGravatar: FunctionComponent = () => {
@@ -31,16 +27,46 @@ const ViewerGravatar: FunctionComponent = () => {
   );
 };
 
-const LayoutHeader = () => {
+type LayoutHeaderLinkProps = Assign<
+  Omit<LinkProps, 'children'>,
+  { title: string }
+>;
+
+const LayoutHeaderLink: FunctionComponent<LayoutHeaderLinkProps> = ({
+  title,
+  ...rest
+}) => {
   const { theme } = useAppContext();
+  return (
+    <Link
+      style={theme.layoutHeaderLink}
+      activeStyle={theme.layoutHeaderLinkActive}
+      prefetch
+      {...rest}
+    >
+      {title
+        .split(' ')[0]
+        .trim()
+        .toUpperCase()}
+    </Link>
+  );
+};
+
+const LayoutHeader: FunctionComponent = () => {
+  const { theme } = useAppContext();
+  const pageTitles = usePageTitles();
 
   return (
     <View style={theme.layoutHeader}>
-      <Text style={theme.text}>
-        <Link activeStyle={theme.linkImageActive} prefetch href="/me">
-          <ViewerGravatar />
-        </Link>
-      </Text>
+      <LayoutHeaderLink href={{ pathname: '/blog' }} title={pageTitles.blog} />
+      <Link
+        style={theme.layoutHeaderLink}
+        activeStyle={theme.linkImageActive}
+        prefetch
+        href="/me"
+      >
+        <ViewerGravatar />
+      </Link>
     </View>
   );
 };

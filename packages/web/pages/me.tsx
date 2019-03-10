@@ -7,7 +7,6 @@ import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
 import Button from '../components/Button';
 import Layout from '../components/Layout';
-import Link from '../components/Link';
 
 export const messages = defineMessages({
   backupAndSync: {
@@ -57,24 +56,6 @@ const EmailInput: FunctionComponent = () => {
   );
 };
 
-const Footer: FunctionComponent = () => {
-  const { theme } = useAppContext();
-  return (
-    <View style={theme.layoutFooter}>
-      <Text style={theme.textSmall}>
-        <Link href="https://github.com/steida/actualtasks">
-          <FormattedMessage defaultMessage="made" id="madeBy" />
-        </Link>
-        {' by '}
-        <Link href="https://twitter.com/steida">steida</Link> for {''}
-        <Link href="https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3">
-          satoshis
-        </Link>
-      </Text>
-    </View>
-  );
-};
-
 const Form = () => {
   const { intl, theme } = useAppContext();
   const [backupAndSyncShown, setBackupAndSyncShown] = useState(false);
@@ -105,7 +86,6 @@ const Form = () => {
           </View>
         </View>
       )}
-      <Footer />
     </>
   );
 };

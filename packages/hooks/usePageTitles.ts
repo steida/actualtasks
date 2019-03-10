@@ -23,6 +23,10 @@ export const pageTitles = defineMessages({
     defaultMessage: 'Not found.',
     id: 'pageTitles.notFound',
   },
+  blog: {
+    defaultMessage: 'Blog - Actual Tasks',
+    id: 'pageTitles.blog',
+  },
 });
 
 // Page titles can not be collocated within pages because that would defeat
@@ -37,6 +41,7 @@ const usePageTitles = () => {
       add: intl.formatMessage(pageTitles.add),
       edit: (name: string) => intl.formatMessage(pageTitles.edit, { name }),
       notFound: intl.formatMessage(pageTitles.notFound),
+      blog: intl.formatMessage(pageTitles.blog),
     };
   }, [intl]);
   return titles;
