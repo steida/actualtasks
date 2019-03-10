@@ -1,5 +1,10 @@
-import React from 'react';
-import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import {
+  Text,
+  TouchableOpacity,
+  TouchableOpacityProps,
+  Platform,
+} from 'react-native';
 import useAppContext from '@app/hooks/useAppContext';
 import title from 'title';
 
@@ -43,14 +48,35 @@ const Button: React.FunctionComponent<ButtonProps> = props => {
     }
   };
 
+  const [hasFocus, setHasFocus] = useState(false);
+
+  const handleFocus = useCallback(() => {
+    setHasFocus(true);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    setHasFocus(false);
+  }, []);
+
   return (
-    <TouchableOpacity disabled={disabled} {...rest} accessibilityRole="button">
+    <TouchableOpacity
+      disabled={disabled}
+      {...rest}
+      accessibilityRole="button"
+      {...Platform.select({
+        web: {
+          onFocus: handleFocus,
+          onBlur: handleBlur,
+        },
+      })}
+    >
       <Text
         style={[
           getStyle(type),
           disabled && theme.buttonDisabled,
           size === 'big' && theme.buttonBig,
           size === 'small' && theme.buttonSmall,
+          hasFocus && theme.focusOutlineWeb,
         ]}
       >
         {buttonTitle && title(buttonTitle)}

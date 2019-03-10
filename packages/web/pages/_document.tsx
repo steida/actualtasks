@@ -8,12 +8,12 @@ import React from 'react';
 import { AppRegistry } from 'react-native';
 
 // Force Next-generated DOM elements to fill their parent's height.
-// Disable input and textarea outline because blinking caret is enough.
+// Disable native outline because we handle it.
 // https://github.com/necolas/react-native-web/blob/master/docs/guides/client-side-rendering.md
 // https://github.com/zeit/next.js/blob/canary/examples/with-react-native-web/pages/_document.js
 const globalStyles = `
   #__next{display:flex;flex-direction:column;height:100%}
-  input,textarea{outline:none}
+  *{outline:none}
   body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 `;
 

@@ -146,6 +146,7 @@ export class LightTheme {
   blogPostTitle: TextStyle;
   blogPostTitleLink: TextStyle;
   blogPostReadMoreLink: TextStyle;
+  focusOutlineWeb: ViewStyle;
 
   constructor(colors: Colors, dimensions: Dimensions) {
     const typography = createTypography({
@@ -468,6 +469,11 @@ export class LightTheme {
 
     this.blogPostReadMoreLink = {
       ...this.textSmallGray,
+    };
+
+    this.focusOutlineWeb = {
+      // @ts-ignore TODO: Only for web via platform.
+      outline: `1px dotted ${colors.gray}`,
     };
   }
 }

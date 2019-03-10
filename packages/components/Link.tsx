@@ -1,5 +1,5 @@
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
-import React from 'react';
+import React, { useState, FunctionComponent } from 'react';
 import { Platform, Text, TextStyle, StyleProp } from 'react-native';
 import { Assign, Omit, Overwrite } from 'utility-types';
 import useAppContext from '@app/hooks/useAppContext';
@@ -23,9 +23,10 @@ export type LinkProps = Assign<
   }
 >;
 
-const Link: React.FunctionComponent<LinkProps> = props => {
+const Link: FunctionComponent<LinkProps> = props => {
   const { theme } = useAppContext();
-  const [hasHover, setHasHover] = React.useState(false);
+  const [hasHover, setHasHover] = useState(false);
+  const [hasFocus, setHasFocus] = useState(false);
   const { children, accessible, style, activeStyle, href, ...rest } = props;
   const routeIsActive = useRouteIsActive(href);
 
@@ -35,6 +36,7 @@ const Link: React.FunctionComponent<LinkProps> = props => {
         style={[
           style || theme.link,
           (hasHover || routeIsActive) && (activeStyle || theme.linkActive),
+          hasFocus && theme.focusOutlineWeb,
         ]}
         accessibilityRole="link"
         accessible={accessible}
@@ -42,6 +44,8 @@ const Link: React.FunctionComponent<LinkProps> = props => {
           web: {
             onMouseEnter: () => setHasHover(true),
             onMouseLeave: () => setHasHover(false),
+            onFocus: () => setHasFocus(true),
+            onBlur: () => setHasFocus(false),
           },
         })}
       >
