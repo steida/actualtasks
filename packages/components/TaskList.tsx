@@ -353,7 +353,6 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
   // editorValue.document, so we don't save on selection change.
   const handleEditorChange = useCallback(
     ({ value }: { value: Value }) => {
-      // TODO: Validate value. Slate can fail. In such case, log it and revert.
       dispatch({ type: 'update', payload: value });
       const documentHasBeenChanged = value.document !== editorValue.document;
       if (!documentHasBeenChanged) return;
