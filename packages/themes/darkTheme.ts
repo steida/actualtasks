@@ -3,8 +3,7 @@ import { colors, LightTheme, dimensions } from './lightTheme';
 
 const darkColors = {
   ...colors,
-  background: '#362714', // from VSCode Kimbie Dark
-  // background: '#343a40',
+  background: '#272b33', // from overreacted.io
   foreground: '#ffffff',
 };
 
