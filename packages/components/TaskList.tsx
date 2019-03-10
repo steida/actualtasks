@@ -412,15 +412,18 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
 
     const isEnter = isHotkey('enter')(event);
     if (isEnter) {
+      event.preventDefault();
       const editor = getEditor();
       const taskHasText = editor.value.blocks.get(0).getText().length > 0;
-      if (taskHasText) return next();
-      dispatch({
-        type: 'moveHorizontal',
-        tasks: getSelectedTasks(),
-        forward: false,
-      });
-      return;
+      const tasks = getSelectedTasks();
+      if (!taskHasText && canShiftTab(tasks)) {
+        dispatch({
+          type: 'moveHorizontal',
+          tasks,
+          forward: false,
+        });
+        return;
+      }
     }
 
     return next();
