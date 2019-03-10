@@ -99,7 +99,7 @@ const BlogPost: FunctionComponent<BlogPostProps> = ({
             style={theme.blogPostReadMoreLink}
             href={{ pathname: '/blog', query: { id } }}
           >
-            READ MORE
+            <FormattedMessage defaultMessage="READ MORE" id="readMore" />
           </Link>
         </View>
       )}
