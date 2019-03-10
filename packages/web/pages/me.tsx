@@ -61,6 +61,10 @@ const messages = defineMessages({
     defaultMessage: 'Delete All Data',
     id: 'mePage.deleteAllData',
   },
+  export: {
+    defaultMessage: 'Export',
+    id: 'mePage.export',
+  },
 });
 
 const DeleteAllData: FunctionComponent = () => {
@@ -114,17 +118,44 @@ const DeleteAllData: FunctionComponent = () => {
   );
 };
 
-// const Sync: FunctionComponent = () => {
-//   const { theme } = useAppContext();
-//   return (
-//     <Text style={theme.paragraph}>
-//       <FormattedMessage
-//         defaultMessage="Syncing across devices with end to end encryption will be released soon."
-//         id="viewerSync"
-//       />
-//     </Text>
-//   );
-// };
+const ExportData: FunctionComponent = () => {
+  const { theme, intl } = useAppContext();
+  const [shown, setShown] = useState(false);
+  const SerializedAppStateInput: FunctionComponent = () => {
+    const appState = useAppState(state => state);
+    const [serializedAppState] = useState(() => JSON.stringify(appState));
+    return (
+      <TextInput
+        editable={false}
+        style={theme.textInputOutline}
+        value={serializedAppState}
+      />
+    );
+  };
+
+  return (
+    <>
+      <View style={[theme.buttons, theme.marginBottom]}>
+        <Button
+          type="text"
+          onPress={() => setShown(!shown)}
+          title={intl.formatMessage(messages.export)}
+        />
+      </View>
+      {shown && (
+        <View>
+          <SerializedAppStateInput />
+          <Text style={theme.textSmall}>
+            <FormattedMessage
+              defaultMessage="Copy paste exported state somewhere."
+              id="importExport.serilizedState"
+            />
+          </Text>
+        </View>
+      )}
+    </>
+  );
+};
 
 const Me: FunctionComponent = () => {
   const pageTitles = usePageTitles();
@@ -137,6 +168,7 @@ const Me: FunctionComponent = () => {
       </View>
       <ViewerEmail />
       <DeleteAllData />
+      <ExportData />
     </Layout>
   );
 };

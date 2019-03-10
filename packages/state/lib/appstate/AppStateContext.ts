@@ -12,7 +12,6 @@ export interface AppStateContextType {
   subscribe: (callback: Callback) => Unsubscribe;
   setAppState: SetAppState;
   deleteAppState: (callback: () => void) => void;
-  // loadAppState: ()
 }
 
 export default React.createContext<AppStateContextType>({
