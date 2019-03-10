@@ -38,7 +38,7 @@ const releaseBlogPost = {
   createdAt: 1552173198616,
   Perex: () => (
     <>
-      <P>Software should be released as soon as possible, so I did. </P>
+      <P>Software should be released as soon as possible, so I did.</P>
     </>
   ),
   Content: () => (
@@ -52,7 +52,36 @@ const releaseBlogPost = {
   ),
 };
 
-export const blogPosts: BlogPost[] = [releaseBlogPost];
+const privacyBlogPost = {
+  title: 'privacy',
+  createdAt: 1552240808832,
+  Perex: () => (
+    <>
+      <P>
+        All your data belongs to you. We do not have any rights on your data and
+        we do not store them anywhere. All your data (tasks, email, everything)
+        are stored by you in your device only.
+      </P>
+    </>
+  ),
+  Content: () => (
+    <>
+      <P>
+        You can always <Link href="/me">export</Link> or{' '}
+        <Link href="/me">delete</Link> your data.
+      </P>
+      <P>
+        No cookies. No ads. No tracking. No spying. No analytics. No tedious
+        registration.
+      </P>
+      <P>
+        That's why I made <B>Actual Tasks</B>.
+      </P>
+    </>
+  ),
+};
+
+export const blogPosts: BlogPost[] = [privacyBlogPost, releaseBlogPost];
 
 type BlogPostProps = BlogPost & { detail?: boolean };
 
