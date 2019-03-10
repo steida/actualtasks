@@ -1,5 +1,5 @@
-import React, { useState, FunctionComponent } from 'react';
-import { defineMessages, FormattedMessage } from 'react-intl';
+import React, { FunctionComponent } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Text, TextInput, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import useAppContext from '@app/hooks/useAppContext';
@@ -7,13 +7,6 @@ import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
 import Button from '../components/Button';
 import Layout from '../components/Layout';
-
-export const messages = defineMessages({
-  backupAndSync: {
-    defaultMessage: 'Backup and Sync',
-    id: 'backupAndSync',
-  },
-});
 
 const DarkModeButton: FunctionComponent = () => {
   const darkMode = useAppState(state => state.viewer.darkMode);
@@ -31,7 +24,7 @@ const DarkModeButton: FunctionComponent = () => {
   );
 };
 
-const EmailInput: FunctionComponent = () => {
+const ViewerEmail: FunctionComponent = () => {
   const { theme } = useAppContext();
   const email = useAppState(state => state.viewer.email);
   const setAppState = useAppState();
@@ -42,9 +35,9 @@ const EmailInput: FunctionComponent = () => {
   const labelIsValid = email === '' || isEmail(email);
 
   return (
-    <>
+    <View style={theme.marginBottom}>
       <Text style={[theme.label, !labelIsValid && theme.labelInvalid]}>
-        <FormattedMessage defaultMessage="Email" id="emailLabel" />
+        <FormattedMessage defaultMessage="Email" id="viewerEmailLabel" />
       </Text>
       <TextInput
         keyboardType="email-address"
@@ -52,50 +45,61 @@ const EmailInput: FunctionComponent = () => {
         style={theme.textInputOutline}
         value={email}
       />
-    </>
+      <Text style={theme.textSmall}>
+        <FormattedMessage
+          defaultMessage="Your email is stored only in your device."
+          id="viewerEmailExplanation"
+        />
+      </Text>
+    </View>
   );
 };
 
-const Form = () => {
-  const { intl, theme } = useAppContext();
-  const [backupAndSyncShown, setBackupAndSyncShown] = useState(false);
+// const Backup: FunctionComponent = () => {
+//   const { theme } = useAppContext();
+//   return (
+//     <View style={[theme.buttons, theme.marginBottom]}>
+//       <Button type="primary">
+//         <FormattedMessage defaultMessage="Backup" id="backup" />
+//       </Button>
+//     </View>
+//   );
+// };
 
-  return (
-    <>
-      <View style={theme.buttons}>
-        <DarkModeButton />
-      </View>
-      <View style={theme.buttons}>
-        <Button onPress={() => setBackupAndSyncShown(!backupAndSyncShown)}>
-          {intl.formatMessage(messages.backupAndSync)}
-        </Button>
-      </View>
-      {backupAndSyncShown && (
-        <View style={theme.marginTop}>
-          <EmailInput />
-          <Text style={[theme.text, theme.marginTop]}>
-            <FormattedMessage
-              defaultMessage="TODO: Explain we don't store nor use email etc."
-              id="syncExplaining"
-            />
-          </Text>
-          <View style={[theme.buttons, theme.marginTop]}>
-            <Button disabled type="primary">
-              {intl.formatMessage(messages.backupAndSync)}
-            </Button>
-          </View>
-        </View>
-      )}
-    </>
-  );
-};
+// const Reset: FunctionComponent = () => {
+//   const { theme } = useAppContext();
+//   return (
+//     <View style={[theme.buttons, theme.marginBottom]}>
+//       <Button type="danger" label="Delete all" />
+//     </View>
+//   );
+// };
+
+// const Sync: FunctionComponent = () => {
+//   const { theme } = useAppContext();
+//   return (
+//     <Text style={theme.paragraph}>
+//       <FormattedMessage
+//         defaultMessage="Syncing across devices with end to end encryption will be released soon."
+//         id="viewerSync"
+//       />
+//     </Text>
+//   );
+// };
 
 const Me: FunctionComponent = () => {
   const pageTitles = usePageTitles();
+  const { theme } = useAppContext();
 
   return (
     <Layout title={pageTitles.me}>
-      <Form />
+      <View style={theme.buttons}>
+        <DarkModeButton />
+      </View>
+      <ViewerEmail />
+      {/* <Backup />
+      <Reset />
+      <Sync /> */}
     </Layout>
   );
 };
