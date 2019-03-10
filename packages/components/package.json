@@ -1,5 +1,11 @@
 {
   "name": "@app/components",
   "version": "1.0.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "title": "^3.4.1"
+  },
+  "devDependencies": {
+    "@types/title": "^1.0.5"
+  }
 }
