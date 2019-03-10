@@ -6,7 +6,7 @@ import React, {
   Dispatch,
   useCallback,
 } from 'react';
-import { Editor, RenderNodeProps } from 'slate-react';
+import { Editor, RenderNodeProps, getEventTransfer } from 'slate-react';
 import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
 // @ts-ignore
 import { createElement } from 'react-native-web';
@@ -27,7 +27,7 @@ type TaskTypeDataWithKey = { key: string } & TaskTypeData;
 type TaskNode = RenderNodeProps['node'];
 
 type Action =
-  | { type: 'update'; payload: Value }
+  | { type: 'update'; value: Value }
   | { type: 'toggle'; tasks: TaskTypeDataWithKey[] }
   | {
       type: 'moveHorizontal';
@@ -35,7 +35,8 @@ type Action =
       forward: boolean;
     }
   | { type: 'moveVertical'; task: TaskTypeDataWithKey; forward: boolean }
-  | { type: 'archive' };
+  | { type: 'archive' }
+  | { type: 'insertText'; text: string };
 
 const taskTypeTypeProp: TaskTypeTypeProp = 'task';
 
@@ -294,7 +295,7 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     };
     switch (action.type) {
       case 'update':
-        return action.payload;
+        return action.value;
       case 'toggle': {
         toggleTasks(action.tasks);
         return state;
@@ -307,8 +308,13 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
         moveVertical(action.task, action.forward);
         return state;
       }
-      case 'archive':
+      case 'archive': {
         return state;
+      }
+      case 'insertText': {
+        getEditor().insertText(action.text);
+        return state;
+      }
       default:
         return assertNever(action);
     }
@@ -353,7 +359,7 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
   // editorValue.document, so we don't save on selection change.
   const handleEditorChange = useCallback(
     ({ value }: { value: Value }) => {
-      dispatch({ type: 'update', payload: value });
+      dispatch({ type: 'update', value });
       const documentHasBeenChanged = value.document !== editorValue.document;
       if (!documentHasBeenChanged) return;
       saveThrottled(value);
@@ -408,6 +414,21 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     return next();
   };
 
+  const handleEditorPaste = (event: ClipboardEvent) => {
+    // Prevent default so the DOM state isn't corrupted.
+    event.preventDefault();
+    // Wrong type definition.
+    const transfer: any = getEventTransfer(event);
+    const text =
+      transfer.type === 'text' || transfer.type === 'html'
+        ? transfer.text
+        : transfer.type === 'fragment'
+        ? transfer.fragment.getText()
+        : '';
+    if (!text) return;
+    dispatch({ type: 'insertText', text });
+  };
+
   const screenSize = useScreenSize();
 
   return (
@@ -417,8 +438,10 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
       spellCheck={false}
       renderNode={renderNode}
       onChange={handleEditorChange}
-      // @ts-ignore EventHook is wrong. It's KeyboardEvent.
+      // @ts-ignore
       onKeyDown={handleEditorKeyDown}
+      // @ts-ignore
+      onPaste={handleEditorPaste}
       ref={editorRef}
       value={editorValue}
     />
