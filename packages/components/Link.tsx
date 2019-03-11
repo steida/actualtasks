@@ -21,6 +21,8 @@ export type LinkProps = Assign<
     download?: string;
     style?: StyleProp<TextStyle>;
     activeStyle?: StyleProp<TextStyle>;
+    // We use it for manual focus.
+    nativeID?: string;
   }
 >;
 
@@ -35,6 +37,7 @@ const Link: FunctionComponent<LinkProps> = props => {
     activeStyle,
     href,
     download,
+    nativeID,
     ...rest
   } = props;
   const routeIsActive = useRouteIsActive(href);
@@ -49,6 +52,7 @@ const Link: FunctionComponent<LinkProps> = props => {
         ]}
         accessibilityRole="link"
         accessible={accessible}
+        nativeID={nativeID}
         {...Platform.select({
           web: {
             download,

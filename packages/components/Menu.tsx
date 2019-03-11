@@ -50,6 +50,8 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = React.memo(
           accessible={accessible || indexRouteIsActive || editRouteIsActive}
           style={!routeIsActive && theme.flex1}
           href={indexHref}
+          // We use it for manual focus.
+          nativeID={`menuTaskListLink${taskListId}`}
         >
           {taskListName}
         </MenuLink>

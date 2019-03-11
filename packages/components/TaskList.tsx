@@ -387,8 +387,6 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     const isShiftTab = isHotkey('shift+tab')(event);
     if (isTab || isShiftTab) {
       const tasks = getSelectedTasks();
-      // For keyboard navigation UX, shift-tab to leave TaskList.
-      if (isShiftTab && !canShiftTab(tasks)) return;
       event.preventDefault();
       dispatch({
         type: 'moveHorizontal',
@@ -398,9 +396,10 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
       return;
     }
 
-    const isMetaUp = isHotkey('meta+up')(event);
-    const isMetaDown = isHotkey('meta+down')(event);
-    if (isMetaUp || isMetaDown) {
+    // mod is cmd on Mac and ctrl on Windows
+    const isModUp = isHotkey('mod+up')(event);
+    const isModDown = isHotkey('mod+down')(event);
+    if (isModUp || isModDown) {
       const tasks = getSelectedTasks();
       // We know how to vertically move only just one task.
       if (tasks.length === 1) {
@@ -408,7 +407,7 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
         dispatch({
           type: 'moveVertical',
           task: tasks[0],
-          forward: isMetaDown,
+          forward: isModDown,
         });
         return;
       }
@@ -426,6 +425,15 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
           tasks,
           forward: false,
         });
+        return;
+      }
+    }
+
+    const isEscape = isHotkey('escape')(event);
+    if (isEscape) {
+      const link = document.getElementById(`menuTaskListLink${taskList.id}`);
+      if (link) {
+        link.focus();
         return;
       }
     }
