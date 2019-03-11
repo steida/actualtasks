@@ -14,7 +14,7 @@ export const colors = {
   background: '#fff',
   danger: '#fa5252',
   error: '#fa5252',
-  foreground: 'rgb(51, 51, 51)',
+  foreground: 'rgb(11, 11, 11)',
   foregroundInverse: '#fff',
   gray: 'rgb(153, 163, 173)',
   grayLight: 'rgb(225, 225, 225)',
@@ -147,6 +147,7 @@ export class LightTheme {
   blogPostTitleLink: TextStyle;
   blogPostReadMoreLink: TextStyle;
   focusOutlineWeb: ViewStyle;
+  opacity0: ViewStyle;
 
   constructor(colors: Colors, dimensions: Dimensions) {
     const typography = createTypography({
@@ -474,6 +475,10 @@ export class LightTheme {
     this.focusOutlineWeb = {
       // @ts-ignore TODO: Only for web via platform.
       outline: `1px dotted ${colors.gray}`,
+    };
+
+    this.opacity0 = {
+      opacity: 0,
     };
   }
 }

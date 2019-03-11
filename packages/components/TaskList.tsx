@@ -115,6 +115,9 @@ const TaskItem: FunctionComponent<TaskProps> = props => {
     });
   }, [props]);
 
+  const hideCheckbox =
+    !props.isFocused && !data.completed && props.node.text.length === 0;
+
   return (
     <View {...props.attributes} style={[theme.task, depthStyle]}>
       <View style={theme.taskCheckboxWrapper}>
@@ -123,6 +126,7 @@ const TaskItem: FunctionComponent<TaskProps> = props => {
             style={[
               theme.taskCheckbox,
               data.completed && theme.taskCheckboxCompleted,
+              hideCheckbox && theme.opacity0,
             ]}
             checked={data.completed}
             onChange={handleCheckboxChange}
@@ -414,7 +418,7 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     if (isEnter) {
       event.preventDefault();
       const editor = getEditor();
-      const taskHasText = editor.value.blocks.get(0).getText().length > 0;
+      const taskHasText = editor.value.blocks.get(0).text.length > 0;
       const tasks = getSelectedTasks();
       if (!taskHasText && canShiftTab(tasks)) {
         dispatch({
