@@ -167,8 +167,8 @@ const Me: FunctionComponent = () => {
         <DarkModeButton />
       </View>
       <ViewerEmail />
-      <DeleteAllData />
       <ExportData />
+      <DeleteAllData />
     </Layout>
   );
 };
