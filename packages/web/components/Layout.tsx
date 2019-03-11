@@ -59,6 +59,7 @@ const LayoutHeader: FunctionComponent = () => {
   return (
     <View style={theme.layoutHeader}>
       <LayoutHeaderLink href={{ pathname: '/blog' }} title={pageTitles.blog} />
+      <LayoutHeaderLink href="/help" title={pageTitles.help} />
       <Link
         style={theme.layoutHeaderLink}
         activeStyle={theme.linkImageActive}

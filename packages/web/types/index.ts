@@ -6,6 +6,7 @@ export type AppHref =
   | 'https://twitter.com/steida'
   | 'https://github.com/steida/actualtasks'
   | 'https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3'
+  | 'https://github.com/steida/actualtasks/issues/new'
   | '/me'
   | '/add'
   | {
@@ -15,4 +16,5 @@ export type AppHref =
   | {
       pathname: '/blog';
       query?: { id: string } | null;
-    };
+    }
+  | '/help';
