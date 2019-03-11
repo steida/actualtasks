@@ -1,4 +1,9 @@
-import React, { FunctionComponent, useState, useContext } from 'react';
+import React, {
+  FunctionComponent,
+  useState,
+  useContext,
+  useEffect,
+} from 'react';
 import { FormattedMessage, defineMessages } from 'react-intl';
 import { Text, TextInput, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
@@ -7,6 +12,7 @@ import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
 import Button from '@app/components/Button';
 import { AppStateContext } from '@app/state/lib/appstate';
+import Link from '@app/components/Link';
 import Layout from '../components/Layout';
 
 const DarkModeButton: FunctionComponent = () => {
@@ -120,40 +126,29 @@ const DeleteAllData: FunctionComponent = () => {
 
 const ExportData: FunctionComponent = () => {
   const { theme, intl } = useAppContext();
-  const [shown, setShown] = useState(false);
-  const SerializedAppStateInput: FunctionComponent = () => {
-    const appState = useAppState(state => state);
-    const [serializedAppState] = useState(() => JSON.stringify(appState));
-    return (
-      <TextInput
-        editable={false}
-        style={theme.textInputOutline}
-        value={serializedAppState}
-      />
-    );
-  };
+  const appState = useAppState(state => state);
+  const [url, setUrl] = useState('');
+  useEffect(() => {
+    if (!url) {
+      const appStateString = JSON.stringify(appState, null, 2);
+      const blob = new Blob([appStateString], { type: 'text/plain' });
+      setUrl(URL.createObjectURL(blob));
+    }
+  });
+
+  if (!url) return null;
 
   return (
-    <>
-      <View style={[theme.buttons, theme.marginBottom]}>
-        <Button
-          type="text"
-          onPress={() => setShown(!shown)}
-          title={intl.formatMessage(messages.export)}
-        />
-      </View>
-      {shown && (
-        <View>
-          <SerializedAppStateInput />
-          <Text style={theme.textSmall}>
-            <FormattedMessage
-              defaultMessage="Copy paste exported state somewhere."
-              id="importExport.serilizedState"
-            />
-          </Text>
-        </View>
-      )}
-    </>
+    <View style={[theme.marginBottom, theme.flexRow]}>
+      <Link
+        style={theme.text}
+        download="actualtasks"
+        // @ts-ignore
+        href={url}
+      >
+        {intl.formatMessage(messages.export)}
+      </Link>
+    </View>
   );
 };
 

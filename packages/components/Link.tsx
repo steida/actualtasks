@@ -18,6 +18,7 @@ export type LinkProps = Assign<
   >,
   {
     accessible?: boolean;
+    download?: string;
     style?: StyleProp<TextStyle>;
     activeStyle?: StyleProp<TextStyle>;
   }
@@ -27,7 +28,15 @@ const Link: FunctionComponent<LinkProps> = props => {
   const { theme } = useAppContext();
   const [hasHover, setHasHover] = useState(false);
   const [hasFocus, setHasFocus] = useState(false);
-  const { children, accessible, style, activeStyle, href, ...rest } = props;
+  const {
+    children,
+    accessible,
+    style,
+    activeStyle,
+    href,
+    download,
+    ...rest
+  } = props;
   const routeIsActive = useRouteIsActive(href);
 
   return (
@@ -42,6 +51,7 @@ const Link: FunctionComponent<LinkProps> = props => {
         accessible={accessible}
         {...Platform.select({
           web: {
+            download,
             onMouseEnter: () => setHasHover(true),
             onMouseLeave: () => setHasHover(false),
             onFocus: () => setHasFocus(true),
