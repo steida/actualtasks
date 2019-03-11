@@ -14,7 +14,7 @@ export const colors = {
   background: '#fff',
   danger: '#fa5252',
   error: '#fa5252',
-  foreground: 'rgb(11, 11, 11)',
+  foreground: 'rgb(31, 31, 31)',
   foregroundInverse: '#fff',
   gray: 'rgb(153, 163, 173)',
   grayLight: 'rgb(225, 225, 225)',
