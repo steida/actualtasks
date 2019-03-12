@@ -8,10 +8,7 @@ import React, {
 } from 'react';
 import { Editor, RenderNodeProps, getEventTransfer } from 'slate-react';
 import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
-// @ts-ignore
-import { createElement } from 'react-native-web';
-import { Text, View, ViewStyle, StyleProp } from 'react-native';
-import { Overwrite } from 'utility-types';
+import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import throttle from 'lodash.throttle';
 import { isHotkey } from 'is-hotkey';
 import useAppContext from '@app/hooks/useAppContext';
@@ -39,15 +36,6 @@ type Action =
   | { type: 'insertText'; text: string };
 
 const taskTypeTypeProp: TaskTypeTypeProp = 'task';
-
-type CheckboxProps = Overwrite<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  { style: StyleProp<ViewStyle> }
->;
-
-// TODO: Use custom checkbox.
-const Checkbox = (props: CheckboxProps) =>
-  createElement('input', { ...props, type: 'checkbox' });
 
 // data.toJS is costly and we don't need it anyway.
 // This is simple type safe approach.
@@ -82,11 +70,44 @@ const Uneditable: FunctionComponent = props => {
   );
 };
 
-interface TaskProps extends RenderNodeProps {
+interface CheckBoxProps {
+  checked: boolean;
+  focused: boolean;
+  hidden: boolean;
+  onChange: () => void;
+}
+
+// We don't need browser native checkbox.
+const Checkbox: FunctionComponent<CheckBoxProps> = props => {
+  const { theme } = useAppContext();
+
+  const svgStyle = useMemo(() => {
+    const {
+      display: fill,
+      color: stroke,
+      width: strokeWidth,
+    } = StyleSheet.flatten(theme.taskCheckboxSvg);
+    return { fill, stroke, strokeWidth };
+  }, [theme.taskCheckboxSvg]);
+
+  return (
+    <TouchableOpacity accessibilityRole="button" onPress={props.onChange}>
+      <View style={[theme.taskCheckbox, props.hidden && theme.opacity0]}>
+        {props.checked && (
+          <svg style={svgStyle} viewBox="0 0 24 24">
+            <polyline points="19 5 10 18 5 12" />
+          </svg>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+interface TaskItemProps extends RenderNodeProps {
   dispatch: Dispatch<Action>;
 }
 
-const TaskItem: FunctionComponent<TaskProps> = props => {
+const TaskItem: FunctionComponent<TaskItemProps> = props => {
   const { theme } = useAppContext();
   const data = getTaskData(props.node);
   // https://reactjs.org/docs/hooks-faq.html#are-hooks-slow-because-of-creating-functions-in-render
@@ -120,19 +141,14 @@ const TaskItem: FunctionComponent<TaskProps> = props => {
 
   return (
     <View {...props.attributes} style={[theme.task, depthStyle]}>
-      <View style={theme.taskCheckboxWrapper}>
-        <Uneditable>
-          <Checkbox
-            style={[
-              theme.taskCheckbox,
-              data.completed && theme.taskCheckboxCompleted,
-              hideCheckbox && theme.opacity0,
-            ]}
-            checked={data.completed}
-            onChange={handleCheckboxChange}
-          />
-        </Uneditable>
-      </View>
+      <Uneditable>
+        <Checkbox
+          checked={data.completed}
+          focused={props.isFocused}
+          hidden={hideCheckbox}
+          onChange={handleCheckboxChange}
+        />
+      </Uneditable>
       <Text style={[theme.text, data.completed && theme.lineThrough]}>
         {props.children}
       </Text>
@@ -415,11 +431,11 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
 
     const isEnter = isHotkey('enter')(event);
     if (isEnter) {
-      event.preventDefault();
       const editor = getEditor();
       const taskHasText = editor.value.blocks.get(0).text.length > 0;
       const tasks = getSelectedTasks();
       if (!taskHasText && canShiftTab(tasks)) {
+        event.preventDefault();
         dispatch({
           type: 'moveHorizontal',
           tasks,

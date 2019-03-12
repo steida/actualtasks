@@ -19,6 +19,7 @@ export const colors = {
   gray: 'rgb(153, 163, 173)',
   grayLight: 'rgb(225, 225, 225)',
   primary: '#228be6',
+  taskBorder: '#c7c7c7',
 };
 
 export const dimensions = {
@@ -126,8 +127,7 @@ export class LightTheme {
   labelInvalid: TextStyle;
   task: ViewStyle;
   taskCheckbox: ViewStyle;
-  taskCheckboxCompleted: ViewStyle;
-  taskCheckboxWrapper: ViewStyle;
+  taskCheckboxSvg: TextStyle;
   taskDepth0: ViewStyle;
   taskDepth1: ViewStyle;
   taskDepth2: ViewStyle;
@@ -408,17 +408,26 @@ export class LightTheme {
     };
 
     this.taskCheckbox = {
-      margin: 0,
-      opacity: 0.7,
-    };
-
-    this.taskCheckboxCompleted = {
-      opacity: 1,
-    };
-
-    this.taskCheckboxWrapper = {
+      width: 12,
+      height: 12,
+      marginTop: 6,
+      marginBottom: 6,
       marginRight: 8,
-      marginTop: 3,
+      top: 1,
+      borderRadius: 3,
+      borderStyle: 'solid',
+      borderColor: colors.taskBorder,
+      borderWidth: 1,
+    };
+
+    this.taskCheckboxSvg = {
+      // React Native does not support SVG CSS but we want them in theme. Let's cheat.
+      // Instead of fill:
+      display: 'none',
+      // Instead of stroke:
+      color: colors.foreground,
+      // Instead of strokeWidth:
+      width: '4px',
     };
 
     const createTaskDepthStyle = (depth: number): ViewStyle => ({
