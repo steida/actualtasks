@@ -4,6 +4,10 @@
   "alias": "actualtasks.com",
   "builds": [
     {
+      "src": "packages/web/static/*",
+      "use": "@now/static"
+    },
+    {
       "src": "packages/web/package.json",
       "use": "@now/next@canary"
     }
