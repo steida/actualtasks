@@ -815,9 +815,9 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "11.11.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.2.tgz#873d2c3f3824212cc16130074699e1bcb38c0231"
-  integrity sha512-iEaHiDNkHv4Jrm9O5T37OYEUwjJesiyt6ZlhLFK0sbo4CLD0jyCOB4Pc2F9iD3MbW2397SLNxZKdDGntGaBjQQ==
+  version "11.11.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.3.tgz#7c6b0f8eaf16ae530795de2ad1b85d34bf2f5c58"
+  integrity sha512-wp6IOGu1lxsfnrD+5mX6qwSwWuqsdkKKxTN4aQc4wByHAKZJf9/D4KXPQ1POUjEbnCP5LMggB0OEFNY9OTsMqg==
 
 "@types/prop-types@*":
   version "15.7.0"
@@ -845,9 +845,9 @@
     "@types/webpack" "*"
 
 "@types/react-native@^0.57.38":
-  version "0.57.39"
-  resolved "https://registry.yarnpkg.com/@types/react-native/-/react-native-0.57.39.tgz#be2409006239220bac0fe0ce03d54ecef36274ba"
-  integrity sha512-yigfcYENP5hCh5YLOQctu6BRZ2DdFndlrT0RS9opktpSdlKTtuNuKic6VcSlu2OTWGfWyQXh6kGXYIKRpfVSRw==
+  version "0.57.40"
+  resolved "https://registry.yarnpkg.com/@types/react-native/-/react-native-0.57.40.tgz#a227acb6b2c7372cb678202df4cfe716ace9ce94"
+  integrity sha512-nCcF9gNYp/VeV5QBtHbn/VnXZG+T8EsMxZFx8qqZfBe1gxJUsldXgOXYd1kcrrYzUX0LqG/KipDBX++fB2qQ0g==
   dependencies:
     "@types/prop-types" "*"
     "@types/react" "*"
@@ -1727,9 +1727,9 @@ camelcase@^4.1.0:
   integrity sha1-1UVjW+HjPFQmScaRc+Xeas+uNN0=
 
 caniuse-lite@^1.0.30000939:
-  version "1.0.30000945"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000945.tgz#d51e3750416dd05126d5ac94a9c57d1c26c6fd21"
-  integrity sha512-PSGwYChNIXJ4FZr9Z9mrVzBCB1TF3yyiRmIDRIdKDHZ6u+1jYH6xeR28XaquxnMwcZVX3f48S9zi7eswO/G1nQ==
+  version "1.0.30000946"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000946.tgz#ac50a3331bb805b483478bbc26a0ab71bb6d0509"
+  integrity sha512-ZVXtMoZ3Mfq69Ikv587Av+5lwGVJsG98QKUucVmtFBf0tl1kOCfLQ5o6Z2zBNis4Mx3iuH77WxEUpdP6t7f2CQ==
 
 case-sensitive-paths-webpack-plugin@2.1.2:
   version "2.1.2"
@@ -3283,9 +3283,9 @@ ignore@^4.0.6:
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
 
 immer@^2.0.0:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/immer/-/immer-2.1.2.tgz#c307cda2a899a2ab235c990c2d2290755aa87e6c"
-  integrity sha512-4vHC3QtwjIkEDczY3CsBoMhLl4VvmjwPSIWVWHQPAJlk8U6zCwH2ovf+0z0TTh14bFg9yE++4TcSeIf3tumPQQ==
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/immer/-/immer-2.1.3.tgz#56e2eeffc4eff5d15111a878041177cadcfc6f75"
+  integrity sha512-rlXI8sYY22/ykqFodL37W1/syMhYDVVEsui5HWrQezgmavV6f8oDbN2fKBH6XZkjH5qz9hapbpmgDPYOufJsfg==
 
 immutable@^3.8.1, immutable@^3.8.2:
   version "3.8.2"
