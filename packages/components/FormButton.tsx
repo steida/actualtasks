@@ -3,7 +3,7 @@ import { defineMessages } from 'react-intl';
 import useAppContext from '@app/hooks/useAppContext';
 import Button, { ButtonProps } from './Button';
 
-type Title = 'add' | 'archive' | 'save';
+type Title = 'add' | 'archive' | 'save' | 'unarchive' | 'deleteForever';
 
 interface FormButtonProps extends ButtonProps {
   title: Title;
@@ -22,6 +22,14 @@ const messages = defineMessages({
     defaultMessage: 'Archive',
     id: 'formButton.archive',
   },
+  unarchive: {
+    defaultMessage: 'Unarchive',
+    id: 'formButton.unarchive',
+  },
+  deleteForever: {
+    defaultMessage: 'Delete Forever',
+    id: 'formButton.deleteForever',
+  },
 });
 
 const FormButton = ({ title: label, ...rest }: FormButtonProps) => {
@@ -37,6 +45,10 @@ const FormButton = ({ title: label, ...rest }: FormButtonProps) => {
         return intl.formatMessage(messages.save);
       case 'archive':
         return intl.formatMessage(messages.archive);
+      case 'unarchive':
+        return intl.formatMessage(messages.unarchive);
+      case 'deleteForever':
+        return intl.formatMessage(messages.deleteForever);
       default:
         return assertNever(title);
     }

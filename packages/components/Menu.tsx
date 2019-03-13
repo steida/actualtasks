@@ -50,7 +50,7 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = React.memo(
           accessible={accessible || indexRouteIsActive || editRouteIsActive}
           style={!routeIsActive && theme.flex1}
           href={indexHref}
-          // We use it for manual focus.
+          // We use it for manual focus from TaskList onEsc.
           nativeID={`menuTaskListLink${taskListId}`}
         >
           {taskListName}
@@ -89,8 +89,10 @@ const TaskLists: FunctionComponent = () => {
 const Menu: FunctionComponent = () => {
   const { theme } = useAppContext();
   const screenSize = useScreenSize();
-  const newHref = '/add';
-  const newIsActive = useRouteIsActive(newHref);
+  const addHref = '/add';
+  const archivedHref = '/archived';
+  const addIsActive = useRouteIsActive(addHref);
+  const archivedIsActive = useRouteIsActive(archivedHref);
 
   return (
     <KeyboardNavigableView
@@ -100,9 +102,14 @@ const Menu: FunctionComponent = () => {
       ]}
     >
       <TaskLists />
-      <MenuLink accessible={newIsActive} href={newHref}>
-        +
-      </MenuLink>
+      <View style={theme.flexRow}>
+        <MenuLink accessible={addIsActive} href={addHref}>
+          +
+        </MenuLink>
+        <MenuLink accessible={archivedIsActive} href={archivedHref}>
+          ∞
+        </MenuLink>
+      </View>
     </KeyboardNavigableView>
   );
 };

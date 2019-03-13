@@ -1,5 +1,6 @@
 import { defineMessages } from 'react-intl';
 import useAppContext from '@app/hooks/useAppContext';
+import { useCallback } from 'react';
 
 const messages = defineMessages({
   areYouSure: {
@@ -11,10 +12,10 @@ const messages = defineMessages({
 const useConfirm = () => {
   const { intl } = useAppContext();
 
-  const confirm = () => {
+  const confirm = useCallback(() => {
     // eslint-disable-next-line
     return window.confirm(intl.formatMessage(messages.areYouSure));
-  };
+  }, [intl]);
 
   return confirm;
 };

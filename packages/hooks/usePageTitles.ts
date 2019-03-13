@@ -20,15 +20,19 @@ export const pageTitles = defineMessages({
     id: 'pageTitles.edit',
   },
   notFound: {
-    defaultMessage: 'Not found.',
+    defaultMessage: 'Not found',
     id: 'pageTitles.notFound',
   },
   blog: {
-    defaultMessage: 'Blog - Actual Tasks',
+    defaultMessage: 'Blog',
     id: 'pageTitles.blog',
   },
   help: {
-    defaultMessage: 'Help - Actual Tasks',
+    defaultMessage: 'Help',
+    id: 'pageTitles.help',
+  },
+  archived: {
+    defaultMessage: 'Archived',
     id: 'pageTitles.help',
   },
 });
@@ -37,19 +41,26 @@ export const pageTitles = defineMessages({
 // code splitting. One nav component would import many pages.
 const usePageTitles = () => {
   const { intl } = useAppContext();
-  const titles = useMemo(() => {
-    return {
-      // Note we can add function for formatMessage values.
-      index: intl.formatMessage(pageTitles.index),
-      me: intl.formatMessage(pageTitles.me),
-      add: intl.formatMessage(pageTitles.add),
-      edit: (name: string) => intl.formatMessage(pageTitles.edit, { name }),
-      notFound: intl.formatMessage(pageTitles.notFound),
-      blog: intl.formatMessage(pageTitles.blog),
-      help: intl.formatMessage(pageTitles.help),
+  return useMemo(() => {
+    const index = intl.formatMessage(pageTitles.index);
+    // @ts-ignore
+    const format = (...args) => {
+      // @ts-ignore
+      return `${intl.formatMessage(...args)} - ${index}`;
     };
+
+    const titles = {
+      index,
+      me: format(pageTitles.me),
+      add: format(pageTitles.add),
+      edit: (name: string) => format(pageTitles.edit, { name }),
+      notFound: format(pageTitles.notFound),
+      blog: format(pageTitles.blog),
+      help: format(pageTitles.help),
+      archived: format(pageTitles.archived),
+    };
+    return titles;
   }, [intl]);
-  return titles;
 };
 
 export default usePageTitles;

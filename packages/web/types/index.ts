@@ -17,4 +17,5 @@ export type AppHref =
       pathname: '/blog';
       query?: { id: string } | null;
     }
-  | '/help';
+  | '/help'
+  | '/archived';

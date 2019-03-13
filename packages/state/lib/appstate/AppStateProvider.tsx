@@ -69,7 +69,9 @@ const AppStateProvider: FunctionComponent<AppStateProviderProps> = props => {
     // universal (React + React Native) storage like WatermelonDB.
     const data: StorageData = { version, state };
     try {
-      // We can optimize AsyncStorage. For example, we can split object by keys.
+      // We can optimize AsyncStorage.
+      //  - We can split object by keys (even nested) and detect changes.
+      //  - We can move storage to webworker.
       await AsyncStorage.setItem(name, JSON.stringify(data));
     } catch (error) {
       // eslint-disable-next-line no-console

@@ -1,11 +1,12 @@
-// Remember:
-//  - Make everything strict. It simplifies migrations and DX.
-//  - Never change any type. Always add a new version with a migration.
+// Because data are persisted in local storage, we need rock solid migrations.
+// Versioned types help a lot.
+// Rules:
+//  - Prefer strict types. Optional strict types are fine too.
+//  - Add next app version with migration for any structural schema changed.
 // That's all.
-// We don't need nullable and versionless API like with GraphQL, because data
-// are local and client is shipped with migrations.
 
-// "Immutable" types. Never ever change them.
+// Versioned types. Not exported, because they are used only here in this file.
+// Change these types very carefully. Basically, only nullable types are safe.
 
 interface User1 {
   email: string;
@@ -15,6 +16,8 @@ interface User1 {
 interface TaskList1 {
   id: string;
   createdAt: number;
+  // Nullable strict type. Can be added and removed safely.
+  archivedAt?: number;
   // creatorEmail: string; // Will be set when shared.
   // Max length 32. TODO: Enforce it in AppStateProvider setAppState.
   name: string;
@@ -36,7 +39,8 @@ interface TaskList1 {
   };
 }
 
-// Use these types only in the app state config.
+// Versioned app states. Use them only in the app state config.
+// Never ever change these types.
 
 export interface AppState1 {
   viewer: User1;
@@ -44,12 +48,13 @@ export interface AppState1 {
   archivedTaskLists: TaskList1[];
 }
 
-// interface AppState2 {
-//   viewer: User;
-//   fok: string;
+// export interface AppState2 {
+//   viewer: User1;
+//   taskLists: TaskList2[];
+//   archivedTaskLists: TaskList2[];
 // }
 
-// Use these types only in the app.
+// Current types to be used in the current app code and nowhere else.
 
 export type AppState = AppState1;
 export type TaskList = TaskList1;

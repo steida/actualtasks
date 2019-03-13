@@ -141,6 +141,7 @@ export class LightTheme {
   lineThrough: TextStyle;
   flex1: ViewStyle;
   marginHorizontal: ViewStyle;
+  marginVertical: ViewStyle;
   paddingHorizontal: ViewStyle;
   negativeMarginHorizontal: ViewStyle;
   blogPostTitle: TextStyle;
@@ -455,6 +456,10 @@ export class LightTheme {
 
     this.marginHorizontal = {
       marginHorizontal: typography.lineHeight / 4,
+    };
+
+    this.marginVertical = {
+      marginVertical: typography.lineHeight / 4,
     };
 
     this.paddingHorizontal = {
