@@ -3,7 +3,6 @@ import { FormattedMessage } from 'react-intl';
 import { View } from 'react-native';
 import createTaskList from '@app/state/createTaskList';
 import validateTaskList from '@app/validators/validateTaskList';
-import Router from 'next/router';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
@@ -11,8 +10,8 @@ import useScreenSize from '@app/hooks/useScreenSize';
 import { hasValidationError } from '@app/components/ValidationError';
 import TextInputWithLabelAndError from '@app/components/TextInputWithLabelAndError';
 import FormButton from '@app/components/FormButton';
-import { AppHref } from '../types';
-import Layout from '../components/Layout';
+import Layout from '@app/components/Layout';
+import useAppHref from '@app/hooks/useAppHref';
 
 const Form: FunctionComponent = () => {
   const { theme } = useAppContext();
@@ -21,6 +20,7 @@ const Form: FunctionComponent = () => {
     name: null,
   });
   const setAppState = useAppState();
+  const appHref = useAppHref();
 
   const handleSubmitEditing = () => {
     const taskList = createTaskList(name);
@@ -32,11 +32,10 @@ const Form: FunctionComponent = () => {
     setAppState(state => {
       state.taskLists.push(taskList);
     });
-    const href: AppHref = {
+    appHref.push({
       pathname: '/',
       query: { id: taskList.id },
-    };
-    Router.push(href);
+    });
   };
 
   const screenSize = useScreenSize();

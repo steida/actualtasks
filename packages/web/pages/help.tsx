@@ -4,7 +4,7 @@ import { Text } from 'react-native';
 import useAppContext from '@app/hooks/useAppContext';
 import { FormattedMessage } from 'react-intl';
 import Link from '@app/components/Link';
-import Layout from '../components/Layout';
+import Layout from '@app/components/Layout';
 
 const Help: FunctionComponent = () => {
   const { theme } = useAppContext();

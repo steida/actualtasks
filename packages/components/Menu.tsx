@@ -1,16 +1,17 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, memo } from 'react';
 import { Text, View } from 'react-native';
 import { rootTaskListId } from '@app/state/appStateConfig';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
+import useRouteIsActive from '@app/hooks/useRouteIsActive';
+import { AppHref } from '@app/hooks/useAppHref';
 import Link, { LinkProps } from './Link';
-import useRouteIsActive from '../web/hooks/useRouteIsActive';
-import { AppHref } from '../web/types';
-import KeyboardNavigableView from '../web/components/KeyboardNavigableView';
+import KeyboardNavigableView from './KeyboardNavigableView';
 
 const MenuLink: FunctionComponent<LinkProps> = ({ style, ...rest }) => {
   const { theme } = useAppContext();
+
   return (
     <Link
       prefetch
@@ -27,7 +28,9 @@ interface TaskListLinkProps {
   taskListName: string;
 }
 
-const TaskListLink: FunctionComponent<TaskListLinkProps> = React.memo(
+// It's weird, but the first child is always updated for no known reason.
+// Maybe something React internal, maybe I overlooked something.
+const TaskListLink: FunctionComponent<TaskListLinkProps> = memo(
   ({ accessible, taskListId, taskListName }) => {
     const { theme, router } = useAppContext();
     const isRoot = taskListId === rootTaskListId;

@@ -1,5 +1,5 @@
 import useAppContext from '@app/hooks/useAppContext';
-import { AppHref } from '../types';
+import { AppHref } from '@app/hooks/useAppHref';
 
 const useRouteIsActive = (href: AppHref) => {
   const { router } = useAppContext();

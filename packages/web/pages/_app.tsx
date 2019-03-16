@@ -7,7 +7,7 @@ import { View } from 'react-native';
 import { AppContext } from '@app/hooks/useAppContext';
 import IntlProviderFix from '@app/components/IntlProviderFix';
 import ThemeConsumer from '@app/components/ThemeConsumer';
-import RouterProviderFix from '../components/RouterProviderFix';
+import RouterProviderFix from '@app/components/RouterProviderFix';
 
 const SplashScreen = () => {
   return (

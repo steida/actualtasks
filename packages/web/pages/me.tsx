@@ -13,7 +13,7 @@ import usePageTitles from '@app/hooks/usePageTitles';
 import Button from '@app/components/Button';
 import { AppStateContext } from '@app/state/lib/appstate';
 import Link from '@app/components/Link';
-import Layout from '../components/Layout';
+import Layout from '@app/components/Layout';
 
 const DarkModeButton: FunctionComponent = () => {
   const darkMode = useAppState(state => state.viewer.darkMode);

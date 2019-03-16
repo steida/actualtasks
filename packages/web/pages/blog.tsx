@@ -5,7 +5,7 @@ import { View, Text } from 'react-native';
 import { FormattedMessage } from 'react-intl';
 import Link from '@app/components/Link';
 import { BlogPost, blogPosts, H1 } from '@app/components/blog';
-import Layout from '../components/Layout';
+import Layout from '@app/components/Layout';
 
 const Footer: FunctionComponent = () => {
   const { theme } = useAppContext();

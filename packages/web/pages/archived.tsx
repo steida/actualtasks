@@ -8,7 +8,7 @@ import FormButton from '@app/components/FormButton';
 import { TaskList } from '@app/state/types';
 import Button from '@app/components/Button';
 import { FormattedRelative, FormattedMessage } from 'react-intl';
-import Layout from '../components/Layout';
+import Layout from '@app/components/Layout';
 
 interface ArchivedTaskListProps {
   taskList: TaskList;

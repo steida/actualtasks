@@ -1,10 +1,10 @@
-import { TaskList as TaskListType } from '@app/state/types';
+import { TaskList as TaskListType, AppState } from '@app/state/types';
 import React, {
   FunctionComponent,
   useMemo,
-  useReducer,
   Dispatch,
   useCallback,
+  useState,
 } from 'react';
 import { Editor, RenderNodeProps, getEventTransfer } from 'slate-react';
 import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
@@ -14,6 +14,9 @@ import { isHotkey } from 'is-hotkey';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
+import { FormattedMessage } from 'react-intl';
+import TaskListBar from './TaskListBar';
+import { LayoutScrollView } from './Layout';
 
 type TaskType = TaskListType['slate']['document']['nodes'][0];
 type TaskTypeTypeProp = TaskType['type'];
@@ -24,7 +27,6 @@ type TaskTypeDataWithKey = { key: string } & TaskTypeData;
 type TaskNode = RenderNodeProps['node'];
 
 type Action =
-  | { type: 'update'; value: Value }
   | { type: 'toggle'; tasks: TaskTypeDataWithKey[] }
   | {
       type: 'moveHorizontal';
@@ -183,48 +185,51 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     return selectedTasks;
   };
 
-  const getTaskIndex = (key: string): number => {
+  const getTaskIndex = useCallback((key: string): number => {
     const editor = getEditor();
     return editor.value.document.nodes.findIndex(
       node => node != null && node.key === key,
     );
-  };
+  }, []);
 
-  const tasksWithChildren = (tasks: TaskTypeDataWithKey[]) => {
-    // Dedupe via Map.
-    const map: Map<string, TaskTypeDataWithKey> = new Map();
-    tasks.forEach(task => map.set(task.key, task));
+  const tasksWithChildren = useCallback(
+    (tasks: TaskTypeDataWithKey[]) => {
+      // Dedupe via Map.
+      const map: Map<string, TaskTypeDataWithKey> = new Map();
+      tasks.forEach(task => map.set(task.key, task));
 
-    const getTaskChildren = (
-      task: TaskTypeDataWithKey,
-    ): TaskTypeDataWithKey[] => {
-      const editor = getEditor();
-      const children: TaskTypeDataWithKey[] = [];
-      const { nodes } = editor.value.document;
-      let index = getTaskIndex(task.key);
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        index++;
-        const next = nodes.get(index);
-        if (next == null) break;
-        const data = getTaskData(next);
-        if (data.depth <= task.depth) break;
-        children.push({ ...data, key: next.key });
-      }
-      return children;
-    };
+      const getTaskChildren = (
+        task: TaskTypeDataWithKey,
+      ): TaskTypeDataWithKey[] => {
+        const editor = getEditor();
+        const children: TaskTypeDataWithKey[] = [];
+        const { nodes } = editor.value.document;
+        let index = getTaskIndex(task.key);
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          index++;
+          const next = nodes.get(index);
+          if (next == null) break;
+          const data = getTaskData(next);
+          if (data.depth <= task.depth) break;
+          children.push({ ...data, key: next.key });
+        }
+        return children;
+      };
 
-    tasks.forEach(task => {
-      getTaskChildren(task).forEach(child => {
-        if (map.has(child.key)) return;
-        map.set(child.key, child);
+      tasks.forEach(task => {
+        getTaskChildren(task).forEach(child => {
+          if (map.has(child.key)) return;
+          map.set(child.key, child);
+        });
       });
-    });
 
-    return [...map.values()];
-  };
+      return [...map.values()];
+    },
+    [getTaskIndex],
+  );
 
-  const setNodesData = (tasks: TaskTypeDataWithKey[]) => {
+  const setNodesData = useCallback((tasks: TaskTypeDataWithKey[]) => {
     const editor = getEditor();
     tasks.forEach(task => {
       const { key, ...data } = task;
@@ -234,121 +239,124 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
         { data },
       );
     });
-  };
+  }, []);
 
-  const toggleTasks = (tasks: TaskTypeDataWithKey[]) => {
-    tasks = tasksWithChildren(tasks);
-    const allCompleted = !tasks.some(task => !task.completed);
-    const completedTasks = tasks.map(task => ({
-      ...task,
-      completed: !allCompleted,
-    }));
-    setNodesData(completedTasks);
-  };
+  const toggleTasks = useCallback(
+    (tasks: TaskTypeDataWithKey[]) => {
+      tasks = tasksWithChildren(tasks);
+      const allCompleted = !tasks.some(task => !task.completed);
+      const completedTasks = tasks.map(task => ({
+        ...task,
+        completed: !allCompleted,
+      }));
+      setNodesData(completedTasks);
+    },
+    [setNodesData, tasksWithChildren],
+  );
 
   const canShiftTab = (tasks: TaskTypeDataWithKey[]) =>
     !tasks.some(task => task.depth === 0);
 
-  const moveHorizontal = (tasks: TaskTypeDataWithKey[], forward: boolean) => {
-    const editor = getEditor();
-    const firstTask = tasks[0];
-    tasks = tasksWithChildren(tasks);
-    const canTab = () => {
-      const taskIndex = getTaskIndex(firstTask.key);
-      if (taskIndex === 0) return false;
-      const previous = editor.value.document.nodes.get(taskIndex - 1);
-      if (previous == null) return false;
-      const previousDepth = getTaskData(previous).depth;
-      const firstDepth = tasks[0].depth;
-      return firstDepth <= previousDepth;
-    };
-    const canChangeDepth = forward ? canTab() : canShiftTab(tasks);
-    if (!canChangeDepth) return;
-    const changedTasks = tasks.map(task => ({
-      ...task,
-      depth: task.depth + (forward ? 1 : -1),
-    }));
-    setNodesData(changedTasks);
-  };
-
-  const moveVertical = (task: TaskTypeDataWithKey, forward: boolean) => {
-    const editor = getEditor();
-    const { nodes } = editor.value.document;
-    let index = getTaskIndex(task.key);
-    if (index === 0 && !forward) return;
-    let siblingData = null;
-    while (forward ? index < nodes.count() : index > 0) {
-      index += forward ? 1 : -1;
-      const sibling = nodes.get(index);
-      if (sibling == null) return;
-      siblingData = getTaskData(sibling);
-      if (siblingData.depth <= task.depth) break;
-    }
-    let tasks = tasksWithChildren([task]);
-    const depthChanged = siblingData && siblingData.depth < task.depth;
-    tasks = tasks.map(task => {
-      return {
-        ...task,
-        depth: Math.max(task.depth - (depthChanged ? 1 : 0), 0),
+  const moveHorizontal = useCallback(
+    (tasks: TaskTypeDataWithKey[], forward: boolean) => {
+      const editor = getEditor();
+      const firstTask = tasks[0];
+      tasks = tasksWithChildren(tasks);
+      const canTab = () => {
+        const taskIndex = getTaskIndex(firstTask.key);
+        if (taskIndex === 0) return false;
+        const previous = editor.value.document.nodes.get(taskIndex - 1);
+        if (previous == null) return false;
+        const previousDepth = getTaskData(previous).depth;
+        const firstDepth = tasks[0].depth;
+        return firstDepth <= previousDepth;
       };
-    });
-    if (forward) {
-      const task = nodeToTaskDataWithKey(nodes.get(index));
-      index += tasksWithChildren([task]).length - 1;
-      tasks.reverse().forEach((task, i) => {
-        setNodesData([task]);
-        editor.moveNodeByKey(task.key, editor.value.document.key, index - i);
-      });
-    } else {
-      tasks.forEach((task, i) => {
-        setNodesData([task]);
-        editor.moveNodeByKey(task.key, editor.value.document.key, index + i);
-      });
-    }
-  };
+      const canChangeDepth = forward ? canTab() : canShiftTab(tasks);
+      if (!canChangeDepth) return;
+      const changedTasks = tasks.map(task => ({
+        ...task,
+        depth: task.depth + (forward ? 1 : -1),
+      }));
+      setNodesData(changedTasks);
+    },
+    [getTaskIndex, setNodesData, tasksWithChildren],
+  );
 
-  // Reducer here is ok.
-  // https://twitter.com/dan_abramov/status/1102010979611746304
-  const editorValueReducer = (state: Value, action: Action) => {
-    const assertNever = (action: never): never => {
-      throw new Error(`Unexpected action: ${JSON.stringify(action)}`);
-    };
-    switch (action.type) {
-      case 'update':
-        return action.value;
-      case 'toggle': {
-        toggleTasks(action.tasks);
-        return state;
+  const moveVertical = useCallback(
+    (task: TaskTypeDataWithKey, forward: boolean) => {
+      const editor = getEditor();
+      const { nodes } = editor.value.document;
+      let index = getTaskIndex(task.key);
+      if (index === 0 && !forward) return;
+      let siblingData = null;
+      while (forward ? index < nodes.count() : index > 0) {
+        index += forward ? 1 : -1;
+        const sibling = nodes.get(index);
+        if (sibling == null) return;
+        siblingData = getTaskData(sibling);
+        if (siblingData.depth <= task.depth) break;
       }
-      case 'moveHorizontal': {
-        moveHorizontal(action.tasks, action.forward);
-        return state;
+      let tasks = tasksWithChildren([task]);
+      const depthChanged = siblingData && siblingData.depth < task.depth;
+      tasks = tasks.map(task => {
+        return {
+          ...task,
+          depth: Math.max(task.depth - (depthChanged ? 1 : 0), 0),
+        };
+      });
+      if (forward) {
+        const task = nodeToTaskDataWithKey(nodes.get(index));
+        index += tasksWithChildren([task]).length - 1;
+        tasks.reverse().forEach((task, i) => {
+          setNodesData([task]);
+          editor.moveNodeByKey(task.key, editor.value.document.key, index - i);
+        });
+      } else {
+        tasks.forEach((task, i) => {
+          setNodesData([task]);
+          editor.moveNodeByKey(task.key, editor.value.document.key, index + i);
+        });
       }
-      case 'moveVertical': {
-        moveVertical(action.task, action.forward);
-        return state;
-      }
-      case 'archive': {
-        return state;
-      }
-      case 'insertText': {
-        getEditor().insertText(action.text);
-        return state;
-      }
-      default:
-        return assertNever(action);
-    }
-  };
+    },
+    [getTaskIndex, setNodesData, tasksWithChildren],
+  );
 
-  const initReducer = (taskListSlate: TaskListType['slate']) => {
+  // TaskListType['slate']
+  const [editorValue, setEditorValue] = useState(() => {
     KeyUtils.resetGenerator(); // For SSR.
-    return Value.fromJSON(taskListSlate);
-  };
+    return Value.fromJSON(taskList.slate);
+  });
 
-  const [editorValue, dispatch] = useReducer(
-    editorValueReducer,
-    taskList.slate,
-    initReducer,
+  const dispatch = useCallback(
+    (action: Action) => {
+      const assertNever = (action: never): never => {
+        throw new Error(`Unexpected action: ${JSON.stringify(action)}`);
+      };
+      switch (action.type) {
+        case 'toggle': {
+          toggleTasks(action.tasks);
+          break;
+        }
+        case 'moveHorizontal': {
+          moveHorizontal(action.tasks, action.forward);
+          break;
+        }
+        case 'moveVertical': {
+          moveVertical(action.task, action.forward);
+          break;
+        }
+        case 'archive': {
+          break;
+        }
+        case 'insertText': {
+          getEditor().insertText(action.text);
+          break;
+        }
+        default:
+          return assertNever(action);
+      }
+    },
+    [moveHorizontal, moveVertical, toggleTasks],
   );
 
   const renderNode = useCallback(
@@ -360,26 +368,24 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
           return next();
       }
     },
-    [],
+    [dispatch],
   );
 
   const setAppState = useAppState();
-  const taskListId = taskList.id;
 
   const saveThrottled = useMemo(() => {
     return throttle((value: Value) => {
       setAppState(state => {
-        const index = state.taskLists.findIndex(t => t.id === taskListId);
+        const index = state.taskLists.findIndex(t => t.id === taskList.id);
         if (index === -1) return;
         state.taskLists[index].slate = value.toJSON() as TaskListType['slate'];
       });
     }, 1000);
-  }, [setAppState, taskListId]);
+  }, [setAppState, taskList.id]);
 
-  // editorValue.document, so we don't save on selection change.
   const handleEditorChange = useCallback(
     ({ value }: { value: Value }) => {
-      dispatch({ type: 'update', value });
+      setEditorValue(value);
       const documentHasBeenChanged = value.document !== editorValue.document;
       if (!documentHasBeenChanged) return;
       saveThrottled(value);
@@ -475,20 +481,56 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
   const screenSize = useScreenSize();
 
   return (
-    <Editor
-      autoFocus={!screenSize.phoneOnly}
-      autoCorrect={false}
-      spellCheck={false}
-      renderNode={renderNode}
-      onChange={handleEditorChange}
-      // @ts-ignore
-      onKeyDown={handleEditorKeyDown}
-      // @ts-ignore
-      onPaste={handleEditorPaste}
-      ref={editorRef}
-      value={editorValue}
-    />
+    <>
+      <TaskListBar taskListId={taskList.id} />
+      <LayoutScrollView>
+        <Editor
+          autoFocus={!screenSize.phoneOnly}
+          autoCorrect={false}
+          spellCheck={false}
+          renderNode={renderNode}
+          onChange={handleEditorChange}
+          // @ts-ignore
+          onKeyDown={handleEditorKeyDown}
+          // @ts-ignore
+          onPaste={handleEditorPaste}
+          ref={editorRef}
+          value={editorValue}
+        />
+      </LayoutScrollView>
+    </>
   );
 };
 
 export default TaskList;
+
+export const TaskListDoesNotExist: FunctionComponent = () => {
+  const { theme } = useAppContext();
+  return (
+    <Text style={theme.text}>
+      <FormattedMessage
+        defaultMessage="Task list does not exist."
+        id="taskList.notFound"
+      />
+    </Text>
+  );
+};
+
+interface TaskListWithDataProps {
+  taskListId: string | null;
+}
+
+export const TaskListWithData: FunctionComponent<TaskListWithDataProps> = ({
+  taskListId,
+}) => {
+  const taskList = useAppState(
+    useCallback(
+      ({ taskLists }: AppState) => taskLists.find(t => t.id === taskListId),
+      [taskListId],
+    ),
+  );
+  if (taskList == null) return <TaskListDoesNotExist />;
+
+  // https://twitter.com/estejs/status/1102238792382062593
+  return <TaskList taskList={taskList} key={taskList.id} />;
+};

@@ -97,6 +97,7 @@ export class LightTheme {
   layoutHeaderLink: TextStyle;
   layoutHeaderLinkActive: TextStyle;
   layoutBody: ViewStyle;
+  layoutBodyContent: ViewStyle;
   layoutMenuScrollViewContent: ViewStyle;
   layoutMenuScrollViewSmallScreen: ViewStyle;
   layoutMenuScrollViewOtherScreen: ViewStyle;
@@ -149,11 +150,16 @@ export class LightTheme {
   blogPostReadMoreLink: TextStyle;
   focusOutlineWeb: ViewStyle;
   opacity0: ViewStyle;
+  taskListBar: ViewStyle;
 
   constructor(colors: Colors, dimensions: Dimensions) {
     const typography = createTypography({
       fontSize: 16,
       lineHeight: 24,
+      // fontSize: 18,
+      // lineHeight: 27,
+      // fontSize: 20,
+      // lineHeight: 30,
       scale: 'step5',
     });
 
@@ -253,9 +259,14 @@ export class LightTheme {
       flex: 1,
     };
 
-    const layoutScrollViewPadding = {
-      // It's must to ensure focus outline is visible.
+    // Add small space padding to ensure a focus outline is always visible
+    // within scrollable content, because scrollview has an overflow hidden.
+    const layoutScrollViewContentPaddding = {
       padding: dimensions.spaceSmall,
+    };
+
+    this.layoutBodyContent = {
+      flex: 1,
     };
 
     this.layoutMenuScrollViewSmallScreen = {
@@ -268,16 +279,18 @@ export class LightTheme {
     };
 
     this.layoutMenuScrollViewContent = {
-      ...layoutScrollViewPadding,
+      ...layoutScrollViewContentPaddding,
     };
 
     this.layoutContentScrollView = {
       flex: 1,
+      ...layoutScrollViewContentPaddding,
     };
 
+    const layoutContentMaxWidth = 800;
+
     this.layoutContentScrollViewContent = {
-      ...layoutScrollViewPadding,
-      maxWidth: 800,
+      maxWidth: layoutContentMaxWidth,
     };
 
     this.layoutFooter = {
@@ -321,7 +334,7 @@ export class LightTheme {
 
     this.button = {
       ...this.text,
-      margin: typography.lineHeight / 4,
+      marginHorizontal: typography.lineHeight / 4,
     };
 
     this.buttonGray = {
@@ -335,7 +348,6 @@ export class LightTheme {
 
     this.buttonSmall = {
       ...typography.scale(-1),
-      paddingVertical: typography.lineHeight / 16,
       ...this.bold,
     };
 
@@ -409,11 +421,11 @@ export class LightTheme {
     };
 
     this.taskCheckbox = {
-      width: 12,
-      height: 12,
-      marginTop: 6,
-      marginBottom: 6,
-      marginRight: 8,
+      width: typography.lineHeight / 2,
+      height: typography.lineHeight / 2,
+      marginTop: typography.lineHeight / 4,
+      marginBottom: typography.lineHeight / 4,
+      marginRight: typography.lineHeight / 3,
       top: 1,
       borderRadius: 3,
       borderStyle: 'solid',
@@ -493,6 +505,16 @@ export class LightTheme {
 
     this.opacity0 = {
       opacity: 0,
+    };
+
+    this.taskListBar = {
+      paddingHorizontal: dimensions.spaceSmall,
+      position: 'absolute',
+      left: 0,
+      width: layoutContentMaxWidth,
+      height: typography.lineHeight,
+      top: -typography.lineHeight,
+      flexDirection: 'row',
     };
   }
 }
