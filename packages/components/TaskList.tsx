@@ -26,16 +26,16 @@ type TaskTypeData = TaskType['data'];
 type TaskTypeDataWithKey = { key: string } & TaskTypeData;
 type TaskNode = RenderNodeProps['node'];
 
-type Action =
-  | { type: 'toggle'; tasks: TaskTypeDataWithKey[] }
+export type Action =
+  | { type: 'toggleCompleted'; tasks: TaskTypeDataWithKey[] }
   | {
       type: 'moveHorizontal';
       tasks: TaskTypeDataWithKey[];
       forward: boolean;
     }
   | { type: 'moveVertical'; task: TaskTypeDataWithKey; forward: boolean }
-  | { type: 'archive' }
-  | { type: 'insertText'; text: string };
+  | { type: 'insertText'; text: string }
+  | { type: 'clearCompleted' };
 
 const taskTypeTypeProp: TaskTypeTypeProp = 'task';
 
@@ -43,10 +43,14 @@ const taskTypeTypeProp: TaskTypeTypeProp = 'task';
 // This is simple type safe approach.
 const getTaskData = (node: TaskNode): TaskTypeData => {
   const completed = 'completed';
+  const completedAt = 'completedAt';
   const depth = 'depth';
+  const hidden = 'hidden';
   return {
     [completed]: node.data.get(completed),
+    [completedAt]: node.data.get(completedAt),
     [depth]: node.data.get(depth),
+    [hidden]: node.data.get(hidden),
   };
 };
 
@@ -105,11 +109,11 @@ const Checkbox: FunctionComponent<CheckBoxProps> = props => {
   );
 };
 
-interface TaskItemProps extends RenderNodeProps {
+interface TaskProps extends RenderNodeProps {
   dispatch: Dispatch<Action>;
 }
 
-const TaskItem: FunctionComponent<TaskItemProps> = props => {
+const Task: FunctionComponent<TaskProps> = props => {
   const { theme } = useAppContext();
   const data = getTaskData(props.node);
   // https://reactjs.org/docs/hooks-faq.html#are-hooks-slow-because-of-creating-functions-in-render
@@ -133,7 +137,7 @@ const TaskItem: FunctionComponent<TaskItemProps> = props => {
 
   const handleCheckboxChange = useCallback(() => {
     props.dispatch({
-      type: 'toggle',
+      type: 'toggleCompleted',
       tasks: [nodeToTaskDataWithKey(props.node)],
     });
   }, [props]);
@@ -241,13 +245,15 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     });
   }, []);
 
-  const toggleTasks = useCallback(
+  const toggleCompleted = useCallback(
     (tasks: TaskTypeDataWithKey[]) => {
       tasks = tasksWithChildren(tasks);
-      const allCompleted = !tasks.some(task => !task.completed);
+      const atLeastOneCompleted = tasks.some(task => !task.completed);
+      const completedAt = atLeastOneCompleted ? Date.now() : undefined;
       const completedTasks = tasks.map(task => ({
         ...task,
-        completed: !allCompleted,
+        completed: atLeastOneCompleted,
+        completedAt,
       }));
       setNodesData(completedTasks);
     },
@@ -321,7 +327,19 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     [getTaskIndex, setNodesData, tasksWithChildren],
   );
 
-  // TaskListType['slate']
+  const clearCompleted = useCallback(() => {
+    const editor = getEditor();
+    const tasks: TaskTypeDataWithKey[] = [];
+    editor.value.document.nodes.forEach(node => {
+      if (node == null) return;
+      const task = nodeToTaskDataWithKey(node);
+      if (task.completed && task.hidden !== true) {
+        tasks.push({ ...task, hidden: true });
+      }
+    });
+    setNodesData(tasks);
+  }, [setNodesData]);
+
   const [editorValue, setEditorValue] = useState(() => {
     KeyUtils.resetGenerator(); // For SSR.
     return Value.fromJSON(taskList.slate);
@@ -333,8 +351,8 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
         throw new Error(`Unexpected action: ${JSON.stringify(action)}`);
       };
       switch (action.type) {
-        case 'toggle': {
-          toggleTasks(action.tasks);
+        case 'toggleCompleted': {
+          toggleCompleted(action.tasks);
           break;
         }
         case 'moveHorizontal': {
@@ -345,25 +363,26 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
           moveVertical(action.task, action.forward);
           break;
         }
-        case 'archive': {
-          break;
-        }
         case 'insertText': {
           getEditor().insertText(action.text);
+          break;
+        }
+        case 'clearCompleted': {
+          clearCompleted();
           break;
         }
         default:
           return assertNever(action);
       }
     },
-    [moveHorizontal, moveVertical, toggleTasks],
+    [clearCompleted, moveHorizontal, moveVertical, toggleCompleted],
   );
 
   const renderNode = useCallback(
     (props: RenderNodeProps, _editor: CoreEditor, next: () => any) => {
       switch (props.node.type) {
         case taskTypeTypeProp:
-          return <TaskItem {...props} dispatch={dispatch} />;
+          return <Task {...props} dispatch={dispatch} />;
         default:
           return next();
       }
@@ -373,6 +392,8 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
 
   const setAppState = useAppState();
 
+  // Because toJSON is costly.
+  // TODO: Once Slate will switch to plain objects, move state to local storage.
   const saveThrottled = useMemo(() => {
     return throttle((value: Value) => {
       setAppState(state => {
@@ -401,7 +422,14 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     const isAltEnter = isHotkey('alt+enter')(event);
     if (isAltEnter) {
       event.preventDefault();
-      dispatch({ type: 'toggle', tasks: getSelectedTasks() });
+      dispatch({ type: 'toggleCompleted', tasks: getSelectedTasks() });
+      return;
+    }
+
+    const isAltShiftEnter = isHotkey('alt+shift+enter')(event);
+    if (isAltShiftEnter) {
+      event.preventDefault();
+      dispatch({ type: 'clearCompleted' });
       return;
     }
 
@@ -480,9 +508,15 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
 
   const screenSize = useScreenSize();
 
+  const hasCompletedTask = useMemo(() => {
+    return editorValue.document.nodes.some(node => {
+      return node ? nodeToTaskDataWithKey(node).completed : false;
+    });
+  }, [editorValue.document.nodes]);
+
   return (
     <>
-      <TaskListBar taskListId={taskList.id} />
+      <TaskListBar hasCompletedTask={hasCompletedTask} dispatch={dispatch} />
       <LayoutScrollView>
         <Editor
           autoFocus={!screenSize.phoneOnly}

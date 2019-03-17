@@ -26,7 +26,9 @@ interface TaskList1 {
       nodes: {
         data: {
           completed: boolean;
+          completedAt?: number;
           depth: number;
+          hidden?: boolean;
         };
         nodes: {
           leaves: { text: string; object: 'leaf' }[];
