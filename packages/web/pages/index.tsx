@@ -9,6 +9,7 @@ import { rootTaskListId } from '@app/state/appStateConfig';
 
 const Index: FunctionComponent = () => {
   const taskListId = useAppHrefTaskListId();
+  // Only the name. We don't want to rerender Layout on any change.
   const taskListName = useAppState(
     useCallback(
       ({ taskLists }: AppState) => {
@@ -27,9 +28,14 @@ const Index: FunctionComponent = () => {
       : // Maybe: `${taskListName} - ${pageTitles.index}`;
         taskListName;
 
+  // We don't subscribe data here, because it would rerender Layout.
+  // It's TaskListWithData responsibility.
   return (
     <Layout title={title} noScrollView>
-      <TaskListWithData taskListId={taskListId} />
+      {taskListId != null && (
+        // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+        <TaskListWithData taskListId={taskListId} key={taskListId} />
+      )}
     </Layout>
   );
 };

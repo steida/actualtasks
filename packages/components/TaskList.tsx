@@ -163,14 +163,18 @@ const Task: FunctionComponent<TaskProps> = props => {
 };
 
 interface TaskListProps {
-  taskList: TaskListType;
+  slateInitialValue: TaskListType['slate'];
+  taskListId: string;
 }
 
 // TaskList holds Slate editor state, because of immutable.js, we can not
-// serialize and deserialize whole editor state on every key stroke.
+// serialize and deserialize the whole editor state on every key stroke.
 // Therefore, editor state is browser tab specific aka not live updated.
 // TODO: Once Slate will switch to plain objects, move state to local storage.
-const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
+const TaskList: FunctionComponent<TaskListProps> = ({
+  slateInitialValue,
+  taskListId,
+}) => {
   const editorRef = React.useRef<Editor>(null);
 
   const getEditor = () => {
@@ -344,20 +348,24 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     });
 
     setAppState(({ taskLists }) => {
-      const currentTaskList = taskLists.find(t => t.id === taskList.id);
+      const currentTaskList = taskLists.find(t => t.id === taskListId);
       if (currentTaskList == null) return;
-      currentTaskList.archivedSlate = currentTaskList.archivedSlate || {
+      const archivedSlate = currentTaskList.archivedSlate || {
         document: { nodes: [] },
       };
-      // currentTaskList.archivedSlate.document.nodes.push(
-      //   ...Object.values(completed).map(item => item.toJSON() as any),
-      // );
+      currentTaskList.archivedSlate = archivedSlate;
+      const array = Object.values(completed).map(
+        item => item.toJSON() as TaskType,
+      );
+      array.forEach(item => {
+        archivedSlate.document.nodes.push(item);
+      });
     });
-  }, [setAppState, taskList.id]);
+  }, [setAppState, taskListId]);
 
   const [editorValue, setEditorValue] = useState(() => {
     KeyUtils.resetGenerator(); // For SSR.
-    return Value.fromJSON(taskList.slate);
+    return Value.fromJSON(slateInitialValue);
   });
 
   const dispatch = useCallback(
@@ -410,12 +418,12 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
   const saveThrottled = useMemo(() => {
     return throttle((value: Value) => {
       setAppState(({ taskLists }) => {
-        const index = taskLists.findIndex(t => t.id === taskList.id);
+        const index = taskLists.findIndex(t => t.id === taskListId);
         if (index === -1) return;
         taskLists[index].slate = value.toJSON() as TaskListType['slate'];
       });
     }, 1000);
-  }, [setAppState, taskList.id]);
+  }, [setAppState, taskListId]);
 
   const handleEditorChange = useCallback(
     ({ value }: { value: Value }) => {
@@ -494,7 +502,7 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
 
     const isEscape = isHotkey('escape')(event);
     if (isEscape) {
-      const link = document.getElementById(`menuTaskListLink${taskList.id}`);
+      const link = document.getElementById(`menuTaskListLink${taskListId}`);
       if (link) {
         link.focus();
         return;
@@ -564,20 +572,37 @@ export const TaskListDoesNotExist: FunctionComponent = () => {
 };
 
 interface TaskListWithDataProps {
-  taskListId: string | null;
+  taskListId: string;
 }
 
 export const TaskListWithData: FunctionComponent<TaskListWithDataProps> = ({
   taskListId,
 }) => {
+  // Remember useAppState hook is a subscription.
   const taskList = useAppState(
     useCallback(
       ({ taskLists }: AppState) => taskLists.find(t => t.id === taskListId),
       [taskListId],
     ),
   );
-  if (taskList == null) return <TaskListDoesNotExist />;
-
-  // https://twitter.com/estejs/status/1102238792382062593
-  return <TaskList taskList={taskList} key={taskList.id} />;
+  // But we don't want to rerender TaskList on every change.
+  // So we use useState initial state. It's reseted via key from parent.
+  const [slateInitialValue] = useState(taskList && taskList.slate);
+  // Now we can memoize component.
+  const taskListMemo = useMemo(() => {
+    return (
+      slateInitialValue != null &&
+      taskListId != null && (
+        <TaskList
+          slateInitialValue={slateInitialValue}
+          taskListId={taskListId}
+          key={taskListId}
+        />
+      )
+    );
+  }, [slateInitialValue, taskListId]);
+  if (taskList == null || slateInitialValue == null)
+    return <TaskListDoesNotExist />;
+  // Fix for incomplete React type definitions.
+  return <>{taskListMemo}</>;
 };
