@@ -7,13 +7,13 @@ import Link from './Link';
 import { Action } from './TaskList';
 
 const messages = defineMessages({
-  clearCompleted: {
-    defaultMessage: 'Clear Completed',
-    id: 'taskListBar.clearCompleted',
+  archive: {
+    defaultMessage: 'Archive',
+    id: 'taskListBar.archive',
   },
-  completed: {
-    defaultMessage: 'completed',
-    id: 'taskListBar.completed',
+  archived: {
+    defaultMessage: 'archived',
+    id: 'taskListBar.archived',
   },
 });
 
@@ -30,21 +30,24 @@ const TaskListBar: FunctionComponent<TaskListBarProps> = memo(
   ({ hasCompletedTask, dispatch }) => {
     const { theme, intl } = useAppContext();
 
-    const handleClearCompletedPress = useCallback(() => {
-      dispatch({ type: 'clearCompleted' });
+    const handleArchivePress = useCallback(() => {
+      dispatch({ type: 'archive' });
     }, [dispatch]);
 
     return (
       <View style={theme.taskListBar}>
         <View style={theme.buttons}>
           <TaskListBarButton
-            title={intl.formatMessage(messages.clearCompleted)}
+            title={intl.formatMessage(messages.archive)}
             disabled={!hasCompletedTask}
             type="gray"
-            onPress={handleClearCompletedPress}
+            onPress={handleArchivePress}
           />
-          <Link style={[theme.buttonGray, theme.buttonSmall]} href="/me">
-            {intl.formatMessage(messages.completed)}
+          <Link
+            style={[theme.buttonGray, theme.buttonSmall, theme.buttonDisabled]}
+            href="/me"
+          >
+            {intl.formatMessage(messages.archived)}
           </Link>
         </View>
       </View>

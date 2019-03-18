@@ -390,7 +390,7 @@ export class LightTheme {
     };
 
     this.buttonDisabled = {
-      opacity: 0.5,
+      opacity: 0.75,
     };
 
     this.validationError = {

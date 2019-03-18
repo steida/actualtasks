@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { Editor, RenderNodeProps, getEventTransfer } from 'slate-react';
-import { Editor as CoreEditor, KeyUtils, Value } from 'slate';
+import { Editor as CoreEditor, KeyUtils, Value, Block } from 'slate';
 import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import throttle from 'lodash.throttle';
 import { isHotkey } from 'is-hotkey';
@@ -35,7 +35,7 @@ export type Action =
     }
   | { type: 'moveVertical'; task: TaskTypeDataWithKey; forward: boolean }
   | { type: 'insertText'; text: string }
-  | { type: 'clearCompleted' };
+  | { type: 'archive' };
 
 const taskTypeTypeProp: TaskTypeTypeProp = 'task';
 
@@ -45,12 +45,10 @@ const getTaskData = (node: TaskNode): TaskTypeData => {
   const completed = 'completed';
   const completedAt = 'completedAt';
   const depth = 'depth';
-  const hidden = 'hidden';
   return {
     [completed]: node.data.get(completed),
     [completedAt]: node.data.get(completedAt),
     [depth]: node.data.get(depth),
-    [hidden]: node.data.get(hidden),
   };
 };
 
@@ -115,8 +113,17 @@ interface TaskProps extends RenderNodeProps {
 
 const Task: FunctionComponent<TaskProps> = props => {
   const { theme } = useAppContext();
+  const handleCheckboxChange = useCallback(() => {
+    props.dispatch({
+      type: 'toggleCompleted',
+      tasks: [nodeToTaskDataWithKey(props.node)],
+    });
+  }, [props]);
+
   const data = getTaskData(props.node);
-  // https://reactjs.org/docs/hooks-faq.html#are-hooks-slow-because-of-creating-functions-in-render
+
+  // pokud neni, tak prazdne view? pak ale budu imho mazat
+
   const getTaskDepthStyle = () => {
     // prettier-ignore
     switch (data.depth) {
@@ -134,13 +141,6 @@ const Task: FunctionComponent<TaskProps> = props => {
     }
   };
   const depthStyle = getTaskDepthStyle();
-
-  const handleCheckboxChange = useCallback(() => {
-    props.dispatch({
-      type: 'toggleCompleted',
-      tasks: [nodeToTaskDataWithKey(props.node)],
-    });
-  }, [props]);
 
   const hideCheckbox =
     !props.isFocused && !data.completed && props.node.text.length === 0;
@@ -327,18 +327,33 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     [getTaskIndex, setNodesData, tasksWithChildren],
   );
 
-  const clearCompleted = useCallback(() => {
+  const setAppState = useAppState();
+
+  const archive = useCallback(() => {
     const editor = getEditor();
-    const tasks: TaskTypeDataWithKey[] = [];
+
+    const completed: { [key: string]: Block } = {};
     editor.value.document.nodes.forEach(node => {
       if (node == null) return;
-      const task = nodeToTaskDataWithKey(node);
-      if (task.completed && task.hidden !== true) {
-        tasks.push({ ...task, hidden: true });
-      }
+      if (!getTaskData(node).completed) return;
+      completed[node.key] = node;
     });
-    setNodesData(tasks);
-  }, [setNodesData]);
+
+    Object.keys(completed).forEach(key => {
+      editor.removeNodeByKey(key);
+    });
+
+    setAppState(({ taskLists }) => {
+      const currentTaskList = taskLists.find(t => t.id === taskList.id);
+      if (currentTaskList == null) return;
+      currentTaskList.archivedSlate = currentTaskList.archivedSlate || {
+        document: { nodes: [] },
+      };
+      // currentTaskList.archivedSlate.document.nodes.push(
+      //   ...Object.values(completed).map(item => item.toJSON() as any),
+      // );
+    });
+  }, [setAppState, taskList.id]);
 
   const [editorValue, setEditorValue] = useState(() => {
     KeyUtils.resetGenerator(); // For SSR.
@@ -367,15 +382,15 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
           getEditor().insertText(action.text);
           break;
         }
-        case 'clearCompleted': {
-          clearCompleted();
+        case 'archive': {
+          archive();
           break;
         }
         default:
           return assertNever(action);
       }
     },
-    [clearCompleted, moveHorizontal, moveVertical, toggleCompleted],
+    [archive, moveHorizontal, moveVertical, toggleCompleted],
   );
 
   const renderNode = useCallback(
@@ -390,16 +405,14 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     [dispatch],
   );
 
-  const setAppState = useAppState();
-
   // Because toJSON is costly.
   // TODO: Once Slate will switch to plain objects, move state to local storage.
   const saveThrottled = useMemo(() => {
     return throttle((value: Value) => {
-      setAppState(state => {
-        const index = state.taskLists.findIndex(t => t.id === taskList.id);
+      setAppState(({ taskLists }) => {
+        const index = taskLists.findIndex(t => t.id === taskList.id);
         if (index === -1) return;
-        state.taskLists[index].slate = value.toJSON() as TaskListType['slate'];
+        taskLists[index].slate = value.toJSON() as TaskListType['slate'];
       });
     }, 1000);
   }, [setAppState, taskList.id]);
@@ -429,7 +442,7 @@ const TaskList: FunctionComponent<TaskListProps> = ({ taskList }) => {
     const isAltShiftEnter = isHotkey('alt+shift+enter')(event);
     if (isAltShiftEnter) {
       event.preventDefault();
-      dispatch({ type: 'clearCompleted' });
+      dispatch({ type: 'archive' });
       return;
     }
 

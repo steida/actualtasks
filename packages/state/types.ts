@@ -13,6 +13,24 @@ interface User1 {
   darkMode: boolean;
 }
 
+interface Slate1 {
+  document: {
+    nodes: {
+      data: {
+        completed: boolean;
+        completedAt?: number;
+        depth: number;
+      };
+      nodes: {
+        leaves: { text: string; object: 'leaf' }[];
+        object: 'text';
+      }[];
+      object: 'block';
+      type: 'task';
+    }[];
+  };
+}
+
 interface TaskList1 {
   id: string;
   createdAt: number;
@@ -21,24 +39,11 @@ interface TaskList1 {
   // creatorEmail: string; // Will be set when shared.
   // Max length 32. TODO: Enforce it in AppStateProvider setAppState.
   name: string;
-  slate: {
-    document: {
-      nodes: {
-        data: {
-          completed: boolean;
-          completedAt?: number;
-          depth: number;
-          hidden?: boolean;
-        };
-        nodes: {
-          leaves: { text: string; object: 'leaf' }[];
-          object: 'text';
-        }[];
-        object: 'block';
-        type: 'task';
-      }[];
-    };
-  };
+  slate: Slate1;
+  // Ideally, archived should be a flag. But because of Slate immutable.js, we
+  // have to maintain clonned state, and filtering and serialization sucks.
+  // Let's wait for Slate with Immer instead of immutable.js.
+  archivedSlate?: Slate1;
 }
 
 // Versioned app states. Use them only in the app state config.
