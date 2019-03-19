@@ -59,12 +59,12 @@ const LayoutHeader: FunctionComponent = () => {
   return (
     <View style={theme.layoutHeader}>
       <LayoutHeaderLink href={{ pathname: '/blog' }} title={pageTitles.blog} />
-      <LayoutHeaderLink href="/help" title={pageTitles.help} />
+      <LayoutHeaderLink href={{ pathname: '/help' }} title={pageTitles.help} />
       <Link
         style={theme.layoutHeaderLink}
         activeStyle={theme.linkImageActive}
         prefetch
-        href="/me"
+        href={{ pathname: '/me' }}
       >
         <ViewerGravatar />
       </Link>

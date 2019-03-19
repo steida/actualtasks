@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import Layout from '@app/components/Layout';
-import useAppHrefTaskListId from '@app/hooks/useAppHrefTaskListId';
 import { TaskListWithData } from '@app/components/TaskList';
 import { AppState } from '@app/state/types';
 import useAppState from '@app/hooks/useAppState';
@@ -9,6 +8,7 @@ import { rootTaskListId } from '@app/state/appStateConfig';
 import { FormattedMessage } from 'react-intl';
 import { Text } from 'react-native';
 import useAppContext from '@app/hooks/useAppContext';
+import useAppHref from '@app/hooks/useAppHref';
 
 export const TaskListDoesNotExist: FunctionComponent = () => {
   const { theme } = useAppContext();
@@ -23,22 +23,22 @@ export const TaskListDoesNotExist: FunctionComponent = () => {
 };
 
 const Index: FunctionComponent = () => {
-  const taskListId = useAppHrefTaskListId();
+  const query = useAppHref().parsed['/'];
   // Only the name. We don't want to rerender Layout on any change.
   const taskListName = useAppState(
     useCallback(
       ({ taskLists }: AppState) => {
-        const taskList = taskLists.find(t => t.id === taskListId);
+        const taskList = taskLists.find(t => t.id === query.id);
         return taskList != null ? taskList.name : null;
       },
-      [taskListId],
+      [query.id],
     ),
   );
   const pageTitles = usePageTitles();
   const title =
     taskListName == null
       ? pageTitles.notFound
-      : taskListId === rootTaskListId
+      : query.id === rootTaskListId
       ? pageTitles.index
       : // Maybe: `${taskListName} - ${pageTitles.index}`;
         taskListName;
@@ -47,9 +47,9 @@ const Index: FunctionComponent = () => {
   // It's TaskListWithData responsibility.
   return (
     <Layout title={title} noScrollView>
-      {taskListId != null ? (
+      {taskListName != null ? (
         // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
-        <TaskListWithData taskListId={taskListId} key={taskListId} />
+        <TaskListWithData taskListId={query.id} key={query.id} />
       ) : (
         <TaskListDoesNotExist />
       )}

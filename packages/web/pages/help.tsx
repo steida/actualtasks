@@ -47,7 +47,11 @@ const Help: FunctionComponent = () => {
         />
       </Text>
       <Text style={theme.text}>
-        <Link href="https://github.com/steida/actualtasks/issues/new">
+        <Link
+          href={{
+            pathname: 'https://github.com/steida/actualtasks/issues/new',
+          }}
+        >
           <FormattedMessage
             defaultMessage="Please, report it."
             id="helpNewIssueLink"

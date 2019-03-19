@@ -12,12 +12,20 @@ const Footer: FunctionComponent = () => {
   return (
     <View style={theme.layoutFooter}>
       <Text style={theme.textSmall}>
-        <Link href="https://github.com/steida/actualtasks">
+        <Link href={{ pathname: 'https://github.com/steida/actualtasks' }}>
           <FormattedMessage defaultMessage="made" id="madeBy" />
         </Link>
         {' by '}
-        <Link href="https://twitter.com/steida">steida</Link> for {''}
-        <Link href="https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3">
+        <Link href={{ pathname: 'https://twitter.com/steida' }}>
+          steida
+        </Link>{' '}
+        for {''}
+        <Link
+          href={{
+            pathname:
+              'https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3',
+          }}
+        >
           satoshis
         </Link>
       </Text>

@@ -13,7 +13,6 @@ import FormButton from '@app/components/FormButton';
 import { hasValidationError } from '@app/components/ValidationError';
 import TextInputWithLabelAndError from '@app/components/TextInputWithLabelAndError';
 import Layout from '@app/components/Layout';
-import useAppHrefTaskListId from '@app/hooks/useAppHrefTaskListId';
 import { TaskListDoesNotExist } from './index';
 
 interface FormProps {
@@ -83,11 +82,11 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
 
 const Edit: FunctionComponent = () => {
   const pageTitles = usePageTitles();
-  const taskListId = useAppHrefTaskListId();
+  const query = useAppHref().parsed['/edit'];
   const taskList = useAppState(
     useCallback(
-      ({ taskLists }: AppState) => taskLists.find(t => t.id === taskListId),
-      [taskListId],
+      ({ taskLists }: AppState) => taskLists.find(t => t.id === query.id),
+      [query.id],
     ),
   );
   const title = taskList ? pageTitles.edit(taskList.name) : pageTitles.notFound;

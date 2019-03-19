@@ -45,7 +45,7 @@ const TaskListBar: FunctionComponent<TaskListBarProps> = memo(
           />
           <Link
             style={[theme.buttonGray, theme.buttonSmall, theme.buttonDisabled]}
-            href="/me"
+            href={{ pathname: '/me' }}
           >
             {intl.formatMessage(messages.archived)}
           </Link>

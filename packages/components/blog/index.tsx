@@ -67,8 +67,8 @@ const privacyBlogPost = {
   Content: () => (
     <>
       <P>
-        You can always <Link href="/me">export</Link> or{' '}
-        <Link href="/me">delete</Link> your data.
+        You can always <Link href={{ pathname: '/me' }}>export</Link> or{' '}
+        <Link href={{ pathname: '/me' }}>delete</Link> your data.
       </P>
       <P>
         No cookies. No ads. No tracking. No spying. No analytics. No tedious

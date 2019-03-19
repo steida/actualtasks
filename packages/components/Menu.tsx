@@ -92,10 +92,8 @@ const TaskLists: FunctionComponent = () => {
 const Menu: FunctionComponent = () => {
   const { theme } = useAppContext();
   const screenSize = useScreenSize();
-  const addHref = '/add';
-  const archivedHref = '/archived';
-  const addIsActive = useRouteIsActive(addHref);
-  const archivedIsActive = useRouteIsActive(archivedHref);
+  const addIsActive = useRouteIsActive({ pathname: '/add' });
+  const archivedIsActive = useRouteIsActive({ pathname: '/archived' });
 
   return (
     <KeyboardNavigableView
@@ -106,10 +104,13 @@ const Menu: FunctionComponent = () => {
     >
       <TaskLists />
       <View style={theme.flexRow}>
-        <MenuLink accessible={addIsActive} href={addHref}>
+        <MenuLink accessible={addIsActive} href={{ pathname: '/add' }}>
           +
         </MenuLink>
-        <MenuLink accessible={archivedIsActive} href={archivedHref}>
+        <MenuLink
+          accessible={archivedIsActive}
+          href={{ pathname: '/archived' }}
+        >
           ∞
         </MenuLink>
       </View>
