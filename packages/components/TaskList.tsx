@@ -15,7 +15,6 @@ import { isHotkey } from 'is-hotkey';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
-import { FormattedMessage } from 'react-intl';
 import TaskListBar from './TaskListBar';
 import { LayoutScrollView } from './Layout';
 
@@ -565,18 +564,6 @@ const TaskList: FunctionComponent<TaskListProps> = memo(
 
 export default TaskList;
 
-export const TaskListDoesNotExist: FunctionComponent = () => {
-  const { theme } = useAppContext();
-  return (
-    <Text style={theme.text}>
-      <FormattedMessage
-        defaultMessage="Task list does not exist."
-        id="taskList.notFound"
-      />
-    </Text>
-  );
-};
-
 interface TaskListWithDataProps {
   taskListId: string;
 }
@@ -601,9 +588,8 @@ export const TaskListWithData: FunctionComponent<TaskListWithDataProps> = ({
   // The state is reseted by parent component via key prop.
   const [slateInitialValue] = useState(slate);
 
-  return slateInitialValue == null ? (
-    <TaskListDoesNotExist />
-  ) : (
+  if (slateInitialValue == null || taskListId == null) return null;
+  return (
     <TaskList slateInitialValue={slateInitialValue} taskListId={taskListId} />
   );
 };

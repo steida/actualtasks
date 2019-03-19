@@ -14,7 +14,7 @@ import { hasValidationError } from '@app/components/ValidationError';
 import TextInputWithLabelAndError from '@app/components/TextInputWithLabelAndError';
 import Layout from '@app/components/Layout';
 import useAppHrefTaskListId from '@app/hooks/useAppHrefTaskListId';
-import { TaskListDoesNotExist } from '@app/components/TaskList';
+import { TaskListDoesNotExist } from './index';
 
 interface FormProps {
   taskList: TaskList;

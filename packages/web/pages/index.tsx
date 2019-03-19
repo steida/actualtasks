@@ -6,6 +6,21 @@ import { AppState } from '@app/state/types';
 import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
 import { rootTaskListId } from '@app/state/appStateConfig';
+import { FormattedMessage } from 'react-intl';
+import { Text } from 'react-native';
+import useAppContext from '@app/hooks/useAppContext';
+
+export const TaskListDoesNotExist: FunctionComponent = () => {
+  const { theme } = useAppContext();
+  return (
+    <Text style={theme.text}>
+      <FormattedMessage
+        defaultMessage="Task list does not exist."
+        id="taskList.notFound"
+      />
+    </Text>
+  );
+};
 
 const Index: FunctionComponent = () => {
   const taskListId = useAppHrefTaskListId();
@@ -32,9 +47,11 @@ const Index: FunctionComponent = () => {
   // It's TaskListWithData responsibility.
   return (
     <Layout title={title} noScrollView>
-      {taskListId != null && (
+      {taskListId != null ? (
         // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
         <TaskListWithData taskListId={taskListId} key={taskListId} />
+      ) : (
+        <TaskListDoesNotExist />
       )}
     </Layout>
   );
