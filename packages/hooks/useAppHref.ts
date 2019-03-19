@@ -1,4 +1,3 @@
-import { rootTaskListId } from '@app/state/appStateConfig';
 import { useMemo } from 'react';
 import { OmitByValue } from 'utility-types/dist/mapped-types';
 import useAppContext from './useAppContext';
@@ -6,10 +5,12 @@ import useAppContext from './useAppContext';
 export type AppHref =
   | {
       pathname: '/';
-      query?: {
-        id: string;
-        view?: 'archived';
-      } | null;
+      query?:
+        | {
+            id: string;
+            view?: 'archived';
+          }
+        | undefined;
     }
   | { pathname: 'https://twitter.com/steida' }
   | { pathname: 'https://github.com/steida/actualtasks' }
@@ -21,11 +22,11 @@ export type AppHref =
   | { pathname: '/add' }
   | {
       pathname: '/edit';
-      query?: { id: string } | null;
+      query?: { id: string } | undefined;
     }
   | {
       pathname: '/blog';
-      query?: { id: string } | null;
+      query?: { id: string } | undefined;
     }
   | { pathname: '/help' }
   | { pathname: '/archived' };
@@ -41,11 +42,12 @@ type DiscriminateUnion<T, K extends keyof T, V extends T[K]> = T extends Record<
 type MapDiscriminatedUnion<T extends Record<K, string>, K extends keyof T> = {
   [V in T[K]]: DiscriminateUnion<T, K, V>
 };
-// I'm pretty sure it can be written better. But it does what we need.
+// I'm pretty sure it can be written better. But it does what I need.
+type UndefinedProps<T> = { [P in keyof T]: T[P] | undefined };
 type ExtractQuery<T> = OmitByValue<
   {
     [P in keyof T]: T[P] extends { query?: object | null }
-      ? NonNullable<T[P]['query']>
+      ? UndefinedProps<NonNullable<T[P]['query']>>
       : never
   },
   never
@@ -61,20 +63,19 @@ const useAppHref = () => {
         router.query != null &&
         typeof router.query.id === 'string' &&
         router.query.id) ||
-      null;
-    const taskListId = queryId || rootTaskListId;
+      undefined;
 
     return {
       '/': {
-        id: taskListId,
+        id: queryId,
         // TODO: Parse.
         view: undefined,
       },
       '/edit': {
-        id: taskListId,
+        id: queryId,
       },
       '/blog': {
-        id: queryId || '', // An empty string is better than null in this case.
+        id: queryId,
       },
     };
   }, [router]);

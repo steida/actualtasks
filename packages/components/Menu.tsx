@@ -36,7 +36,7 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = memo(
     const isRoot = taskListId === rootTaskListId;
     const indexHref: AppHref = {
       pathname: '/',
-      query: isRoot ? null : { id: taskListId },
+      query: isRoot ? undefined : { id: taskListId },
     };
     const editHref: AppHref = {
       pathname: '/edit',

@@ -24,21 +24,22 @@ export const TaskListDoesNotExist: FunctionComponent = () => {
 
 const Index: FunctionComponent = () => {
   const query = useAppHref().parsed['/'];
+  const queryIdOrDefault = query.id || rootTaskListId;
   // Only the name. We don't want to rerender Layout on any change.
   const taskListName = useAppState(
     useCallback(
       ({ taskLists }: AppState) => {
-        const taskList = taskLists.find(t => t.id === query.id);
+        const taskList = taskLists.find(t => t.id === queryIdOrDefault);
         return taskList != null ? taskList.name : null;
       },
-      [query.id],
+      [queryIdOrDefault],
     ),
   );
   const pageTitles = usePageTitles();
   const title =
     taskListName == null
       ? pageTitles.notFound
-      : query.id === rootTaskListId
+      : queryIdOrDefault === rootTaskListId
       ? pageTitles.index
       : // Maybe: `${taskListName} - ${pageTitles.index}`;
         taskListName;
@@ -49,7 +50,10 @@ const Index: FunctionComponent = () => {
     <Layout title={title} noScrollView>
       {taskListName != null ? (
         // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
-        <TaskListWithData taskListId={query.id} key={query.id} />
+        <TaskListWithData
+          taskListId={queryIdOrDefault}
+          key={queryIdOrDefault}
+        />
       ) : (
         <TaskListDoesNotExist />
       )}
