@@ -5,6 +5,7 @@ import React, {
   Dispatch,
   useCallback,
   useState,
+  memo,
 } from 'react';
 import { Editor, RenderNodeProps, getEventTransfer } from 'slate-react';
 import { Editor as CoreEditor, KeyUtils, Value, Block } from 'slate';
@@ -171,391 +172,396 @@ interface TaskListProps {
 // serialize and deserialize the whole editor state on every key stroke.
 // Therefore, editor state is browser tab specific aka not live updated.
 // TODO: Once Slate will switch to plain objects, move state to local storage.
-const TaskList: FunctionComponent<TaskListProps> = ({
-  slateInitialValue,
-  taskListId,
-}) => {
-  const editorRef = React.useRef<Editor>(null);
+// Note TaskList must be memoized because Editor state is brittle.
+// I had a problem when rerender via archive did not remove nodes.
+const TaskList: FunctionComponent<TaskListProps> = memo(
+  ({ slateInitialValue, taskListId }) => {
+    const editorRef = React.useRef<Editor>(null);
 
-  const getEditor = () => {
-    const { current } = editorRef;
-    if (current == null) throw new Error('editorRef current is null');
-    return current;
-  };
+    const getEditor = () => {
+      const { current } = editorRef;
+      if (current == null) throw new Error('editorRef current is null');
+      return current;
+    };
 
-  const getSelectedTasks = (): TaskTypeDataWithKey[] => {
-    const selectedTasks: TaskTypeDataWithKey[] = [];
-    const editor = getEditor();
-    editor.value.blocks.forEach(node => {
-      if (node == null || node.type !== taskTypeTypeProp) return;
-      selectedTasks.push(nodeToTaskDataWithKey(node));
-    });
-    return selectedTasks;
-  };
+    const getSelectedTasks = (): TaskTypeDataWithKey[] => {
+      const selectedTasks: TaskTypeDataWithKey[] = [];
+      const editor = getEditor();
+      editor.value.blocks.forEach(node => {
+        if (node == null || node.type !== taskTypeTypeProp) return;
+        selectedTasks.push(nodeToTaskDataWithKey(node));
+      });
+      return selectedTasks;
+    };
 
-  const getTaskIndex = useCallback((key: string): number => {
-    const editor = getEditor();
-    return editor.value.document.nodes.findIndex(
-      node => node != null && node.key === key,
+    const getTaskIndex = useCallback((key: string): number => {
+      const editor = getEditor();
+      return editor.value.document.nodes.findIndex(
+        node => node != null && node.key === key,
+      );
+    }, []);
+
+    const tasksWithChildren = useCallback(
+      (tasks: TaskTypeDataWithKey[]) => {
+        // Dedupe via Map.
+        const map: Map<string, TaskTypeDataWithKey> = new Map();
+        tasks.forEach(task => map.set(task.key, task));
+
+        const getTaskChildren = (
+          task: TaskTypeDataWithKey,
+        ): TaskTypeDataWithKey[] => {
+          const editor = getEditor();
+          const children: TaskTypeDataWithKey[] = [];
+          const { nodes } = editor.value.document;
+          let index = getTaskIndex(task.key);
+          // eslint-disable-next-line no-constant-condition
+          while (true) {
+            index++;
+            const next = nodes.get(index);
+            if (next == null) break;
+            const data = getTaskData(next);
+            if (data.depth <= task.depth) break;
+            children.push({ ...data, key: next.key });
+          }
+          return children;
+        };
+
+        tasks.forEach(task => {
+          getTaskChildren(task).forEach(child => {
+            if (map.has(child.key)) return;
+            map.set(child.key, child);
+          });
+        });
+
+        return [...map.values()];
+      },
+      [getTaskIndex],
     );
-  }, []);
 
-  const tasksWithChildren = useCallback(
-    (tasks: TaskTypeDataWithKey[]) => {
-      // Dedupe via Map.
-      const map: Map<string, TaskTypeDataWithKey> = new Map();
-      tasks.forEach(task => map.set(task.key, task));
+    const setNodesData = useCallback((tasks: TaskTypeDataWithKey[]) => {
+      const editor = getEditor();
+      tasks.forEach(task => {
+        const { key, ...data } = task;
+        editor.setNodeByKey(
+          key,
+          // @ts-ignore Probably wrong type definition.
+          { data },
+        );
+      });
+    }, []);
 
-      const getTaskChildren = (
-        task: TaskTypeDataWithKey,
-      ): TaskTypeDataWithKey[] => {
+    const toggleCompleted = useCallback(
+      (tasks: TaskTypeDataWithKey[]) => {
+        tasks = tasksWithChildren(tasks);
+        const atLeastOneCompleted = tasks.some(task => !task.completed);
+        const completedAt = atLeastOneCompleted ? Date.now() : undefined;
+        const completedTasks = tasks.map(task => ({
+          ...task,
+          completed: atLeastOneCompleted,
+          completedAt,
+        }));
+        setNodesData(completedTasks);
+      },
+      [setNodesData, tasksWithChildren],
+    );
+
+    const canShiftTab = (tasks: TaskTypeDataWithKey[]) =>
+      !tasks.some(task => task.depth === 0);
+
+    const moveHorizontal = useCallback(
+      (tasks: TaskTypeDataWithKey[], forward: boolean) => {
         const editor = getEditor();
-        const children: TaskTypeDataWithKey[] = [];
+        const firstTask = tasks[0];
+        tasks = tasksWithChildren(tasks);
+        const canTab = () => {
+          const taskIndex = getTaskIndex(firstTask.key);
+          if (taskIndex === 0) return false;
+          const previous = editor.value.document.nodes.get(taskIndex - 1);
+          if (previous == null) return false;
+          const previousDepth = getTaskData(previous).depth;
+          const firstDepth = tasks[0].depth;
+          return firstDepth <= previousDepth;
+        };
+        const canChangeDepth = forward ? canTab() : canShiftTab(tasks);
+        if (!canChangeDepth) return;
+        const changedTasks = tasks.map(task => ({
+          ...task,
+          depth: task.depth + (forward ? 1 : -1),
+        }));
+        setNodesData(changedTasks);
+      },
+      [getTaskIndex, setNodesData, tasksWithChildren],
+    );
+
+    const moveVertical = useCallback(
+      (task: TaskTypeDataWithKey, forward: boolean) => {
+        const editor = getEditor();
         const { nodes } = editor.value.document;
         let index = getTaskIndex(task.key);
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-          index++;
-          const next = nodes.get(index);
-          if (next == null) break;
-          const data = getTaskData(next);
-          if (data.depth <= task.depth) break;
-          children.push({ ...data, key: next.key });
+        if (index === 0 && !forward) return;
+        let siblingData = null;
+        while (forward ? index < nodes.count() : index > 0) {
+          index += forward ? 1 : -1;
+          const sibling = nodes.get(index);
+          if (sibling == null) return;
+          siblingData = getTaskData(sibling);
+          if (siblingData.depth <= task.depth) break;
         }
-        return children;
-      };
-
-      tasks.forEach(task => {
-        getTaskChildren(task).forEach(child => {
-          if (map.has(child.key)) return;
-          map.set(child.key, child);
+        let tasks = tasksWithChildren([task]);
+        const depthChanged = siblingData && siblingData.depth < task.depth;
+        tasks = tasks.map(task => {
+          return {
+            ...task,
+            depth: Math.max(task.depth - (depthChanged ? 1 : 0), 0),
+          };
         });
-      });
+        if (forward) {
+          const task = nodeToTaskDataWithKey(nodes.get(index));
+          index += tasksWithChildren([task]).length - 1;
+          tasks.reverse().forEach((task, i) => {
+            setNodesData([task]);
+            editor.moveNodeByKey(
+              task.key,
+              editor.value.document.key,
+              index - i,
+            );
+          });
+        } else {
+          tasks.forEach((task, i) => {
+            setNodesData([task]);
+            editor.moveNodeByKey(
+              task.key,
+              editor.value.document.key,
+              index + i,
+            );
+          });
+        }
+      },
+      [getTaskIndex, setNodesData, tasksWithChildren],
+    );
 
-      return [...map.values()];
-    },
-    [getTaskIndex],
-  );
+    const setAppState = useAppState();
 
-  const setNodesData = useCallback((tasks: TaskTypeDataWithKey[]) => {
-    const editor = getEditor();
-    tasks.forEach(task => {
-      const { key, ...data } = task;
-      editor.setNodeByKey(
-        key,
-        // @ts-ignore Probably wrong type definition.
-        { data },
-      );
-    });
-  }, []);
-
-  const toggleCompleted = useCallback(
-    (tasks: TaskTypeDataWithKey[]) => {
-      tasks = tasksWithChildren(tasks);
-      const atLeastOneCompleted = tasks.some(task => !task.completed);
-      const completedAt = atLeastOneCompleted ? Date.now() : undefined;
-      const completedTasks = tasks.map(task => ({
-        ...task,
-        completed: atLeastOneCompleted,
-        completedAt,
-      }));
-      setNodesData(completedTasks);
-    },
-    [setNodesData, tasksWithChildren],
-  );
-
-  const canShiftTab = (tasks: TaskTypeDataWithKey[]) =>
-    !tasks.some(task => task.depth === 0);
-
-  const moveHorizontal = useCallback(
-    (tasks: TaskTypeDataWithKey[], forward: boolean) => {
+    const archive = useCallback(() => {
       const editor = getEditor();
-      const firstTask = tasks[0];
-      tasks = tasksWithChildren(tasks);
-      const canTab = () => {
-        const taskIndex = getTaskIndex(firstTask.key);
-        if (taskIndex === 0) return false;
-        const previous = editor.value.document.nodes.get(taskIndex - 1);
-        if (previous == null) return false;
-        const previousDepth = getTaskData(previous).depth;
-        const firstDepth = tasks[0].depth;
-        return firstDepth <= previousDepth;
-      };
-      const canChangeDepth = forward ? canTab() : canShiftTab(tasks);
-      if (!canChangeDepth) return;
-      const changedTasks = tasks.map(task => ({
-        ...task,
-        depth: task.depth + (forward ? 1 : -1),
-      }));
-      setNodesData(changedTasks);
-    },
-    [getTaskIndex, setNodesData, tasksWithChildren],
-  );
-
-  const moveVertical = useCallback(
-    (task: TaskTypeDataWithKey, forward: boolean) => {
-      const editor = getEditor();
-      const { nodes } = editor.value.document;
-      let index = getTaskIndex(task.key);
-      if (index === 0 && !forward) return;
-      let siblingData = null;
-      while (forward ? index < nodes.count() : index > 0) {
-        index += forward ? 1 : -1;
-        const sibling = nodes.get(index);
-        if (sibling == null) return;
-        siblingData = getTaskData(sibling);
-        if (siblingData.depth <= task.depth) break;
-      }
-      let tasks = tasksWithChildren([task]);
-      const depthChanged = siblingData && siblingData.depth < task.depth;
-      tasks = tasks.map(task => {
-        return {
-          ...task,
-          depth: Math.max(task.depth - (depthChanged ? 1 : 0), 0),
-        };
+      if (!editor.value.selection.isCollapsed) return;
+      const completed: { [key: string]: Block } = {};
+      editor.value.document.nodes.forEach(node => {
+        if (node == null) return;
+        if (!getTaskData(node).completed) return;
+        completed[node.key] = node;
       });
-      if (forward) {
-        const task = nodeToTaskDataWithKey(nodes.get(index));
-        index += tasksWithChildren([task]).length - 1;
-        tasks.reverse().forEach((task, i) => {
-          setNodesData([task]);
-          editor.moveNodeByKey(task.key, editor.value.document.key, index - i);
-        });
-      } else {
-        tasks.forEach((task, i) => {
-          setNodesData([task]);
-          editor.moveNodeByKey(task.key, editor.value.document.key, index + i);
-        });
-      }
-    },
-    [getTaskIndex, setNodesData, tasksWithChildren],
-  );
-
-  const setAppState = useAppState();
-
-  const archive = useCallback(() => {
-    const editor = getEditor();
-
-    const completed: { [key: string]: Block } = {};
-    editor.value.document.nodes.forEach(node => {
-      if (node == null) return;
-      if (!getTaskData(node).completed) return;
-      completed[node.key] = node;
-    });
-
-    Object.keys(completed).forEach(key => {
-      editor.removeNodeByKey(key);
-    });
-
-    setAppState(({ taskLists }) => {
-      const currentTaskList = taskLists.find(t => t.id === taskListId);
-      if (currentTaskList == null) return;
-      const archivedSlate = currentTaskList.archivedSlate || {
-        document: { nodes: [] },
-      };
-      currentTaskList.archivedSlate = archivedSlate;
-      const array = Object.values(completed).map(
-        item => item.toJSON() as TaskType,
-      );
-      array.forEach(item => {
-        archivedSlate.document.nodes.push(item);
+      Object.keys(completed).forEach(key => {
+        editor.removeNodeByKey(key);
       });
-    });
-  }, [setAppState, taskListId]);
-
-  const [editorValue, setEditorValue] = useState(() => {
-    KeyUtils.resetGenerator(); // For SSR.
-    return Value.fromJSON(slateInitialValue);
-  });
-
-  const dispatch = useCallback(
-    (action: Action) => {
-      const assertNever = (action: never): never => {
-        throw new Error(`Unexpected action: ${JSON.stringify(action)}`);
-      };
-      switch (action.type) {
-        case 'toggleCompleted': {
-          toggleCompleted(action.tasks);
-          break;
-        }
-        case 'moveHorizontal': {
-          moveHorizontal(action.tasks, action.forward);
-          break;
-        }
-        case 'moveVertical': {
-          moveVertical(action.task, action.forward);
-          break;
-        }
-        case 'insertText': {
-          getEditor().insertText(action.text);
-          break;
-        }
-        case 'archive': {
-          archive();
-          break;
-        }
-        default:
-          return assertNever(action);
-      }
-    },
-    [archive, moveHorizontal, moveVertical, toggleCompleted],
-  );
-
-  const renderNode = useCallback(
-    (props: RenderNodeProps, _editor: CoreEditor, next: () => any) => {
-      switch (props.node.type) {
-        case taskTypeTypeProp:
-          return <Task {...props} dispatch={dispatch} />;
-        default:
-          return next();
-      }
-    },
-    [dispatch],
-  );
-
-  // Because toJSON is costly.
-  // TODO: Once Slate will switch to plain objects, move state to local storage.
-  const saveThrottled = useMemo(() => {
-    return throttle((value: Value) => {
       setAppState(({ taskLists }) => {
-        const index = taskLists.findIndex(t => t.id === taskListId);
-        if (index === -1) return;
-        taskLists[index].slate = value.toJSON() as TaskListType['slate'];
+        const currentTaskList = taskLists.find(t => t.id === taskListId);
+        if (currentTaskList == null) return;
+        const archivedSlate = currentTaskList.archivedSlate || {
+          document: { nodes: [] },
+        };
+        currentTaskList.archivedSlate = archivedSlate;
+        const completedArray = Object.values(completed).map(
+          item => item.toJSON() as TaskType,
+        );
+        archivedSlate.document.nodes.push(...completedArray);
       });
-    }, 1000);
-  }, [setAppState, taskListId]);
+    }, [setAppState, taskListId]);
 
-  const handleEditorChange = useCallback(
-    ({ value }: { value: Value }) => {
-      setEditorValue(value);
-      const documentHasBeenChanged = value.document !== editorValue.document;
-      if (!documentHasBeenChanged) return;
-      saveThrottled(value);
-    },
-    [editorValue.document, saveThrottled],
-  );
+    const [editorValue, setEditorValue] = useState(() => {
+      KeyUtils.resetGenerator(); // For SSR.
+      return Value.fromJSON(slateInitialValue);
+    });
 
-  const handleEditorKeyDown = (
-    event: KeyboardEvent,
-    _editor: CoreEditor,
-    next: () => any,
-  ) => {
-    const isAltEnter = isHotkey('alt+enter')(event);
-    if (isAltEnter) {
-      event.preventDefault();
-      dispatch({ type: 'toggleCompleted', tasks: getSelectedTasks() });
-      return;
-    }
+    const dispatch = useCallback(
+      (action: Action) => {
+        const assertNever = (action: never): never => {
+          throw new Error(`Unexpected action: ${JSON.stringify(action)}`);
+        };
+        switch (action.type) {
+          case 'toggleCompleted': {
+            toggleCompleted(action.tasks);
+            break;
+          }
+          case 'moveHorizontal': {
+            moveHorizontal(action.tasks, action.forward);
+            break;
+          }
+          case 'moveVertical': {
+            moveVertical(action.task, action.forward);
+            break;
+          }
+          case 'insertText': {
+            getEditor().insertText(action.text);
+            break;
+          }
+          case 'archive': {
+            archive();
+            break;
+          }
+          default:
+            return assertNever(action);
+        }
+      },
+      [archive, moveHorizontal, moveVertical, toggleCompleted],
+    );
 
-    const isAltShiftEnter = isHotkey('alt+shift+enter')(event);
-    if (isAltShiftEnter) {
-      event.preventDefault();
-      dispatch({ type: 'archive' });
-      return;
-    }
+    const renderNode = useCallback(
+      (props: RenderNodeProps, _editor: CoreEditor, next: () => any) => {
+        switch (props.node.type) {
+          case taskTypeTypeProp:
+            return <Task {...props} dispatch={dispatch} />;
+          default:
+            return next();
+        }
+      },
+      [dispatch],
+    );
 
-    const isTab = isHotkey('tab')(event);
-    const isShiftTab = isHotkey('shift+tab')(event);
-    if (isTab || isShiftTab) {
-      const tasks = getSelectedTasks();
-      event.preventDefault();
-      dispatch({
-        type: 'moveHorizontal',
-        tasks,
-        forward: isTab,
-      });
-      return;
-    }
-
-    // mod is cmd on Mac and ctrl on Windows
-    const isModUp = isHotkey('mod+up')(event);
-    const isModDown = isHotkey('mod+down')(event);
-    if (isModUp || isModDown) {
-      const tasks = getSelectedTasks();
-      // We know how to vertically move only just one task.
-      if (tasks.length === 1) {
-        event.preventDefault();
-        dispatch({
-          type: 'moveVertical',
-          task: tasks[0],
-          forward: isModDown,
+    // Because toJSON is costly.
+    // TODO: Once Slate will switch to plain objects, move state to local storage.
+    const saveThrottled = useMemo(() => {
+      return throttle((value: Value) => {
+        setAppState(({ taskLists }) => {
+          const index = taskLists.findIndex(t => t.id === taskListId);
+          if (index === -1) return;
+          taskLists[index].slate = value.toJSON() as TaskListType['slate'];
         });
+      }, 1000);
+    }, [setAppState, taskListId]);
+
+    const handleEditorChange = useCallback(
+      ({ value }: { value: Value }) => {
+        setEditorValue(value);
+        const documentHasBeenChanged = value.document !== editorValue.document;
+        if (!documentHasBeenChanged) return;
+        saveThrottled(value);
+      },
+      [editorValue.document, saveThrottled],
+    );
+
+    const handleEditorKeyDown = (
+      event: KeyboardEvent,
+      _editor: CoreEditor,
+      next: () => any,
+    ) => {
+      const isAltEnter = isHotkey('alt+enter')(event);
+      if (isAltEnter) {
+        event.preventDefault();
+        dispatch({ type: 'toggleCompleted', tasks: getSelectedTasks() });
         return;
       }
-    }
 
-    const isEnter = isHotkey('enter')(event);
-    if (isEnter) {
-      const editor = getEditor();
-      const taskHasText = editor.value.blocks.get(0).text.length > 0;
-      const tasks = getSelectedTasks();
-      if (!taskHasText && canShiftTab(tasks)) {
+      const isAltShiftEnter = isHotkey('alt+shift+enter')(event);
+      if (isAltShiftEnter) {
+        event.preventDefault();
+        dispatch({ type: 'archive' });
+        return;
+      }
+
+      const isTab = isHotkey('tab')(event);
+      const isShiftTab = isHotkey('shift+tab')(event);
+      if (isTab || isShiftTab) {
+        const tasks = getSelectedTasks();
         event.preventDefault();
         dispatch({
           type: 'moveHorizontal',
           tasks,
-          forward: false,
+          forward: isTab,
         });
         return;
       }
-    }
 
-    const isEscape = isHotkey('escape')(event);
-    if (isEscape) {
-      const link = document.getElementById(`menuTaskListLink${taskListId}`);
-      if (link) {
-        link.focus();
-        return;
+      // mod is cmd on Mac and ctrl on Windows
+      const isModUp = isHotkey('mod+up')(event);
+      const isModDown = isHotkey('mod+down')(event);
+      if (isModUp || isModDown) {
+        const tasks = getSelectedTasks();
+        // We know how to vertically move only just one task.
+        if (tasks.length === 1) {
+          event.preventDefault();
+          dispatch({
+            type: 'moveVertical',
+            task: tasks[0],
+            forward: isModDown,
+          });
+          return;
+        }
       }
-    }
 
-    return next();
-  };
+      const isEnter = isHotkey('enter')(event);
+      if (isEnter) {
+        const editor = getEditor();
+        const taskHasText = editor.value.blocks.get(0).text.length > 0;
+        const tasks = getSelectedTasks();
+        if (!taskHasText && canShiftTab(tasks)) {
+          event.preventDefault();
+          dispatch({
+            type: 'moveHorizontal',
+            tasks,
+            forward: false,
+          });
+          return;
+        }
+      }
 
-  const handleEditorPaste = (event: ClipboardEvent) => {
-    // Prevent default so the DOM state isn't corrupted.
-    event.preventDefault();
-    // Wrong type definition.
-    const transfer: any = getEventTransfer(event);
-    const text =
-      transfer.type === 'text' || transfer.type === 'html'
-        ? transfer.text
-        : transfer.type === 'fragment'
-        ? transfer.fragment.getText()
-        : '';
-    if (!text) return;
-    dispatch({ type: 'insertText', text });
-  };
+      const isEscape = isHotkey('escape')(event);
+      if (isEscape) {
+        const link = document.getElementById(`menuTaskListLink${taskListId}`);
+        if (link) {
+          link.focus();
+          return;
+        }
+      }
 
-  const screenSize = useScreenSize();
+      return next();
+    };
 
-  const hasCompletedTask = useMemo(() => {
-    return editorValue.document.nodes.some(node => {
-      return node ? nodeToTaskDataWithKey(node).completed : false;
-    });
-  }, [editorValue.document.nodes]);
+    const handleEditorPaste = (event: ClipboardEvent) => {
+      // Prevent default so the DOM state isn't corrupted.
+      event.preventDefault();
+      // Wrong type definition.
+      const transfer: any = getEventTransfer(event);
+      const text =
+        transfer.type === 'text' || transfer.type === 'html'
+          ? transfer.text
+          : transfer.type === 'fragment'
+          ? transfer.fragment.getText()
+          : '';
+      if (!text) return;
+      dispatch({ type: 'insertText', text });
+    };
 
-  return (
-    <>
-      <TaskListBar hasCompletedTask={hasCompletedTask} dispatch={dispatch} />
-      <LayoutScrollView>
-        <Editor
-          autoFocus={!screenSize.phoneOnly}
-          autoCorrect={false}
-          spellCheck={false}
-          renderNode={renderNode}
-          onChange={handleEditorChange}
-          // @ts-ignore
-          onKeyDown={handleEditorKeyDown}
-          // @ts-ignore
-          onPaste={handleEditorPaste}
-          ref={editorRef}
-          value={editorValue}
-        />
-      </LayoutScrollView>
-    </>
-  );
-};
+    const screenSize = useScreenSize();
+
+    const hasCompletedTask = useMemo(() => {
+      return editorValue.document.nodes.some(node => {
+        return node ? nodeToTaskDataWithKey(node).completed : false;
+      });
+    }, [editorValue.document.nodes]);
+
+    return (
+      <>
+        <TaskListBar hasCompletedTask={hasCompletedTask} dispatch={dispatch} />
+        <LayoutScrollView>
+          <Editor
+            autoFocus={!screenSize.phoneOnly}
+            autoCorrect={false}
+            spellCheck={false}
+            renderNode={renderNode}
+            onChange={handleEditorChange}
+            // @ts-ignore
+            onKeyDown={handleEditorKeyDown}
+            // @ts-ignore
+            onPaste={handleEditorPaste}
+            ref={editorRef}
+            value={editorValue}
+          />
+        </LayoutScrollView>
+      </>
+    );
+  },
+);
 
 export default TaskList;
 
@@ -579,30 +585,25 @@ export const TaskListWithData: FunctionComponent<TaskListWithDataProps> = ({
   taskListId,
 }) => {
   // Remember useAppState hook is a subscription.
-  const taskList = useAppState(
+  // Therefore, make selector as specific as possible.
+  // Here we ignore all taskList changes except the slate prop.
+  const slate = useAppState(
     useCallback(
-      ({ taskLists }: AppState) => taskLists.find(t => t.id === taskListId),
+      ({ taskLists }: AppState) => {
+        const taskList = taskLists.find(t => t.id === taskListId);
+        return taskList != null ? taskList.slate : null;
+      },
       [taskListId],
     ),
   );
-  // But we don't want to rerender TaskList on every change.
-  // So we use useState initial state. It's reseted via key from parent.
-  const [slateInitialValue] = useState(taskList && taskList.slate);
-  // Now we can memoize component.
-  const taskListMemo = useMemo(() => {
-    return (
-      slateInitialValue != null &&
-      taskListId != null && (
-        <TaskList
-          slateInitialValue={slateInitialValue}
-          taskListId={taskListId}
-          key={taskListId}
-        />
-      )
-    );
-  }, [slateInitialValue, taskListId]);
-  if (taskList == null || slateInitialValue == null)
-    return <TaskListDoesNotExist />;
-  // Fix for incomplete React type definitions.
-  return <>{taskListMemo}</>;
+
+  // Use useState to set slate initial value.
+  // The state is reseted by parent component via key prop.
+  const [slateInitialValue] = useState(slate);
+
+  return slateInitialValue == null ? (
+    <TaskListDoesNotExist />
+  ) : (
+    <TaskList slateInitialValue={slateInitialValue} taskListId={taskListId} />
+  );
 };
