@@ -44,8 +44,6 @@ const Index: FunctionComponent = () => {
       : // Maybe: `${taskListName} - ${pageTitles.index}`;
         taskListName;
 
-  // We don't subscribe data here, because it would rerender Layout.
-  // It's TaskListWithData responsibility.
   return (
     <Layout title={title} noScrollView>
       {taskListName != null ? (
