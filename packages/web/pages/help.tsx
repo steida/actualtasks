@@ -18,9 +18,6 @@ const Help: FunctionComponent = () => {
       <Text style={[theme.heading2]}>
         <FormattedMessage defaultMessage="Keyboard Navigation" id="helpTitle" />
       </Text>
-      <Text style={theme.paragraph}>
-        The app is as keyboard navigable as possible. A mouse is not required.
-      </Text>
       <Text style={theme.text}>
         <Text style={theme.bold}>tab</Text>: Moves the task to the right (makes
         the task a sub-task).
