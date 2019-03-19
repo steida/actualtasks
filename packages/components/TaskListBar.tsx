@@ -2,8 +2,9 @@ import React, { FunctionComponent, Dispatch, memo, useCallback } from 'react';
 import { View } from 'react-native';
 import useAppContext from '@app/hooks/useAppContext';
 import { defineMessages } from 'react-intl';
+import useAppHref from '@app/hooks/useAppHref';
 import Button, { ButtonProps } from './Button';
-import Link from './Link';
+import Link, { LinkProps } from './Link';
 import { Action } from './TaskList';
 
 const messages = defineMessages({
@@ -21,6 +22,22 @@ const TaskListBarButton: FunctionComponent<ButtonProps> = props => {
   return <Button type="gray" size="small" {...props} />;
 };
 
+const TaskListBarLink: FunctionComponent<LinkProps> = ({
+  children,
+  ...rest
+}) => {
+  const { theme } = useAppContext();
+  return (
+    <Link
+      activeStyle={theme.taskListBarLinkActive}
+      style={theme.taskListBarLink}
+      {...rest}
+    >
+      {children}
+    </Link>
+  );
+};
+
 interface TaskListBarProps {
   hasCompletedTask: boolean;
   dispatch: Dispatch<Action>;
@@ -29,6 +46,7 @@ interface TaskListBarProps {
 const TaskListBar: FunctionComponent<TaskListBarProps> = memo(
   ({ hasCompletedTask, dispatch }) => {
     const { theme, intl } = useAppContext();
+    const query = useAppHref().parsed['/'];
 
     const handleArchivePress = useCallback(() => {
       dispatch({ type: 'archive' });
@@ -43,12 +61,19 @@ const TaskListBar: FunctionComponent<TaskListBarProps> = memo(
             type="gray"
             onPress={handleArchivePress}
           />
-          <Link
-            style={[theme.buttonGray, theme.buttonSmall, theme.buttonDisabled]}
-            href={{ pathname: '/me' }}
+          <TaskListBarLink
+            href={{
+              pathname: '/',
+              query: query.id
+                ? {
+                    id: query.id,
+                    view: 'archived',
+                  }
+                : { view: 'archived' },
+            }}
           >
             {intl.formatMessage(messages.archived)}
-          </Link>
+          </TaskListBarLink>
         </View>
       </View>
     );

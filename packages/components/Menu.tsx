@@ -28,7 +28,7 @@ interface TaskListLinkProps {
   taskListName: string;
 }
 
-// It's weird, but the first child is always updated for no known reason.
+// It's weird, but the first child is always updated for unknown reason.
 // Maybe something React internal, maybe I overlooked something.
 const TaskListLink: FunctionComponent<TaskListLinkProps> = memo(
   ({ accessible, taskListId, taskListName }) => {
@@ -38,19 +38,16 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = memo(
       pathname: '/',
       query: isRoot ? undefined : { id: taskListId },
     };
-    const editHref: AppHref = {
-      pathname: '/edit',
-      query: { id: taskListId },
-    };
-    const indexRouteIsActive = useRouteIsActive(indexHref);
-    const editRouteIsActive = useRouteIsActive(editHref);
-    const isIndexPage = router.pathname === indexHref.pathname;
-    const routeIsActive = isIndexPage ? indexRouteIsActive : editRouteIsActive;
+    const queryId = router.query && router.query.id;
+    const routeIsActive = isRoot
+      ? // Because of actualtasks.com or actualtasks.com/edit?id=
+        queryId === undefined || queryId === rootTaskListId
+      : queryId === taskListId;
 
     return (
       <View style={theme.flexRow}>
         <MenuLink
-          accessible={accessible || indexRouteIsActive || editRouteIsActive}
+          accessible={accessible || routeIsActive}
           style={!routeIsActive && theme.flex1}
           href={indexHref}
           // We use it for manual focus from TaskList onEsc.
@@ -61,8 +58,8 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = memo(
         {routeIsActive && (
           <MenuLink
             accessible={false}
-            style={routeIsActive && theme.flex1}
-            href={editHref}
+            style={theme.flex1}
+            href={{ pathname: '/edit', query: { id: taskListId } }}
           >
             <Text style={theme.noBold}>☰</Text>
           </MenuLink>

@@ -7,7 +7,7 @@ export type AppHref =
       pathname: '/';
       query?:
         | {
-            id: string;
+            id?: string | undefined;
             view?: 'archived';
           }
         | undefined;

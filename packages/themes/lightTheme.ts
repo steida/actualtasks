@@ -151,6 +151,8 @@ export class LightTheme {
   focusOutlineWeb: ViewStyle;
   opacity0: ViewStyle;
   taskListBar: ViewStyle;
+  taskListBarLink: TextStyle;
+  taskListBarLinkActive: TextStyle;
 
   constructor(colors: Colors, dimensions: Dimensions) {
     const typography = createTypography({
@@ -515,6 +517,16 @@ export class LightTheme {
       height: typography.lineHeight,
       top: -typography.lineHeight,
       flexDirection: 'row',
+    };
+
+    this.taskListBarLink = {
+      ...this.buttonGray,
+      ...this.buttonSmall,
+      ...this.buttonDisabled,
+    };
+
+    this.taskListBarLinkActive = {
+      color: colors.foreground,
     };
   }
 }
