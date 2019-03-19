@@ -47,9 +47,12 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
 
   const handleArchivePress = () => {
     setAppState(({ taskLists, archivedTaskLists }) => {
-      taskLists.splice(taskLists.findIndex(t => t.id === taskList.id), 1);
-      taskList.archivedAt = Date.now();
-      archivedTaskLists.push(taskList);
+      const index = taskLists.findIndex(t => t.id === taskList.id);
+      if (index === -1) return;
+      const archivedTaskList = taskLists[index];
+      taskLists.splice(index, 1);
+      archivedTaskList.archivedAt = Date.now();
+      archivedTaskLists.push(archivedTaskList);
     });
     appHref.push({
       pathname: '/',

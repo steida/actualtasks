@@ -37,12 +37,12 @@ const ArchivedTaskList: FunctionComponent<ArchivedTaskListProps> = memo(
 
     const handleUnarchivePress = () => {
       setAppState(({ taskLists, archivedTaskLists }) => {
-        delete taskList.archivedAt;
-        taskLists.push(taskList);
-        archivedTaskLists.splice(
-          archivedTaskLists.findIndex(t => t.id === taskList.id),
-          1,
-        );
+        const index = archivedTaskLists.findIndex(t => t.id === taskList.id);
+        if (index === -1) return;
+        const unarchiveTaskList = archivedTaskLists[index];
+        delete unarchiveTaskList.archivedAt;
+        taskLists.push(unarchiveTaskList);
+        archivedTaskLists.splice(index, 1);
       });
     };
 
