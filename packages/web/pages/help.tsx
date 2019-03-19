@@ -32,9 +32,12 @@ const Help: FunctionComponent = () => {
       <Text style={theme.paragraph}>
         <Text style={theme.bold}>escape</Text>: Focus the task list in the menu.
       </Text>
-      <Text style={theme.text}>
+      <Text style={theme.paragraph}>
         <Text style={theme.bold}>alt + enter</Text>: Marks a task as complete
         (will also mark a completed task as incomplete).
+      </Text>
+      <Text style={theme.text}>
+        <Text style={theme.bold}>tab or arrows</Text>: Everywhere.
       </Text>
       {/* <Text style={theme.text}>Shift + Enter: Edits the current task.</Text> */}
       {/* <Text style={theme.text}>
