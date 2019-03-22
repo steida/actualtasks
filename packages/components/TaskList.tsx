@@ -15,8 +15,38 @@ import { isHotkey } from 'is-hotkey';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
+import createTaskList from '@app/state/createTaskList';
 import TaskListBar from './TaskListBar';
 import { LayoutScrollView } from './Layout';
+
+// The problems with schema are:
+// 1) It's not called at all for some reason.
+// 2) People report invalid state is still in history.
+// const schema: SchemaProperties = {
+//   document: {
+//     nodes: [{ match: { type: 'task' } }],
+//     normalize: (editor, error) => {
+//       console.log('foo');
+//       switch (error.code) {
+//         case 'child_type_invalid':
+//           editor.setNodeByKey(error.child.key, { type: 'task' });
+//           break;
+//         case 'child_required': {
+//           console.log('foo');
+//           const task = Block.create('task');
+//           editor.insertNodeByKey(task.key, 0, task);
+//           break;
+//         }
+//       }
+//       // Do we need it?
+//       // node_data_invalid
+//       // editor.setNodeByKey(node.key, { data: { thing: 'value' } })
+//     },
+//   },
+//   // blocks: {
+//   //   paragraph: { nodes: [{ match: { object: 'text' } }] },
+//   // },
+// };
 
 type TaskType = TaskListType['slate']['document']['nodes'][0];
 type TaskTypeTypeProp = TaskType['type'];
@@ -344,15 +374,28 @@ const TaskList: FunctionComponent<TaskListProps> = memo(
     const archive = useCallback(() => {
       const editor = getEditor();
       if (!editor.value.selection.isCollapsed) return;
-      const completed: { [key: string]: Block } = {};
+      const completed: Block[] = [];
       editor.value.document.nodes.forEach(node => {
         if (node == null) return;
         if (!getTaskData(node).completed) return;
-        completed[node.key] = node;
+        completed.push(node);
       });
-      Object.keys(completed).forEach(key => {
-        editor.removeNodeByKey(key);
+
+      // For some reason, schema does not work as expected, so we have to
+      // ensure non empty list manually. For some another reason, a task
+      // must be added before removing.
+      const allRemoved =
+        completed.length === editor.value.document.nodes.count();
+      if (allRemoved) {
+        const list = createTaskList('');
+        const task = Block.fromJSON(list.slate.document.nodes[0]);
+        editor.insertBlock(task);
+      }
+
+      completed.forEach(node => {
+        editor.removeNodeByKey(node.key);
       });
+
       setAppState(({ taskLists }) => {
         const currentTaskList = taskLists.find(t => t.id === taskListId);
         if (currentTaskList == null) return;
@@ -360,10 +403,13 @@ const TaskList: FunctionComponent<TaskListProps> = memo(
           document: { nodes: [] },
         };
         currentTaskList.archivedSlate = archivedSlate;
-        const completedArray = Object.values(completed).map(
-          item => item.toJSON() as TaskType,
-        );
-        archivedSlate.document.nodes.push(...completedArray);
+        completed.forEach(node => {
+          archivedSlate.document.nodes.push(node.toJSON() as TaskType);
+        });
+        // const completedArray = Object.values(completed).map(
+        //   item => item.toJSON() as TaskType,
+        // );
+        // archivedSlate.document.nodes.push(...completedArray);
       });
     }, [setAppState, taskListId]);
 
