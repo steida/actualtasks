@@ -2,7 +2,7 @@
 import simpleRandom from 'simple-random';
 
 const createClientId = (): string => {
-  return simpleRandom();
+  return simpleRandom({ secure: true });
 };
 
 export default createClientId;
