@@ -1,91 +1,76 @@
 import { useMemo } from 'react';
-import { OmitByValue } from 'utility-types/dist/mapped-types';
+import * as t from 'io-ts';
 import useAppContext from './useAppContext';
 
-export type AppHref =
-  | {
-      pathname: '/';
-      query?:
-        | {
-            id?: string | undefined;
-            view?: 'archived';
-          }
-        | undefined;
-    }
-  | { pathname: 'https://twitter.com/steida' }
-  | { pathname: 'https://github.com/steida/actualtasks' }
-  | {
-      pathname: 'https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3';
-    }
-  | { pathname: 'https://github.com/steida/actualtasks/issues/new' }
-  | { pathname: '/me' }
-  | { pathname: '/add' }
-  | {
-      pathname: '/edit';
-      query?: { id: string } | undefined;
-    }
-  | {
-      pathname: '/blog';
-      query?: { id: string } | undefined;
-    }
-  | { pathname: '/help' }
-  | { pathname: '/archived' };
+// Typed app routing via brilliant gcanti/io-ts.
 
-// MapDiscriminatedUnion.
-// https://stackoverflow.com/a/50125960/233902
-type DiscriminateUnion<T, K extends keyof T, V extends T[K]> = T extends Record<
-  K,
-  V
->
-  ? T
-  : never;
-type MapDiscriminatedUnion<T extends Record<K, string>, K extends keyof T> = {
-  [V in T[K]]: DiscriminateUnion<T, K, V>
-};
-// I'm pretty sure it can be written better. But it does what I need.
-type UndefinedProps<T> = { [P in keyof T]: T[P] | undefined };
-type ExtractQuery<T> = OmitByValue<
-  {
-    [P in keyof T]: T[P] extends { query?: object | null }
-      ? UndefinedProps<NonNullable<T[P]['query']>>
-      : never
-  },
-  never
->;
-type AppHrefParsed = ExtractQuery<MapDiscriminatedUnion<AppHref, 'pathname'>>;
+// TODO: Helper for pathname with optional query. PR anyone?
+const AppHrefIO = t.union([
+  // https://github.com/gcanti/io-ts#mixing-required-and-optional-props
+  t.intersection([
+    t.type({ pathname: t.literal('/') }),
+    t.partial({
+      query: t.partial({
+        id: t.string,
+        // https://github.com/gcanti/io-ts#union-of-string-literals
+        view: t.keyof({ archived: null }),
+      }),
+    }),
+  ]),
+  t.type({ pathname: t.literal('https://twitter.com/steida') }),
+  t.type({ pathname: t.literal('https://github.com/steida/actualtasks') }),
+  t.type({ pathname: t.literal('https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3') }), // prettier-ignore
+  t.type({ pathname: t.literal('https://github.com/steida/actualtasks/issues/new') }), // prettier-ignore
+  t.type({ pathname: t.literal('/me') }),
+  t.type({ pathname: t.literal('/add') }),
+  t.type({ pathname: t.literal('/help') }),
+  t.type({ pathname: t.literal('/archived') }),
+  t.type({
+    pathname: t.literal('/edit'),
+    query: t.type({ id: t.string }),
+  }),
+  t.intersection([
+    t.type({ pathname: t.literal('/blog') }),
+    t.partial({ query: t.type({ id: t.string }) }),
+  ]),
+]);
 
-// Just typed router helper.
+export type AppHref = t.TypeOf<typeof AppHrefIO>;
+
 const useAppHref = () => {
   const { router } = useAppContext();
-  const parsed = useMemo<AppHrefParsed>(() => {
-    const queryId =
-      (router != null &&
-        router.query != null &&
-        typeof router.query.id === 'string' &&
-        router.query.id) ||
-      undefined;
 
-    return {
-      '/': {
-        id: queryId,
-        // TODO: Parse.
-        view: undefined,
+  // This should be memoized globally. In serverless, it means per request :-)
+  const current = useMemo<AppHref | undefined>(() => {
+    let maybeAppHref: AppHref | undefined;
+    const routerAppHref = { pathname: router.pathname, query: router.query };
+    AppHrefIO.decode(routerAppHref).fold(
+      _errors => {}, // No need to report unmatched app href.
+      value => {
+        maybeAppHref = value;
       },
-      '/edit': {
-        id: queryId,
-      },
-      '/blog': {
-        id: queryId,
-      },
-    };
-  }, [router]);
+    );
+    return maybeAppHref;
+  }, [router.pathname, router.query]);
 
-  return {
-    push(href: AppHref) {
-      router.push(href);
-    },
-    parsed,
-  };
+  // Filter AppHref by pathname, then infer query.
+  type Query<T> = T extends { query?: infer Q } ? Q : undefined;
+  type QueryReturn<P> = Query<Extract<AppHref, { pathname: P }>> | undefined;
+
+  return useMemo(
+    () => ({
+      current,
+      push(href: AppHref) {
+        router.push(href);
+      },
+      query<P extends AppHref['pathname']>(pathname: P): QueryReturn<P> {
+        if (current == null || current.pathname !== pathname) return;
+        // @ts-ignore TODO: Type current.query somehow.
+        return current.query || undefined;
+      },
+    }),
+    [current, router],
+  );
 };
 
 export default useAppHref;

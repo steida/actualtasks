@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import Layout from '@app/components/Layout';
 import { TaskListWithData } from '@app/components/TaskList';
+import TaskListArchived from '@app/components/TaskListArchived';
 import { AppState } from '@app/state/types';
 import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
@@ -23,35 +24,37 @@ export const TaskListDoesNotExist: FunctionComponent = () => {
 };
 
 const Index: FunctionComponent = () => {
-  const query = useAppHref().parsed['/'];
-  const queryIdOrDefault = query.id || rootTaskListId;
+  const query = useAppHref().query('/');
+  const queryId = query ? query.id || rootTaskListId : null;
   // Only the name. We don't want to rerender Layout on any change.
   const taskListName = useAppState(
     useCallback(
       ({ taskLists }: AppState) => {
-        const taskList = taskLists.find(t => t.id === queryIdOrDefault);
+        const taskList = taskLists.find(t => t.id === queryId);
         return taskList != null ? taskList.name : null;
       },
-      [queryIdOrDefault],
+      [queryId],
     ),
   );
   const pageTitles = usePageTitles();
   const title =
     taskListName == null
       ? pageTitles.notFound
-      : queryIdOrDefault === rootTaskListId
+      : queryId === rootTaskListId
       ? pageTitles.index
       : // Maybe: `${taskListName} - ${pageTitles.index}`;
         taskListName;
 
+  // Note key used to reset component state.
+  // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
   return (
     <Layout title={title} noScrollView>
-      {taskListName != null ? (
-        // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
-        <TaskListWithData
-          taskListId={queryIdOrDefault}
-          key={queryIdOrDefault}
-        />
+      {taskListName != null && queryId != null ? (
+        query && query.view === 'archived' ? (
+          <TaskListArchived taskListId={queryId} key={queryId} />
+        ) : (
+          <TaskListWithData taskListId={queryId} key={queryId} />
+        )
       ) : (
         <TaskListDoesNotExist />
       )}

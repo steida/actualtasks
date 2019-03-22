@@ -46,7 +46,8 @@ interface TaskListBarProps {
 const TaskListBar: FunctionComponent<TaskListBarProps> = memo(
   ({ hasCompletedTask, dispatch }) => {
     const { theme, intl } = useAppContext();
-    const query = useAppHref().parsed['/'];
+    const query = useAppHref().query('/');
+    const queryId = query && query.id;
 
     const handleArchivePress = useCallback(() => {
       dispatch({ type: 'archive' });
@@ -64,9 +65,9 @@ const TaskListBar: FunctionComponent<TaskListBarProps> = memo(
           <TaskListBarLink
             href={{
               pathname: '/',
-              query: query.id
+              query: queryId
                 ? {
-                    id: query.id,
+                    id: queryId,
                     view: 'archived',
                   }
                 : { view: 'archived' },

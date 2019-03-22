@@ -85,11 +85,12 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
 
 const Edit: FunctionComponent = () => {
   const pageTitles = usePageTitles();
-  const query = useAppHref().parsed['/edit'];
+  const query = useAppHref().query('/edit');
   const taskList = useAppState(
     useCallback(
-      ({ taskLists }: AppState) => taskLists.find(t => t.id === query.id),
-      [query.id],
+      ({ taskLists }: AppState) =>
+        taskLists.find(t => t.id === (query && query.id)),
+      [query],
     ),
   );
   const title = taskList ? pageTitles.edit(taskList.name) : pageTitles.notFound;
