@@ -135,7 +135,7 @@ const ExportData: FunctionComponent = () => {
       const blob = new Blob([appStateString], { type: 'text/plain' });
       setUrl(URL.createObjectURL(blob));
     }
-  });
+  }, [url, appState]);
 
   if (!url) return null;
   // Url is random, so it can not be typed.
