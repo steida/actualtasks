@@ -10,6 +10,7 @@ import { FormattedMessage } from 'react-intl';
 import { Text } from 'react-native';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppHref from '@app/hooks/useAppHref';
+import Error from 'next/error';
 
 export const TaskListDoesNotExist: FunctionComponent = () => {
   const { theme } = useAppContext();
@@ -37,6 +38,9 @@ const Index: FunctionComponent = () => {
     ),
   );
   const pageTitles = usePageTitles();
+
+  if (query == null) return <Error statusCode={404} />;
+
   const title =
     taskListName == null
       ? pageTitles.notFound
@@ -50,7 +54,7 @@ const Index: FunctionComponent = () => {
   return (
     <Layout title={title} noScrollView>
       {taskListName != null && queryId != null ? (
-        query && query.view === 'archived' ? (
+        query.view === 'archived' ? (
           <TaskListArchived taskListId={queryId} key={queryId} />
         ) : (
           <TaskListWithData taskListId={queryId} key={queryId} />
