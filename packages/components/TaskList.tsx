@@ -152,8 +152,6 @@ const Task: FunctionComponent<TaskProps> = props => {
 
   const data = getTaskData(props.node);
 
-  // pokud neni, tak prazdne view? pak ale budu imho mazat
-
   const getTaskDepthStyle = () => {
     // prettier-ignore
     switch (data.depth) {
@@ -191,6 +189,8 @@ const Task: FunctionComponent<TaskProps> = props => {
     </View>
   );
 };
+
+const initialTask = createTaskList('').slate.document.nodes[0];
 
 interface TaskListProps {
   slateInitialValue: TaskListType['slate'];
@@ -382,13 +382,12 @@ const TaskList: FunctionComponent<TaskListProps> = memo(
       });
 
       // For some reason, schema does not work as expected, so we have to
-      // ensure non empty list manually. For some another reason, a task
-      // must be added before removing.
+      // ensure non empty list manually. For some another reason, new task
+      // must be added before removing completed. Otherwise, Slate throws error.
       const allRemoved =
         completed.length === editor.value.document.nodes.count();
       if (allRemoved) {
-        const list = createTaskList('');
-        const task = Block.fromJSON(list.slate.document.nodes[0]);
+        const task = Block.fromJSON(initialTask);
         editor.insertBlock(task);
       }
 
@@ -406,10 +405,6 @@ const TaskList: FunctionComponent<TaskListProps> = memo(
         completed.forEach(node => {
           archivedSlate.document.nodes.push(node.toJSON() as TaskType);
         });
-        // const completedArray = Object.values(completed).map(
-        //   item => item.toJSON() as TaskType,
-        // );
-        // archivedSlate.document.nodes.push(...completedArray);
       });
     }, [setAppState, taskListId]);
 
@@ -537,17 +532,22 @@ const TaskList: FunctionComponent<TaskListProps> = memo(
       const isEnter = isHotkey('enter')(event);
       if (isEnter) {
         const editor = getEditor();
-        const taskHasText = editor.value.blocks.get(0).text.length > 0;
+        const taskHasText = editor.value.focusBlock.text.length > 0;
         const tasks = getSelectedTasks();
         if (!taskHasText && canShiftTab(tasks)) {
           event.preventDefault();
-          dispatch({
-            type: 'moveHorizontal',
-            tasks,
-            forward: false,
-          });
+          dispatch({ type: 'moveHorizontal', tasks, forward: false });
           return;
         }
+        // editor.value.focusText.
+        const depth = Math.max(
+          getTaskData(editor.value.focusBlock).depth,
+          getTaskData(editor.value.nextBlock || editor.value.focusBlock).depth,
+        );
+        next();
+        const taskData = nodeToTaskDataWithKey(editor.value.focusBlock);
+        setNodesData([{ ...initialTask.data, key: taskData.key, depth }]);
+        return;
       }
 
       const isEscape = isHotkey('escape')(event);
