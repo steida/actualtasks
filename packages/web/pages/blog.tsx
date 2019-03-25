@@ -23,7 +23,7 @@ const Footer: FunctionComponent = () => {
         <Link
           href={{
             pathname:
-              'https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3',
+              'https://blockstream.info/address/3PxoPXdwnkiZpvQeGo1VvRphJhdr8iGy8q',
           }}
         >
           satoshis

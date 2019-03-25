@@ -19,7 +19,7 @@ const AppHrefIO = t.union([
   ]),
   t.type({ pathname: t.literal('https://twitter.com/steida') }),
   t.type({ pathname: t.literal('https://github.com/steida/actualtasks') }),
-  t.type({ pathname: t.literal('https://blockstream.info/address/13fJfcXAZncP1NnMNtpG1KxEYL514jtUy3') }), // prettier-ignore
+  t.type({ pathname: t.literal('https://blockstream.info/address/3PxoPXdwnkiZpvQeGo1VvRphJhdr8iGy8q') }), // prettier-ignore
   t.type({ pathname: t.literal('https://github.com/steida/actualtasks/issues/new') }), // prettier-ignore
   t.type({ pathname: t.literal('/me') }),
   t.type({ pathname: t.literal('/add') }),
