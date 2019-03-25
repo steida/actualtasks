@@ -4,8 +4,7 @@ import { rootTaskListId } from '@app/state/appStateConfig';
 import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
-import useRouteIsActive from '@app/hooks/useRouteIsActive';
-import { AppHref } from '@app/hooks/useAppHref';
+import useAppHref, { AppHref } from '@app/hooks/useAppHref';
 import Link, { LinkProps } from './Link';
 import KeyboardNavigableView from './KeyboardNavigableView';
 
@@ -89,8 +88,9 @@ const TaskLists: FunctionComponent = () => {
 const Menu: FunctionComponent = () => {
   const { theme } = useAppContext();
   const screenSize = useScreenSize();
-  const addIsActive = useRouteIsActive({ pathname: '/add' });
-  const archivedIsActive = useRouteIsActive({ pathname: '/archived' });
+  const appHref = useAppHref();
+  const addIsActive = appHref.isActive({ pathname: '/add' });
+  const archivedIsActive = appHref.isActive({ pathname: '/archived' });
 
   return (
     <KeyboardNavigableView

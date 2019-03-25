@@ -63,6 +63,13 @@ const useAppHref = () => {
       push(href: AppHref) {
         router.push(href);
       },
+      isActive(href: AppHref) {
+        const hrefQuery = 'query' in href && href.query;
+        return (
+          href.pathname === router.pathname &&
+          JSON.stringify(hrefQuery || {}) === JSON.stringify(router.query || {})
+        );
+      },
       query<P extends AppHref['pathname']>(pathname: P): QueryReturn<P> {
         if (current == null || current.pathname !== pathname) return;
         // @ts-ignore TODO: Type current.query somehow.
