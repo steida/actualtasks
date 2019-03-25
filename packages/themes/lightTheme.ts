@@ -501,8 +501,7 @@ export class LightTheme {
     };
 
     this.focusOutlineWeb = {
-      // @ ts-ignore TODO: Only for web via platform.
-      // outline: `1px dotted ${colors.gray}`,
+      // @ts-ignore TODO: Only for web via platform.
       outlineColor: colors.gray,
       outlineStyle: 'dotted',
       outlineWidth: 1,
