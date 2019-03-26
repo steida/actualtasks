@@ -373,6 +373,7 @@ const TaskList: FunctionComponent<TaskListProps> = memo(
 
     const archive = useCallback(() => {
       const editor = getEditor();
+      // https://github.com/steida/actualtasks/issues/39
       if (!editor.value.selection.isCollapsed) return;
       const completed: Block[] = [];
       editor.value.document.nodes.forEach(node => {
