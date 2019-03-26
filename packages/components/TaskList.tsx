@@ -532,22 +532,37 @@ const TaskList: FunctionComponent<TaskListProps> = memo(
       const isEnter = isHotkey('enter')(event);
       if (isEnter) {
         const editor = getEditor();
-        const taskHasText = editor.value.focusBlock.text.length > 0;
-        const tasks = getSelectedTasks();
-        if (!taskHasText && canShiftTab(tasks)) {
+        // TODO: Decide what to do with selection.isExpanded.
+        if (editor.value.selection.isCollapsed) {
           event.preventDefault();
-          dispatch({ type: 'moveHorizontal', tasks, forward: false });
+
+          const taskIsEmpty = editor.value.focusBlock.text.length === 0;
+          const tasks = getSelectedTasks();
+          if (taskIsEmpty && canShiftTab(tasks)) {
+            dispatch({ type: 'moveHorizontal', tasks, forward: false });
+            return;
+          }
+
+          const onTaskStart = editor.value.selection.start.offset === 0;
+          if (onTaskStart) {
+            const { depth } = getTaskData(editor.value.focusBlock);
+            next();
+            const taskData = nodeToTaskDataWithKey(editor.value.previousBlock);
+            setNodesData([{ ...initialTask.data, key: taskData.key, depth }]);
+            return;
+          }
+
+          const depth = Math.max(
+            getTaskData(editor.value.focusBlock).depth,
+            getTaskData(editor.value.nextBlock || editor.value.focusBlock)
+              .depth,
+          );
+          // Just split the block by default and then reset a new task.
+          next();
+          const taskData = nodeToTaskDataWithKey(editor.value.focusBlock);
+          setNodesData([{ ...initialTask.data, key: taskData.key, depth }]);
           return;
         }
-        // editor.value.focusText.
-        const depth = Math.max(
-          getTaskData(editor.value.focusBlock).depth,
-          getTaskData(editor.value.nextBlock || editor.value.focusBlock).depth,
-        );
-        next();
-        const taskData = nodeToTaskDataWithKey(editor.value.focusBlock);
-        setNodesData([{ ...initialTask.data, key: taskData.key, depth }]);
-        return;
       }
 
       const isEscape = isHotkey('escape')(event);
