@@ -3,8 +3,7 @@ import React, { useState, FunctionComponent } from 'react';
 import { Platform, Text, TextStyle, StyleProp } from 'react-native';
 import { Assign, Omit, Overwrite } from 'utility-types';
 import useAppContext from '@app/hooks/useAppContext';
-import { AppHref } from '../web/types';
-import useRouteIsActive from '../web/hooks/useRouteIsActive';
+import useAppHref, { AppHref } from '@app/hooks/useAppHref';
 
 export type LinkProps = Assign<
   Overwrite<
@@ -30,6 +29,7 @@ const Link: FunctionComponent<LinkProps> = props => {
   const { theme } = useAppContext();
   const [hasHover, setHasHover] = useState(false);
   const [hasFocus, setHasFocus] = useState(false);
+  const appHref = useAppHref();
   const {
     children,
     accessible,
@@ -40,14 +40,15 @@ const Link: FunctionComponent<LinkProps> = props => {
     nativeID,
     ...rest
   } = props;
-  const routeIsActive = useRouteIsActive(href);
+
+  const isActive = appHref.isActive(href);
 
   return (
     <NextLink {...rest} href={href} passHref>
       <Text
         style={[
           style || theme.link,
-          (hasHover || routeIsActive) && (activeStyle || theme.linkActive),
+          (hasHover || isActive) && (activeStyle || theme.linkActive),
           hasFocus && theme.focusOutlineWeb,
         ]}
         accessibilityRole="link"

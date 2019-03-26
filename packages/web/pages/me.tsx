@@ -13,7 +13,8 @@ import usePageTitles from '@app/hooks/usePageTitles';
 import Button from '@app/components/Button';
 import { AppStateContext } from '@app/state/lib/appstate';
 import Link from '@app/components/Link';
-import Layout from '../components/Layout';
+import Layout from '@app/components/Layout';
+import { AppHref } from '@app/hooks/useAppHref';
 
 const DarkModeButton: FunctionComponent = () => {
   const darkMode = useAppState(state => state.viewer.darkMode);
@@ -134,18 +135,15 @@ const ExportData: FunctionComponent = () => {
       const blob = new Blob([appStateString], { type: 'text/plain' });
       setUrl(URL.createObjectURL(blob));
     }
-  });
+  }, [url, appState]);
 
   if (!url) return null;
+  // Url is random, so it can not be typed.
+  const href = ({ pathname: url } as any) as AppHref;
 
   return (
     <View style={[theme.marginBottom, theme.flexRow]}>
-      <Link
-        style={theme.text}
-        download="actualtasks"
-        // @ts-ignore
-        href={url}
-      >
+      <Link style={theme.text} download="actualtasks" href={href}>
         {intl.formatMessage(messages.export)}
       </Link>
     </View>

@@ -59,12 +59,12 @@ const LayoutHeader: FunctionComponent = () => {
   return (
     <View style={theme.layoutHeader}>
       <LayoutHeaderLink href={{ pathname: '/blog' }} title={pageTitles.blog} />
-      <LayoutHeaderLink href="/help" title={pageTitles.help} />
+      <LayoutHeaderLink href={{ pathname: '/help' }} title={pageTitles.help} />
       <Link
         style={theme.layoutHeaderLink}
         activeStyle={theme.linkImageActive}
         prefetch
-        href="/me"
+        href={{ pathname: '/me' }}
       >
         <ViewerGravatar />
       </Link>
@@ -78,11 +78,11 @@ const LayoutMenu: FunctionComponent = () => {
   return (
     <ScrollView
       horizontal={screenSize.phoneOnly}
-      style={
+      style={[
         screenSize.phoneOnly
           ? theme.layoutMenuScrollViewSmallScreen
-          : theme.layoutMenuScrollViewOtherScreen
-      }
+          : theme.layoutMenuScrollViewOtherScreen,
+      ]}
       contentContainerStyle={[
         theme.layoutMenuScrollViewContent,
         {
@@ -95,8 +95,21 @@ const LayoutMenu: FunctionComponent = () => {
   );
 };
 
+export const LayoutScrollView: FunctionComponent = props => {
+  const { theme } = useAppContext();
+  return (
+    <ScrollView
+      style={theme.layoutContentScrollView}
+      contentContainerStyle={theme.layoutContentScrollViewContent}
+    >
+      {props.children}
+    </ScrollView>
+  );
+};
+
 interface LayoutProps {
   title: string;
+  noScrollView?: boolean;
 }
 
 const Layout: FunctionComponent<LayoutProps> = props => {
@@ -140,12 +153,13 @@ const Layout: FunctionComponent<LayoutProps> = props => {
           ]}
         >
           {!screenSize.phoneOnly && <LayoutMenu />}
-          <ScrollView
-            style={theme.layoutContentScrollView}
-            contentContainerStyle={theme.layoutContentScrollViewContent}
-          >
-            <View ref={layoutBodyRef}>{props.children}</View>
-          </ScrollView>
+          <View style={theme.layoutBodyContent} ref={layoutBodyRef}>
+            {props.noScrollView ? (
+              <View style={theme.flex1}>{props.children}</View>
+            ) : (
+              <LayoutScrollView>{props.children}</LayoutScrollView>
+            )}
+          </View>
           {screenSize.phoneOnly && <LayoutMenu />}
         </View>
       </View>

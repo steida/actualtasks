@@ -1,47 +1,68 @@
-import React, { FunctionComponent, useMemo, useCallback } from 'react';
-import { Text } from 'react-native';
+import React, { FunctionComponent, useCallback } from 'react';
+import Layout from '@app/components/Layout';
+import { TaskListWithData } from '@app/components/TaskList';
+import TaskListArchived from '@app/components/TaskListArchived';
 import { AppState } from '@app/state/types';
-import useAppContext from '@app/hooks/useAppContext';
 import useAppState from '@app/hooks/useAppState';
-import useTaskListTitle from '@app/hooks/useTaskListTitle';
-import TaskList from '@app/components/TaskList';
-import Layout from '../components/Layout';
-import useAppStateTaskListByRouter from '../hooks/useAppStateTaskListByRouter';
+import usePageTitles from '@app/hooks/usePageTitles';
+import { rootTaskListId } from '@app/state/appStateConfig';
+import { FormattedMessage } from 'react-intl';
+import { Text } from 'react-native';
+import useAppContext from '@app/hooks/useAppContext';
+import useAppHref from '@app/hooks/useAppHref';
+import Error from 'next/error';
 
-interface MaybeTaskListProps {
-  title: string;
-  taskListId: string | undefined;
-}
-
-const TaskListOrNotFound: FunctionComponent<MaybeTaskListProps> = ({
-  title,
-  taskListId,
-}) => {
+export const TaskListDoesNotExist: FunctionComponent = () => {
   const { theme } = useAppContext();
-  const taskListSelector = useCallback(
-    (state: AppState) => state.taskLists.find(t => t.id === taskListId),
-    [taskListId],
+  return (
+    <Text style={theme.text}>
+      <FormattedMessage
+        defaultMessage="Task list does not exist."
+        id="taskList.notFound"
+      />
+    </Text>
   );
-  const taskList = useAppState(taskListSelector);
-  if (taskList == null) return <Text style={theme.text}>{title}</Text>;
-  /* https://twitter.com/estejs/status/1102238792382062593 */
-  return <TaskList taskList={taskList} key={taskList.id} />;
 };
 
 const Index: FunctionComponent = () => {
-  const taskList = useAppStateTaskListByRouter();
-  const title = useTaskListTitle(taskList);
-  const taskListId = taskList && taskList.id;
-
-  // Render Layout only when necessary. This prevents rerender the whole Layout
-  // when some unrelated data are chagned.
-  return useMemo(
-    () => (
-      <Layout title={title}>
-        <TaskListOrNotFound title={title} taskListId={taskListId} />
-      </Layout>
+  const query = useAppHref().query('/');
+  const queryId = query ? query.id || rootTaskListId : null;
+  // Only the name. We don't want to rerender Layout on any change.
+  const taskListName = useAppState(
+    useCallback(
+      ({ taskLists }: AppState) => {
+        const taskList = taskLists.find(t => t.id === queryId);
+        return taskList != null ? taskList.name : null;
+      },
+      [queryId],
     ),
-    [taskListId, title],
+  );
+  const pageTitles = usePageTitles();
+
+  if (query == null) return <Error statusCode={404} />;
+
+  const title =
+    taskListName == null
+      ? pageTitles.notFound
+      : queryId === rootTaskListId
+      ? pageTitles.index
+      : // Maybe: `${taskListName} - ${pageTitles.index}`;
+        taskListName;
+
+  // Note key used to reset component state.
+  // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+  return (
+    <Layout title={title} noScrollView>
+      {taskListName != null && queryId != null ? (
+        query.view === 'archived' ? (
+          <TaskListArchived taskListId={queryId} key={queryId} />
+        ) : (
+          <TaskListWithData taskListId={queryId} key={queryId} />
+        )
+      ) : (
+        <TaskListDoesNotExist />
+      )}
+    </Layout>
   );
 };
 

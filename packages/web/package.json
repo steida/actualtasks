@@ -27,7 +27,7 @@
     "react-art": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-intl": "^2.7.2",
-    "react-native-web": "^0.10.0",
+    "react-native-web": "^0.11.2",
     "slate": "^0.44.10",
     "slate-react": "^0.21.16",
     "lodash.throttle": "^4.1.1"

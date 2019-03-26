@@ -1,21 +1,19 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import validateTaskList from '@app/validators/validateTaskList';
-import Router from 'next/router';
 import { rootTaskListId } from '@app/state/appStateConfig';
-import { TaskList } from '@app/state/types';
+import { TaskList, AppState } from '@app/state/types';
 import useAppContext from '@app/hooks/useAppContext';
 import usePageTitles from '@app/hooks/usePageTitles';
 import useAppState from '@app/hooks/useAppState';
+import useAppHref from '@app/hooks/useAppHref';
 import useScreenSize from '@app/hooks/useScreenSize';
-import useTaskListTitle from '@app/hooks/useTaskListTitle';
 import FormButton from '@app/components/FormButton';
 import { hasValidationError } from '@app/components/ValidationError';
 import TextInputWithLabelAndError from '@app/components/TextInputWithLabelAndError';
-import Layout from '../components/Layout';
-import useAppStateTaskListByRouter from '../hooks/useAppStateTaskListByRouter';
-import { AppHref } from '../types';
+import Layout from '@app/components/Layout';
+import { TaskListDoesNotExist } from './index';
 
 interface FormProps {
   taskList: TaskList;
@@ -28,6 +26,7 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
     name: null,
   });
   const setAppState = useAppState();
+  const appHref = useAppHref();
 
   const handleSavePress = () => {
     const newTaskList = { ...taskList, name };
@@ -40,23 +39,24 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
       const index = state.taskLists.findIndex(t => t.id === taskList.id);
       state.taskLists[index].name = name;
     });
-    const href: AppHref = {
+    appHref.push({
       pathname: '/',
       query: { id: taskList.id },
-    };
-    Router.push(href);
+    });
   };
 
   const handleArchivePress = () => {
     setAppState(({ taskLists, archivedTaskLists }) => {
-      taskLists.splice(taskLists.findIndex(t => t.id === taskList.id), 1);
-      taskList.archivedAt = Date.now();
-      archivedTaskLists.push(taskList);
+      const index = taskLists.findIndex(t => t.id === taskList.id);
+      if (index === -1) return;
+      const archivedTaskList = taskLists[index];
+      taskLists.splice(index, 1);
+      archivedTaskList.archivedAt = Date.now();
+      archivedTaskLists.push(archivedTaskList);
     });
-    const href: AppHref = {
+    appHref.push({
       pathname: '/',
-    };
-    Router.push(href);
+    });
   };
 
   const isRootTaskList = taskList.id === rootTaskListId;
@@ -84,21 +84,24 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
 };
 
 const Edit: FunctionComponent = () => {
-  const { theme } = useAppContext();
   const pageTitles = usePageTitles();
-  const taskList = useAppStateTaskListByRouter();
-  const title = useTaskListTitle(taskList, true);
-
-  if (taskList == null)
-    return (
-      <Layout title={title}>
-        <Text style={theme.text}>{title}</Text>
-      </Layout>
-    );
+  const query = useAppHref().query('/edit');
+  const taskList = useAppState(
+    useCallback(
+      ({ taskLists }: AppState) =>
+        taskLists.find(t => t.id === (query && query.id)),
+      [query],
+    ),
+  );
+  const title = taskList ? pageTitles.edit(taskList.name) : pageTitles.notFound;
 
   return (
-    <Layout title={pageTitles.edit(title)}>
-      <Form taskList={taskList} key={taskList.id} />
+    <Layout title={title}>
+      {taskList == null ? (
+        <TaskListDoesNotExist />
+      ) : (
+        <Form taskList={taskList} key={taskList.id} />
+      )}
     </Layout>
   );
 };

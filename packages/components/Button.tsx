@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -20,13 +20,7 @@ export interface ButtonProps extends TouchableOpacityProps {
 
 const Button: React.FunctionComponent<ButtonProps> = props => {
   const { theme } = useAppContext();
-  const {
-    disabled,
-    type = 'text',
-    size = 'normal',
-    title: buttonTitle,
-    ...rest
-  } = props;
+  const { type = 'text', size = 'normal', title: buttonTitle, ...rest } = props;
 
   const getStyle = (type: Type) => {
     const assertNever = (type: never) => {
@@ -50,6 +44,10 @@ const Button: React.FunctionComponent<ButtonProps> = props => {
 
   const [hasFocus, setHasFocus] = useState(false);
 
+  useEffect(() => {
+    if (props.disabled) setHasFocus(false);
+  }, [props.disabled]);
+
   const handleFocus = useCallback(() => {
     setHasFocus(true);
   }, []);
@@ -60,7 +58,6 @@ const Button: React.FunctionComponent<ButtonProps> = props => {
 
   return (
     <TouchableOpacity
-      disabled={disabled}
       {...rest}
       accessibilityRole="button"
       {...Platform.select({
@@ -73,7 +70,7 @@ const Button: React.FunctionComponent<ButtonProps> = props => {
       <Text
         style={[
           getStyle(type),
-          disabled && theme.buttonDisabled,
+          props.disabled && theme.buttonDisabled,
           size === 'big' && theme.buttonBig,
           size === 'small' && theme.buttonSmall,
           hasFocus && theme.focusOutlineWeb,

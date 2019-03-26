@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "react-native-web": "^0.10.0"
+    "react-native-web": "^0.11.2"
   },
   "devDependencies": {
     "@types/react-native": "^0.57.38"

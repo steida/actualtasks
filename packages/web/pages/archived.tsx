@@ -8,7 +8,7 @@ import FormButton from '@app/components/FormButton';
 import { TaskList } from '@app/state/types';
 import Button from '@app/components/Button';
 import { FormattedRelative, FormattedMessage } from 'react-intl';
-import Layout from '../components/Layout';
+import Layout from '@app/components/Layout';
 
 interface ArchivedTaskListProps {
   taskList: TaskList;
@@ -37,12 +37,12 @@ const ArchivedTaskList: FunctionComponent<ArchivedTaskListProps> = memo(
 
     const handleUnarchivePress = () => {
       setAppState(({ taskLists, archivedTaskLists }) => {
-        delete taskList.archivedAt;
-        taskLists.push(taskList);
-        archivedTaskLists.splice(
-          archivedTaskLists.findIndex(t => t.id === taskList.id),
-          1,
-        );
+        const index = archivedTaskLists.findIndex(t => t.id === taskList.id);
+        if (index === -1) return;
+        const unarchiveTaskList = archivedTaskLists[index];
+        delete unarchiveTaskList.archivedAt;
+        taskLists.push(unarchiveTaskList);
+        archivedTaskLists.splice(index, 1);
       });
     };
 

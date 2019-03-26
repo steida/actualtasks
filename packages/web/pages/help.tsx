@@ -4,7 +4,7 @@ import { Text } from 'react-native';
 import useAppContext from '@app/hooks/useAppContext';
 import { FormattedMessage } from 'react-intl';
 import Link from '@app/components/Link';
-import Layout from '../components/Layout';
+import Layout from '@app/components/Layout';
 
 const Help: FunctionComponent = () => {
   const { theme } = useAppContext();
@@ -17,9 +17,6 @@ const Help: FunctionComponent = () => {
       </Text>
       <Text style={[theme.heading2]}>
         <FormattedMessage defaultMessage="Keyboard Navigation" id="helpTitle" />
-      </Text>
-      <Text style={theme.paragraph}>
-        The app is as keyboard navigable as possible. A mouse is not required.
       </Text>
       <Text style={theme.text}>
         <Text style={theme.bold}>tab</Text>: Moves the task to the right (makes
@@ -35,9 +32,12 @@ const Help: FunctionComponent = () => {
       <Text style={theme.paragraph}>
         <Text style={theme.bold}>escape</Text>: Focus the task list in the menu.
       </Text>
-      <Text style={theme.text}>
+      <Text style={theme.paragraph}>
         <Text style={theme.bold}>alt + enter</Text>: Marks a task as complete
         (will also mark a completed task as incomplete).
+      </Text>
+      <Text style={theme.text}>
+        <Text style={theme.bold}>tab or arrows</Text>: Everywhere.
       </Text>
       {/* <Text style={theme.text}>Shift + Enter: Edits the current task.</Text> */}
       {/* <Text style={theme.text}>
@@ -50,7 +50,11 @@ const Help: FunctionComponent = () => {
         />
       </Text>
       <Text style={theme.text}>
-        <Link href="https://github.com/steida/actualtasks/issues/new">
+        <Link
+          href={{
+            pathname: 'https://github.com/steida/actualtasks/issues/new',
+          }}
+        >
           <FormattedMessage
             defaultMessage="Please, report it."
             id="helpNewIssueLink"

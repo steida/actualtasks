@@ -3,6 +3,7 @@ import { AppState1 } from './types';
 // Remember:
 //  1) Never ever change anything here without a migration step.
 //  2) Migrations code must be immutable aka write once. Don't import anything.
+// TODO: Save local storage somewhere before migration. Just to be sure.
 
 const name = 'actualtasks';
 export const rootTaskListId = 'actual';
