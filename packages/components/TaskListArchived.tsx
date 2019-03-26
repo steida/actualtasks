@@ -28,19 +28,30 @@ const TaskListArchived: FunctionComponent<TaskListArchivedProps> = ({
     return archivedSlate == null
       ? []
       : // Sort mutates, therefore we need shallow clone.
-        [...archivedSlate.document.nodes].sort((a, b) => {
-          if (a.data.completedAt == null || b.data.completedAt == null)
-            return 0;
-          return a.data.completedAt - b.data.completedAt;
-        });
+        [...archivedSlate.document.nodes]
+          .sort((a, b) => {
+            if (a.data.completedAt == null || b.data.completedAt == null)
+              return 0;
+            return a.data.completedAt - b.data.completedAt;
+          })
+          .reverse();
   }, [archivedSlate]);
 
   return (
     <>
       <TaskListBar hasCompletedTask={false} dispatch={() => {}} />
       <LayoutScrollView>
-        {sortedTasks.map(task => {
-          return <Text style={theme.text}>{task.type}</Text>;
+        {sortedTasks.map((task, index) => {
+          const text = task.nodes
+            .map(node => node.leaves.map(leaf => leaf.text).join(''))
+            .join('');
+          return (
+            // TODO: Use task ID when defined.
+            // eslint-disable-next-line react/no-array-index-key
+            <Text key={index} style={[theme.textSmallGray, theme.lineThrough]}>
+              {text}
+            </Text>
+          );
         })}
       </LayoutScrollView>
     </>
