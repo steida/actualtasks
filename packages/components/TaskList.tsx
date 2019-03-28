@@ -183,7 +183,7 @@ const Task: FunctionComponent<TaskProps> = props => {
           onChange={handleCheckboxChange}
         />
       </Uneditable>
-      <Text style={[theme.text, data.completed && theme.lineThrough]}>
+      <Text style={[theme.text, data.completed && theme.taskCompleted]}>
         {props.children}
       </Text>
     </View>

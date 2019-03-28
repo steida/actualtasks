@@ -48,7 +48,7 @@ const TaskListArchived: FunctionComponent<TaskListArchivedProps> = ({
           return (
             // TODO: Use task ID when defined.
             // eslint-disable-next-line react/no-array-index-key
-            <Text key={index} style={[theme.textSmallGray, theme.lineThrough]}>
+            <Text key={index} style={theme.textSmallGray}>
               {text}
             </Text>
           );

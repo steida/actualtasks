@@ -127,6 +127,7 @@ export class LightTheme {
   label: TextStyle;
   labelInvalid: TextStyle;
   task: ViewStyle;
+  taskCompleted: TextStyle;
   taskCheckbox: ViewStyle;
   taskCheckboxSvg: TextStyle;
   taskDepth0: ViewStyle;
@@ -420,6 +421,10 @@ export class LightTheme {
 
     this.task = {
       flexDirection: 'row',
+    };
+
+    this.taskCompleted = {
+      color: colors.gray,
     };
 
     this.taskCheckbox = {
