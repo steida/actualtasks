@@ -3,8 +3,8 @@ import { colors, LightTheme, dimensions } from './lightTheme';
 
 const darkColors = {
   ...colors,
-  background: '#272b33', // from overreacted.io
-  foreground: '#ffffff',
+  background: '#222',
+  foreground: '#fff',
   taskBorder: colors.gray,
 };
 
