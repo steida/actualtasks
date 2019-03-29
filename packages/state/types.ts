@@ -8,32 +8,30 @@
 // Versioned types. Not exported, because they are used only here in this file.
 // Change these types very carefully. Basically, only nullable types are safe.
 
-// I tried DeepReadonly from utility-types but it breaks types. Readonly works.
-
-type User1 = Readonly<{
+interface User1 {
   email: string;
   darkMode: boolean;
-}>;
+}
 
-type Slate1 = Readonly<{
-  document: Readonly<{
-    nodes: Readonly<{
-      data: Readonly<{
+interface Slate1 {
+  document: {
+    nodes: {
+      data: {
         completed: boolean;
         completedAt?: number;
         depth: number;
-      }>;
-      nodes: Readonly<{
-        leaves: Readonly<{ text: string; object: 'leaf' }>[];
+      };
+      nodes: {
+        leaves: { text: string; object: 'leaf' }[];
         object: 'text';
-      }>[];
+      }[];
       object: 'block';
       type: 'task';
-    }>[];
-  }>;
-}>;
+    }[];
+  };
+}
 
-type TaskList1 = Readonly<{
+interface TaskList1 {
   id: string;
   createdAt: number;
   // Nullable strict type. Can be added and removed safely.
@@ -46,24 +44,27 @@ type TaskList1 = Readonly<{
   // have to maintain clonned state, and filtering and serialization sucks.
   // Let's wait for Slate with Immer instead of immutable.js.
   archivedSlate?: Slate1;
-}>;
+}
 
 // Versioned app states. Use them only in the app state config.
 // Never ever change these types.
 
-export type AppState1 = Readonly<{
+export interface AppState1 {
   viewer: User1;
   taskLists: TaskList1[];
   archivedTaskLists: TaskList1[];
-}>;
+}
 
-// export type AppState2 = Readonly<{
+// export type AppState2 = {
 //   viewer: User1;
 //   taskLists: TaskList2[];
 //   archivedTaskLists: TaskList2[];
-// }>
+// }
 
 // Current types to be used in the current app code and nowhere else.
+
+// TODO: Use DeepReadonly/ReadonlyArray once I figure out why it breaks types.
+// import { DeepReadonly } from 'utility-types';
 
 export type AppState = AppState1;
 export type TaskList = TaskList1;
