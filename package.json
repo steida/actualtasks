@@ -34,7 +34,7 @@
     "eslint-plugin-react-hooks": "^1.2.0",
     "eslint-plugin-relay": "^1.0.0",
     "rimraf": "^2.6.3",
-    "typescript": "^3.3.1",
+    "typescript": "3.3.x",
     "utility-types": "^3.4.1",
     "wsrun": "^3.6.2"
   },
