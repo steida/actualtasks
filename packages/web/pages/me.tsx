@@ -15,8 +15,17 @@ import { AppStateContext } from '@app/state/lib/appstate';
 import Link from '@app/components/Link';
 import Layout from '@app/components/Layout';
 import { AppHref } from '@app/hooks/useAppHref';
+// import db from '../db';
 
 const DarkModeButton: FunctionComponent = () => {
+  // const darkMode = useClientState(state => state.viewer.darkMode);
+  // useMemo pro komponentu? pak ani nepotrebuju selector!
+  //
+
+  // Queries, uplne stejne, ok
+  // Mutations, vystavene funkce, ok
+  // const setViewer = db.useSetViewer()
+
   const darkMode = useAppState(state => state.viewer.darkMode);
   const setAppState = useAppState();
   const emoji = darkMode ? '🌛' : '🌤';
@@ -165,5 +174,11 @@ const Me: FunctionComponent = () => {
     </Layout>
   );
 };
+
+// @ts-ignore
+Me.prefetch = 123;
+
+// Tohle by imho slo, pokud db bude globalni.
+// Me.prefetch([fetch.viewer])
 
 export default Me;

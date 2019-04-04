@@ -396,6 +396,7 @@ const TaskList: FunctionComponent<TaskListProps> = memo(
         editor.removeNodeByKey(node.key);
       });
 
+      // @ts-ignore https://github.com/Microsoft/TypeScript/issues/30188#issuecomment-478938437
       setAppState(({ taskLists }) => {
         const currentTaskList = taskLists.find(t => t.id === taskListId);
         if (currentTaskList == null) return;

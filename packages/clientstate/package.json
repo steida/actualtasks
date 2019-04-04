@@ -1,0 +1,17 @@
+{
+  "name": "@app/clientstate",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "immer": "^2.0.0",
+    "react": "^16.8.2",
+    "react-art": "^16.8.2",
+    "react-dom": "^16.8.2",
+    "react-native-web": "^0.11.2"
+  },
+  "devDependencies": {
+    "@types/react": "^16.8.4",
+    "@types/react-native": "^0.57.38",
+    "utility-types": "^3.4.1"
+  }
+}

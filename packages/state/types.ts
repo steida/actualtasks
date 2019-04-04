@@ -66,5 +66,6 @@ export interface AppState1 {
 // TODO: Use DeepReadonly/ReadonlyArray once I figure out why it breaks types.
 // import { DeepReadonly } from 'utility-types';
 
+export type User = User1;
 export type AppState = AppState1;
 export type TaskList = TaskList1;
