@@ -5,6 +5,7 @@ import React, {
   useState,
 } from 'react';
 import { ClientDB } from './types';
+import ClientStateContext from './ClientStateContext';
 
 interface ClientStateProviderProps {
   children: ReactNode;
@@ -25,22 +26,18 @@ const ClientStateProvider: FunctionComponent<
     resolveDBPromise();
   }, [props.dbPromise]);
 
-  const test = async () => {
-    if (db) {
-      await db.loadViewer();
-      // eslint-disable-next-line no-console
-      // console.log(db.getViews().viewer);
-    }
-  };
-  test();
-
+  // TODO: Rewrite.
+  // Note how we reset the whole tree on loaded via key.
+  // That's because new app state have to force update all local initial states.
+  // https://twitter.com/estejs/status/1102238792382062593
+  // <AppStateContext.Provider key={loaded.toString()}
   return (
-    <>
+    <ClientStateContext.Provider value={db}>
       {/* Always render children so Google bot can index blog etc. */}
       {props.children}
-      {/* But hide it until DB is ready. */}
+      {/* But hidden until DB is ready. */}
       {db == null && props.splashScreen}
-    </>
+    </ClientStateContext.Provider>
   );
 };
 

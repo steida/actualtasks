@@ -15,15 +15,22 @@ export interface TaskList {
   name: string;
 }
 
-export interface Views {
-  viewer: User | null;
+export interface Queries {
+  viewer: User;
   taskLists: { [id: string]: TaskList | null };
 }
 
-export interface ClientDB {
-  getViews: () => DeepReadonly<Views>;
-  loadViewer: () => Promise<User | null>;
+export interface Mutations {
+  loadViewer: () => Promise<User>;
   // loadTaskList: (id: string) => Promise<TaskList | null>;
+}
+
+export type Callback = () => void;
+
+export interface ClientDB {
+  subscribe: (callback: Callback) => () => void;
+  getQueries: () => DeepReadonly<Queries>;
+  mutations: Mutations;
 }
 
 export type CreateDB = () => Promise<ClientDB>;

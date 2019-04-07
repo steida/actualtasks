@@ -1,6 +1,13 @@
 import { openDB, DBSchema } from 'idb';
-import { User, CreateDB, Views } from '@app/clientstate/types';
+import {
+  User,
+  CreateDB,
+  Queries,
+  Mutations,
+  Callback,
+} from '@app/clientstate/types';
 import produce from 'immer';
+import initialQueries from '@app/clientstate/initialQueries';
 
 // We use IndexedDB to have absolute control over native API.
 // I considered: LokiJS, PouchDB, LocalStorage, WatermelonDB and some others.
@@ -14,11 +21,6 @@ interface ActualTasksDBSchema extends DBSchema {
     key: string;
     indexes: { 'by-email': string };
   };
-}
-
-// nemelo by bejt soucasti clientstate? imho jo
-export interface DB {
-  loadViewer: () => Promise<User | null>;
 }
 
 export const createDB: CreateDB = async () => {
@@ -41,36 +43,40 @@ export const createDB: CreateDB = async () => {
     },
   });
 
-  // const subscribe
-  // produce
+  let queries = initialQueries;
 
-  let views: Views = {
-    viewer: null,
-    taskLists: {},
+  const callbacks: Callback[] = [];
+
+  const updateQueries = (callback: (queries: Queries) => void) => {
+    queries = produce(queries, callback);
+    // Maybe we don't have to clone callbacks because setState is async, but...
+    [...callbacks].forEach(callback => callback());
   };
 
-  const update = (callback: (views: Views) => void) => {
-    views = produce(views, callback);
-  };
-
-  return {
-    // subscribe() {
-
-    // }
-    getViews: () => views,
-    async loadViewer() {
-      // Load once because it's cached.
-      // TODO: Loader factory.
-      if (views.viewer != null) return views.viewer;
+  const mutations: Mutations = {
+    loadViewer: async () => {
       const viewers = await db.getAll('viewers', undefined, 1);
-      const viewer = viewers.length === 1 ? viewers[0] : null;
-      update(views => {
-        views.viewer = viewer;
-      });
-      return views.viewer;
+      if (viewers.length === 1) {
+        const viewer = viewers[0];
+        updateQueries(queries => {
+          queries.viewer = viewer;
+        });
+      }
+      return queries.viewer;
     },
     // async loadTaskList(_id) {
     //   ret
     // },
+  };
+
+  return {
+    subscribe(callback) {
+      callbacks.push(callback);
+      return () => {
+        callbacks.splice(callbacks.indexOf(callback), 1);
+      };
+    },
+    getQueries: () => queries,
+    mutations,
   };
 };

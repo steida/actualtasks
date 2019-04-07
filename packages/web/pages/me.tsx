@@ -3,6 +3,7 @@ import React, {
   useState,
   useContext,
   useEffect,
+  useCallback,
 } from 'react';
 import { FormattedMessage, defineMessages } from 'react-intl';
 import { Text, TextInput, View } from 'react-native';
@@ -15,21 +16,29 @@ import { AppStateContext } from '@app/state/lib/appstate';
 import Link from '@app/components/Link';
 import Layout from '@app/components/Layout';
 import { AppHref } from '@app/hooks/useAppHref';
-// import db from '../db';
+import useClientState from '@app/clientstate/useClientState';
 
 const DarkModeButton: FunctionComponent = () => {
-  // const darkMode = useClientState(state => state.viewer.darkMode);
-  // useMemo pro komponentu? pak ani nepotrebuju selector!
-  //
+  const darkMode2 = useClientState(
+    useCallback(queries => queries.viewer.darkMode, []),
+  );
+  // eslint-disable-next-line no-console
+  console.log(darkMode2);
 
-  // Queries, uplne stejne, ok
-  // Mutations, vystavene funkce, ok
-  // const setViewer = db.useSetViewer()
+  // const clientState = useClientState();
+  // clientState.
+  // eslint-disable-next-line no-console
+  // console.log(clientState, darkMode2);
+  // clientState.
+
+  // const clientState = useClientState()
+  // clientState.setViewerDarkMode(true)
 
   const darkMode = useAppState(state => state.viewer.darkMode);
   const setAppState = useAppState();
   const emoji = darkMode ? '🌛' : '🌤';
   const toggleViewerDarkMode = () => {
+    // @ts-ignore
     setAppState(({ viewer }) => {
       viewer.darkMode = !viewer.darkMode;
     });
