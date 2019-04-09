@@ -9,6 +9,7 @@ interface AppContext {
   theme: Theme;
   router: SingletonRouter;
   initialRender: boolean;
+  logout: () => void;
 }
 
 export const AppContext = React.createContext<AppContext | null>(null);

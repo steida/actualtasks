@@ -21,8 +21,11 @@ export interface Queries {
 }
 
 export interface Mutations {
-  loadViewer: () => Promise<User>;
-  // loadTaskList: (id: string) => Promise<TaskList | null>;
+  dangerouslyDeleteDB(): void;
+  loadViewer(): Promise<User>;
+  setViewerDarkMode(darkMode: boolean): Promise<void>;
+  setViewerEmail(email: string): Promise<void>;
+  // loadTaskList(id: string): Promise<TaskList | null>;
 }
 
 export type Callback = () => void;

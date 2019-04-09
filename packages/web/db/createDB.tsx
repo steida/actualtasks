@@ -1,4 +1,4 @@
-import { openDB, DBSchema } from 'idb';
+import { openDB, deleteDB, DBSchema } from 'idb';
 import {
   User,
   CreateDB,
@@ -23,8 +23,10 @@ interface ActualTasksDBSchema extends DBSchema {
   };
 }
 
+const name = 'actualtasks';
+
 export const createDB: CreateDB = async () => {
-  const db = await openDB<ActualTasksDBSchema>('actualtasks', 1, {
+  const db = await openDB<ActualTasksDBSchema>(name, 1, {
     async upgrade(db, oldVersion, _, _tx) {
       // eslint-disable-next-line default-case
       switch (oldVersion) {
@@ -41,6 +43,14 @@ export const createDB: CreateDB = async () => {
         }
       }
     },
+    blocked() {
+      // eslint-disable-next-line no-alert
+      alert('Please close or reload this windows.');
+    },
+    blocking() {
+      // eslint-disable-next-line no-alert
+      alert('Please close or reload this windows.');
+    },
   });
 
   let queries = initialQueries;
@@ -54,7 +64,10 @@ export const createDB: CreateDB = async () => {
   };
 
   const mutations: Mutations = {
-    loadViewer: async () => {
+    dangerouslyDeleteDB() {
+      deleteDB(name);
+    },
+    async loadViewer() {
       const viewers = await db.getAll('viewers', undefined, 1);
       if (viewers.length === 1) {
         const viewer = viewers[0];
@@ -63,6 +76,21 @@ export const createDB: CreateDB = async () => {
         });
       }
       return queries.viewer;
+    },
+    async setViewerDarkMode(darkMode) {
+      const viewer = { ...queries.viewer, darkMode };
+      await db.put('viewers', viewer);
+      updateQueries(queries => {
+        queries.viewer = viewer;
+      });
+    },
+    async setViewerEmail(email) {
+      const viewer = { ...queries.viewer, email };
+      await db.put('viewers', viewer);
+      await db.delete('viewers', queries.viewer.email);
+      updateQueries(queries => {
+        queries.viewer = viewer;
+      });
     },
     // async loadTaskList(_id) {
     //   ret
@@ -76,7 +104,9 @@ export const createDB: CreateDB = async () => {
         callbacks.splice(callbacks.indexOf(callback), 1);
       };
     },
-    getQueries: () => queries,
+    getQueries() {
+      return queries;
+    },
     mutations,
   };
 };

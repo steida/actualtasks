@@ -1,63 +1,45 @@
 import React, {
   FunctionComponent,
   useState,
-  useContext,
-  useEffect,
+  // useEffect,
   useCallback,
 } from 'react';
 import { FormattedMessage, defineMessages } from 'react-intl';
 import { Text, TextInput, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import useAppContext from '@app/hooks/useAppContext';
-import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
 import Button from '@app/components/Button';
-import { AppStateContext } from '@app/state/lib/appstate';
-import Link from '@app/components/Link';
+// import Link from '@app/components/Link';
 import Layout from '@app/components/Layout';
-import { AppHref } from '@app/hooks/useAppHref';
+// import { AppHref } from '@app/hooks/useAppHref';
 import useClientState from '@app/clientstate/useClientState';
 
 const DarkModeButton: FunctionComponent = () => {
-  const darkMode2 = useClientState(
+  const darkMode = useClientState(
     useCallback(queries => queries.viewer.darkMode, []),
   );
-  // eslint-disable-next-line no-console
-  console.log(darkMode2);
-
-  // const clientState = useClientState();
-  // clientState.
-  // eslint-disable-next-line no-console
-  // console.log(clientState, darkMode2);
-  // clientState.
-
-  // const clientState = useClientState()
-  // clientState.setViewerDarkMode(true)
-
-  const darkMode = useAppState(state => state.viewer.darkMode);
-  const setAppState = useAppState();
-  const emoji = darkMode ? '🌛' : '🌤';
-  const toggleViewerDarkMode = () => {
-    // @ts-ignore
-    setAppState(({ viewer }) => {
-      viewer.darkMode = !viewer.darkMode;
-    });
+  const clientState = useClientState();
+  const handleButtonPress = () => {
+    clientState.setViewerDarkMode(!darkMode);
   };
   return (
-    <Button size="big" onPress={toggleViewerDarkMode}>
-      {emoji}
+    <Button size="big" onPress={handleButtonPress}>
+      {darkMode ? '🌛' : '🌤'}
     </Button>
   );
 };
 
+const useClientViewerEmail = () =>
+  useClientState(useCallback(queries => queries.viewer.email, []));
+
 const ViewerEmail: FunctionComponent = () => {
   const { theme } = useAppContext();
-  const email = useAppState(state => state.viewer.email);
-  const setAppState = useAppState();
-  const setViewerEmail = (email: string) =>
-    setAppState(({ viewer }) => {
-      viewer.email = email;
-    });
+  const email = useClientViewerEmail();
+  const clientState = useClientState();
+  const handleTextInputChangeText = (email: string) => {
+    clientState.setViewerEmail(email);
+  };
   const labelIsValid = email === '' || isEmail(email);
 
   return (
@@ -67,7 +49,7 @@ const ViewerEmail: FunctionComponent = () => {
       </Text>
       <TextInput
         keyboardType="email-address"
-        onChangeText={text => setViewerEmail(text)}
+        onChangeText={handleTextInputChangeText}
         style={theme.textInputOutline}
         value={email}
       />
@@ -93,17 +75,16 @@ const messages = defineMessages({
 });
 
 const DeleteAllData: FunctionComponent = () => {
-  const { theme, intl } = useAppContext();
+  const { theme, intl, logout } = useAppContext();
   const [shown, setShown] = useState(false);
-  const viewerEmail = useAppState(state => state.viewer.email);
+  const viewerEmail = useClientViewerEmail();
   const [email, setEmail] = useState('');
-  const appStateContext = useContext(AppStateContext);
+  const clientState = useClientState();
 
   const handleDeletePress = () => {
-    appStateContext.deleteAppState(() => {
-      // Browser redirect to purge sensitive session data.
-      window.location.href = '/';
-    });
+    // No await, because blocking transactions which are canceled by reload.
+    clientState.dangerouslyDeleteDB();
+    logout();
   };
 
   return (
@@ -143,30 +124,31 @@ const DeleteAllData: FunctionComponent = () => {
   );
 };
 
-const ExportData: FunctionComponent = () => {
-  const { theme, intl } = useAppContext();
-  const appState = useAppState(state => state);
-  const [url, setUrl] = useState('');
-  useEffect(() => {
-    if (!url) {
-      const appStateString = JSON.stringify(appState, null, 2);
-      const blob = new Blob([appStateString], { type: 'text/plain' });
-      setUrl(URL.createObjectURL(blob));
-    }
-  }, [url, appState]);
+// const ExportData: FunctionComponent = () => {
+//   const { theme, intl } = useAppContext();
+//   // TODO: Fetch whole db on click somehow.
+//   // const appState = useAppState(state => state);
+//   const [url, setUrl] = useState('');
+//   useEffect(() => {
+//     if (!url) {
+//       const appStateString = JSON.stringify(appState, null, 2);
+//       const blob = new Blob([appStateString], { type: 'text/plain' });
+//       setUrl(URL.createObjectURL(blob));
+//     }
+//   }, [url, appState]);
 
-  if (!url) return null;
-  // Url is random, so it can not be typed.
-  const href = ({ pathname: url } as any) as AppHref;
+//   if (!url) return null;
+//   // Url is random, so it can not be typed.
+//   const href = ({ pathname: url } as any) as AppHref;
 
-  return (
-    <View style={[theme.marginBottom, theme.flexRow]}>
-      <Link style={theme.text} download="actualtasks" href={href}>
-        {intl.formatMessage(messages.export)}
-      </Link>
-    </View>
-  );
-};
+//   return (
+//     <View style={[theme.marginBottom, theme.flexRow]}>
+//       <Link style={theme.text} download="actualtasks" href={href}>
+//         {intl.formatMessage(messages.export)}
+//       </Link>
+//     </View>
+//   );
+// };
 
 const Me: FunctionComponent = () => {
   const pageTitles = usePageTitles();
@@ -178,16 +160,10 @@ const Me: FunctionComponent = () => {
         <DarkModeButton />
       </View>
       <ViewerEmail />
-      <ExportData />
+      {/* <ExportData /> */}
       <DeleteAllData />
     </Layout>
   );
 };
-
-// @ts-ignore
-Me.prefetch = 123;
-
-// Tohle by imho slo, pokud db bude globalni.
-// Me.prefetch([fetch.viewer])
 
 export default Me;
