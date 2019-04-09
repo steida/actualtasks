@@ -58,35 +58,23 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
   }
 
   state = {
-    // We need initialRender for body layout accessibility focus and to match
-    // the server rendered HTML with the client initial render first.
-    // For example, useWindowWidth hook needs the same (fake) window width
-    // like the server.
+    // Initial render has to render the same state as on the server.
+    // After that, we can fetch data, use real window width in useWindowWidth, etc.
     initialRender: true,
-    // After initial render (via componentDidMount).
+    //
     clientStateReady: false,
   };
-
-  async fetchClientState() {
-    // There is no client state DB on the server.
-    if (dbPromise == null) return;
-    // mam zde getInitialProps componenty? pokud jo, tak je to cajk
-    const db = await dbPromise;
-    // This list must be maintained manually, because we don't have Relay.
-    // While it's theoretically possible to use Relay with client data, I hope
-    // React Suspense will provide better API.
-    await db.mutations.loadViewer();
-    // TODO: Page must be loaded lazily and only once. The rest in getInitial props.
-    // if (this.props.Component.prefetch) {
-    //   await...
-    // }
-    this.setState({ clientStateReady: true });
-  }
 
   static hardRedirectToRoot() {
     // Browser redirect to purge sensitive session data.
     window.location.href = '/';
   }
+
+  static appName = 'actualtasks';
+
+  static localStorageKeys: { [key: string]: string } = {
+    logout: `${MyApp.appName}:logout`,
+  };
 
   logout = async () => {
     if (dbPromise == null) return;
@@ -96,10 +84,27 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
   };
 
   handleWindowStorage = (event: StorageEvent) => {
-    if (event.key === 'logout') {
+    if (event.key === MyApp.localStorageKeys.logout) {
       MyApp.hardRedirectToRoot();
     }
   };
+
+  // Fetch data for app and page once. Then use getInitialProps.
+  async fetchClientState() {
+    // There is no client state on the server.
+    if (dbPromise == null) return;
+    const db = await dbPromise;
+
+    // This list of loaders must be maintained manually, we don't have Relay.
+    // While it's theoretically possible to use Relay with client data, I hope
+    // React Suspense will provide better API.
+    await db.mutations.loadViewer();
+
+    // if (this.props.Component.prefetch) {
+    //   await...
+    // }
+    this.setState({ clientStateReady: true });
+  }
 
   componentDidMount() {
     window.addEventListener('storage', this.handleWindowStorage);
@@ -109,7 +114,9 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
 
   componentWillUnmount() {
     window.removeEventListener('storage', this.handleWindowStorage);
-    window.localStorage.removeItem('logout');
+    Object.keys(MyApp.localStorageKeys).forEach(key => {
+      window.localStorage.removeItem(MyApp.localStorageKeys[key]);
+    });
   }
 
   render() {
@@ -119,7 +126,12 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
 
     return (
       <Container>
-        <ClientStateProvider dbPromise={dbPromise}>
+        <ClientStateProvider
+          dbPromise={dbPromise}
+          // Use key to reset children state. It's useful for example for
+          // useWindowWidth hook which is async. It's safer to force rerender all.
+          key={clientStateReady.toString()}
+        >
           <AppStateProvider
             config={appStateConfig}
             splashScreen={<SplashScreen />}
@@ -157,7 +169,7 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
         </ClientStateProvider>
         {/* Hide rendered content until the client state is fetched. */}
         {/* Remember we have to render content anyway to be indexed. */}
-        {clientStateReady === false && <SplashScreen />}
+        {!clientStateReady && <SplashScreen />}
       </Container>
     );
   }

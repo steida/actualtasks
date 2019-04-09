@@ -1,7 +1,7 @@
 import { DeepReadonly } from 'utility-types';
-import { Queries } from './types';
+import { ClientState } from './types';
 
-const initialQueries: DeepReadonly<Queries> = {
+const initialState: DeepReadonly<ClientState> = {
   viewer: {
     email: '',
     darkMode: false,
@@ -9,4 +9,4 @@ const initialQueries: DeepReadonly<Queries> = {
   taskLists: {},
 };
 
-export default initialQueries;
+export default initialState;

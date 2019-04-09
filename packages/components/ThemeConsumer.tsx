@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import lightTheme, { Theme } from '@app/themes/lightTheme';
 import darkTheme from '@app/themes/darkTheme';
-import useAppState from '@app/hooks/useAppState';
+import useClientState from '@app/clientstate/useClientState';
 
 interface ThemeConsumer {
   children: (theme: Theme) => React.ReactElement<any>;
 }
 
 const ThemeConsumer: React.FunctionComponent<ThemeConsumer> = props => {
-  const darkMode = useAppState(state => state.viewer.darkMode);
-  const theme = darkMode ? darkTheme : lightTheme;
-  return props.children(theme);
+  const darkMode = useClientState(
+    useCallback(state => state.viewer.darkMode, []),
+  );
+  return props.children(darkMode ? darkTheme : lightTheme);
 };
 
 export default ThemeConsumer;

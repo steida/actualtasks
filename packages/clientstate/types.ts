@@ -15,7 +15,7 @@ export interface TaskList {
   name: string;
 }
 
-export interface Queries {
+export interface ClientState {
   viewer: User;
   taskLists: { [id: string]: TaskList | null };
 }
@@ -32,7 +32,7 @@ export type Callback = () => void;
 
 export interface ClientDB {
   subscribe: (callback: Callback) => () => void;
-  getQueries: () => DeepReadonly<Queries>;
+  getState: () => DeepReadonly<ClientState>;
   mutations: Mutations;
 }
 

@@ -1,20 +1,26 @@
 /* eslint-env browser */
 import Head from 'next/head';
-import React, { useEffect, FunctionComponent, useMemo, useRef } from 'react';
+import React, {
+  useEffect,
+  FunctionComponent,
+  useMemo,
+  useRef,
+  useCallback,
+} from 'react';
 import { findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
 import isEmail from 'validator/lib/isEmail';
 import useAppContext from '@app/hooks/useAppContext';
-import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
 import usePageTitles from '@app/hooks/usePageTitles';
 import { Assign, Omit } from 'utility-types';
 import Gravatar from '@app/components/Gravatar';
 import Link, { LinkProps } from '@app/components/Link';
 import Menu from '@app/components/Menu';
+import useClientState from '@app/clientstate/useClientState';
 
 const ViewerGravatar: FunctionComponent = () => {
   const { theme } = useAppContext();
-  const email = useAppState(state => state.viewer.email);
+  const email = useClientState(useCallback(state => state.viewer.email, []));
   const displayEmail = isEmail(email) ? email : '';
   if (!displayEmail) return <>👤</>;
   return (

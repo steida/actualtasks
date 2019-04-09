@@ -2,12 +2,12 @@ import { openDB, deleteDB, DBSchema } from 'idb';
 import {
   User,
   CreateDB,
-  Queries,
+  ClientState,
   Mutations,
   Callback,
 } from '@app/clientstate/types';
 import produce from 'immer';
-import initialQueries from '@app/clientstate/initialQueries';
+import initialState from '@app/clientstate/initialState';
 
 // We use IndexedDB to have absolute control over native API.
 // I considered: LokiJS, PouchDB, LocalStorage, WatermelonDB and some others.
@@ -53,14 +53,18 @@ export const createDB: CreateDB = async () => {
     },
   });
 
-  let queries = initialQueries;
+  let state = initialState;
 
   const callbacks: Callback[] = [];
 
-  const updateQueries = (callback: (queries: Queries) => void) => {
-    queries = produce(queries, callback);
+  const updateState = (callback: (state: ClientState) => void) => {
+    state = produce(state, callback);
     // Maybe we don't have to clone callbacks because setState is async, but...
     [...callbacks].forEach(callback => callback());
+    // It's possible and easy to propagate client state to other browser windows.
+    // We can just serialize the whole client state and sync it via StorageEvent.
+    // But we don't need it. Even Gmail doesn't do it.
+    // And other browser windows will be synced via sync server anyway.
   };
 
   const mutations: Mutations = {
@@ -71,25 +75,25 @@ export const createDB: CreateDB = async () => {
       const viewers = await db.getAll('viewers', undefined, 1);
       if (viewers.length === 1) {
         const viewer = viewers[0];
-        updateQueries(queries => {
-          queries.viewer = viewer;
+        updateState(state => {
+          state.viewer = viewer;
         });
       }
-      return queries.viewer;
+      return state.viewer;
     },
     async setViewerDarkMode(darkMode) {
-      const viewer = { ...queries.viewer, darkMode };
+      const viewer = { ...state.viewer, darkMode };
       await db.put('viewers', viewer);
-      updateQueries(queries => {
-        queries.viewer = viewer;
+      updateState(state => {
+        state.viewer = viewer;
       });
     },
     async setViewerEmail(email) {
-      const viewer = { ...queries.viewer, email };
+      const viewer = { ...state.viewer, email };
       await db.put('viewers', viewer);
-      await db.delete('viewers', queries.viewer.email);
-      updateQueries(queries => {
-        queries.viewer = viewer;
+      await db.delete('viewers', state.viewer.email);
+      updateState(state => {
+        state.viewer = viewer;
       });
     },
     // async loadTaskList(_id) {
@@ -104,8 +108,8 @@ export const createDB: CreateDB = async () => {
         callbacks.splice(callbacks.indexOf(callback), 1);
       };
     },
-    getQueries() {
-      return queries;
+    getState() {
+      return state;
     },
     mutations,
   };

@@ -17,13 +17,22 @@ const ClientStateProvider: FunctionComponent<
 > = props => {
   const [db, setDB] = useState<ClientDB | null>(null);
 
-  // Remember initial client render has to match server side rendered HTML.
+  // Remember, the initial client render has to match the server side render.
+  // That's why we setDB in useEffect which is not called on the server.
   useEffect(() => {
     if (props.dbPromise == null) return;
+
+    let didUnsubscribe = false;
+
     const resolveDBPromise = async () => {
-      setDB(await props.dbPromise);
+      const resolvedDB = await props.dbPromise;
+      if (!didUnsubscribe) setDB(resolvedDB);
     };
     resolveDBPromise();
+
+    return () => {
+      didUnsubscribe = true;
+    };
   }, [props.dbPromise]);
 
   return (

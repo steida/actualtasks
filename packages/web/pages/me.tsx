@@ -17,7 +17,7 @@ import useClientState from '@app/clientstate/useClientState';
 
 const DarkModeButton: FunctionComponent = () => {
   const darkMode = useClientState(
-    useCallback(queries => queries.viewer.darkMode, []),
+    useCallback(state => state.viewer.darkMode, []),
   );
   const clientState = useClientState();
   const handleButtonPress = () => {
@@ -30,12 +30,9 @@ const DarkModeButton: FunctionComponent = () => {
   );
 };
 
-const useClientViewerEmail = () =>
-  useClientState(useCallback(queries => queries.viewer.email, []));
-
 const ViewerEmail: FunctionComponent = () => {
   const { theme } = useAppContext();
-  const email = useClientViewerEmail();
+  const email = useClientState(useCallback(state => state.viewer.email, []));
   const clientState = useClientState();
   const handleTextInputChangeText = (email: string) => {
     clientState.setViewerEmail(email);
@@ -77,7 +74,9 @@ const messages = defineMessages({
 const DeleteAllData: FunctionComponent = () => {
   const { theme, intl, logout } = useAppContext();
   const [shown, setShown] = useState(false);
-  const viewerEmail = useClientViewerEmail();
+  const viewerEmail = useClientState(
+    useCallback(state => state.viewer.email, []),
+  );
   const [email, setEmail] = useState('');
   const clientState = useClientState();
 
@@ -124,9 +123,9 @@ const DeleteAllData: FunctionComponent = () => {
   );
 };
 
+// TODO: Fetch whole db on click somehow.
 // const ExportData: FunctionComponent = () => {
 //   const { theme, intl } = useAppContext();
-//   // TODO: Fetch whole db on click somehow.
 //   // const appState = useAppState(state => state);
 //   const [url, setUrl] = useState('');
 //   useEffect(() => {
