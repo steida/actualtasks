@@ -59,9 +59,8 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
 
   state = {
     // Initial render has to render the same state as on the server.
-    // After that, we can fetch data, use real window width in useWindowWidth, etc.
     initialRender: true,
-    //
+    // After, we can fetch data, use real window width in useWindowWidth, etc.
     clientStateReady: false,
   };
 
@@ -167,8 +166,8 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
             </IntlProvider>
           </AppStateProvider>
         </ClientStateProvider>
-        {/* Hide rendered content until the client state is fetched. */}
-        {/* Remember we have to render content anyway to be indexed. */}
+        {/* Hide rendered content until the client state is ready. */}
+        {/* Remember, we have to always render content to be indexed. */}
         {!clientStateReady && <SplashScreen />}
       </Container>
     );
