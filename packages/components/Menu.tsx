@@ -2,7 +2,7 @@ import React, { FunctionComponent, memo } from 'react';
 import { Text, View } from 'react-native';
 import { rootTaskListId } from '@app/state/appStateConfig';
 import useAppContext from '@app/hooks/useAppContext';
-import useAppState from '@app/hooks/useAppState';
+// import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
 import useAppHref, { AppHref } from '@app/hooks/useAppHref';
 import Link, { LinkProps } from './Link';
@@ -69,7 +69,8 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = memo(
 );
 
 const TaskLists: FunctionComponent = () => {
-  const taskLists = useAppState(state => state.taskLists);
+  // const taskLists = useAppState(state => state.taskLists);
+  const taskLists = [{ id: '123', name: 'test' }];
   return (
     <>
       {taskLists.map((taskList, index) => (

@@ -1,5 +1,5 @@
-import { useContext, useMemo } from 'react';
-import { useSubscription } from '@app/hooks/useSubscription';
+import { useContext } from 'react';
+// import { useSubscription } from '@app/hooks/useSubscription';
 import AppStateContext, { SetAppState } from './AppStateContext';
 
 // Example:
@@ -24,22 +24,23 @@ interface UseAppState<State> {
 const createUseAppStateHook = <State extends object>(): UseAppState<State> => {
   const useAppState = (selector?: (state: State) => any) => {
     const context = useContext(AppStateContext);
-    const value = useSubscription(
-      useMemo(
-        () => ({
-          source: context,
-          getCurrentValue: () => {
-            return selector ? selector(context.getAppState()) : null;
-          },
-          subscribe: (_source: any, callback: any) => {
-            return context.subscribe(callback);
-          },
-        }),
-        [context, selector],
-      ),
-    );
-    return selector ? value : context.setAppState;
+    // const value = useSubscription(
+    //   useMemo(
+    //     () => ({
+    //       source: context,
+    //       getCurrentValue: () => {
+    //         return selector ? selector(context.getAppState()) : null;
+    //       },
+    //       subscribe: (_source: any, callback: any) => {
+    //         return context.subscribe(callback);
+    //       },
+    //     }),
+    //     [context, selector],
+    //   ),
+    // );
+    return selector ? null : context.setAppState;
   };
+  // @ts-ignore
   return useAppState;
 };
 

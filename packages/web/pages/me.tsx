@@ -152,6 +152,7 @@ const DeleteAllData: FunctionComponent = () => {
 const Me: FunctionComponent = () => {
   const pageTitles = usePageTitles();
   const { theme } = useAppContext();
+  console.log('me');
 
   return (
     <Layout title={pageTitles.me}>

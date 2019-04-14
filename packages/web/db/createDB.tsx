@@ -11,9 +11,9 @@ import initialState from '@app/clientstate/initialState';
 
 // We use IndexedDB to have absolute control over native API.
 // I considered: LokiJS, PouchDB, LocalStorage, WatermelonDB and some others.
-// I suppose it's safer to write two DB implementations (IndexedDB for the web,
-// and SQLite for the mobile) than relying on other abstractions for now.
-// Being close to the metal FTW.
+// I suppose it's safer to write two DB implementations (IndexedDB for the web
+// and SQLite for the mobile) than relying on other abstractions.
+// Being close to the metal FTW. For more informations, check Github issues.
 
 interface ActualTasksDBSchema extends DBSchema {
   viewers: {
@@ -61,7 +61,7 @@ export const createDB: CreateDB = async () => {
     state = produce(state, callback);
     // Maybe we don't have to clone callbacks because setState is async, but...
     [...callbacks].forEach(callback => callback());
-    // It's possible and easy to propagate client state to other browser windows.
+    // It's possible to propagate client state to other browser windows.
     // We can just serialize the whole client state and sync it via StorageEvent.
     // But we don't need it. Even Gmail doesn't do it.
     // And other browser windows will be synced via sync server anyway.

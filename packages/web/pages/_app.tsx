@@ -1,5 +1,3 @@
-import appStateConfig from '@app/state/appStateConfig';
-import { AppStateProvider } from '@app/state/lib/appstate';
 import App, { Container, NextAppContext } from 'next/app';
 import React from 'react';
 import { IntlProvider } from 'react-intl';
@@ -8,7 +6,8 @@ import { AppContext } from '@app/hooks/useAppContext';
 import IntlProviderFix from '@app/components/IntlProviderFix';
 import ThemeConsumer from '@app/components/ThemeConsumer';
 import RouterProviderFix from '@app/components/RouterProviderFix';
-import ClientStateProvider from '@app/clientstate/ClientStateProvider';
+import ClientStateContext from '@app/clientstate/ClientStateContext';
+import { ClientDB } from '@app/clientstate/types';
 import { createDB } from '../db/createDB';
 
 const SplashScreen = () => {
@@ -37,8 +36,7 @@ interface MyAppProps {
 }
 
 interface MyAppState {
-  initialRender: boolean;
-  clientStateReady: boolean;
+  db: ClientDB | null;
 }
 
 export default class MyApp extends App<MyAppProps, MyAppState> {
@@ -58,10 +56,7 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
   }
 
   state = {
-    // Initial render has to render the same state as on the server.
-    initialRender: true,
-    // After, we can fetch data, use real window width in useWindowWidth, etc.
-    clientStateReady: false,
+    db: null,
   };
 
   static hardRedirectToRoot() {
@@ -102,12 +97,14 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
     // if (this.props.Component.prefetch) {
     //   await...
     // }
-    this.setState({ clientStateReady: true });
+    // this.setState({ clientStateReady: true });
+    // this.setState({ initialRender: false });
+    this.setState({ db });
   }
 
   componentDidMount() {
+    console.log('app did mount');
     window.addEventListener('storage', this.handleWindowStorage);
-    this.setState({ initialRender: false });
     this.fetchClientState();
   }
 
@@ -120,55 +117,48 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
 
   render() {
     const { Component: Page, initialNow, pageProps } = this.props;
-    const { initialRender, clientStateReady } = this.state;
+    const { db } = this.state;
     const { logout } = this;
+    // Initial render has to render the same state as on the server.
+    const initialRender = db == null;
+    console.log('render app');
 
     return (
       <Container>
-        <ClientStateProvider
-          dbPromise={dbPromise}
-          // Use key to reset children state. It's useful for example for
-          // useWindowWidth hook which is async. It's safer to force rerender all.
-          key={clientStateReady.toString()}
-        >
-          <AppStateProvider
-            config={appStateConfig}
-            splashScreen={<SplashScreen />}
+        <ClientStateContext.Provider value={db}>
+          <IntlProvider
+            locale="en"
+            initialNow={initialNow}
+            textComponent={React.Fragment}
           >
-            <IntlProvider
-              locale="en"
-              initialNow={initialNow}
-              textComponent={React.Fragment}
-            >
-              <IntlProviderFix>
-                {intl => (
-                  <RouterProviderFix>
-                    {router => (
-                      <ThemeConsumer>
-                        {theme => (
-                          <AppContext.Provider
-                            value={{
-                              intl,
-                              theme,
-                              router,
-                              initialRender,
-                              logout,
-                            }}
-                          >
-                            <Page {...pageProps} />
-                          </AppContext.Provider>
-                        )}
-                      </ThemeConsumer>
-                    )}
-                  </RouterProviderFix>
-                )}
-              </IntlProviderFix>
-            </IntlProvider>
-          </AppStateProvider>
-        </ClientStateProvider>
+            <IntlProviderFix>
+              {intl => (
+                <RouterProviderFix>
+                  {router => (
+                    <ThemeConsumer>
+                      {theme => (
+                        <AppContext.Provider
+                          value={{
+                            intl,
+                            theme,
+                            router,
+                            initialRender,
+                            logout,
+                          }}
+                        >
+                          <Page {...pageProps} />
+                        </AppContext.Provider>
+                      )}
+                    </ThemeConsumer>
+                  )}
+                </RouterProviderFix>
+              )}
+            </IntlProviderFix>
+          </IntlProvider>
+        </ClientStateContext.Provider>
         {/* Hide rendered content until the client state is ready. */}
         {/* Remember, we have to always render content to be indexed. */}
-        {!clientStateReady && <SplashScreen />}
+        {initialRender && <SplashScreen />}
       </Container>
     );
   }

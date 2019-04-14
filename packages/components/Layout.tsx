@@ -143,6 +143,7 @@ const Layout: FunctionComponent<LayoutProps> = props => {
     if (node.contains(document.activeElement)) {
       return;
     }
+    console.log('focus body');
     // Remove outline, because outline shall be shown only on key action.
     layoutBodyRef.current.setNativeProps({ style: { outline: 'none' } });
     layoutBodyRef.current.focus();
