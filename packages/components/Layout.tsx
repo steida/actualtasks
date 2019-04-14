@@ -118,6 +118,8 @@ interface LayoutProps {
   noScrollView?: boolean;
 }
 
+let firstLayoutRender = true;
+
 const Layout: FunctionComponent<LayoutProps> = props => {
   const { theme, initialRender } = useAppContext();
   const [htmlBackgroundColor] = useMemo(() => {
@@ -129,8 +131,13 @@ const Layout: FunctionComponent<LayoutProps> = props => {
   // Useful for accessibility and key navigation.
   useEffect(() => {
     if (!layoutBodyRef.current) return;
-    // Do not focus on the initial render.
+    // Do not focus on the initial (to match server rendered HTML) render.
     if (initialRender === true) return;
+    // Also do not focus on the first layout render.
+    if (firstLayoutRender === true) {
+      firstLayoutRender = false;
+      return;
+    }
     // Do not focus if something is already focused.
     const node = (findNodeHandle(layoutBodyRef.current) as unknown) as Element;
     if (node.contains(document.activeElement)) {
@@ -139,7 +146,7 @@ const Layout: FunctionComponent<LayoutProps> = props => {
     // Remove outline, because outline shall be shown only on key action.
     layoutBodyRef.current.setNativeProps({ style: { outline: 'none' } });
     layoutBodyRef.current.focus();
-  });
+  }, [initialRender]);
 
   const screenSize = useScreenSize();
 
