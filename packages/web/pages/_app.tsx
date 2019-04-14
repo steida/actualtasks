@@ -103,7 +103,7 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
   }
 
   componentDidMount() {
-    console.log('app did mount');
+    // console.log('app did mount');
     window.addEventListener('storage', this.handleWindowStorage);
     this.fetchClientState();
   }
@@ -121,7 +121,7 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
     const { logout } = this;
     // Initial render has to render the same state as on the server.
     const initialRender = db == null;
-    console.log('render app');
+    // console.log('render app');
 
     return (
       <Container>

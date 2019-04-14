@@ -1,7 +1,7 @@
 import { useContext, useCallback } from 'react';
+import { useSubscription } from '@app/hooks/useSubscription';
 import ClientStateContext from './ClientStateContext';
 import { ClientState, Callback, Mutations } from './types';
-import { useSubscription } from './useSubscription';
 import initialState from './initialState';
 
 // Usage:

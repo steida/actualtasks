@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@app/hooks": "1.0.0",
     "immer": "^2.0.0",
     "react": "^16.8.2",
     "react-art": "^16.8.2",
