@@ -17,3 +17,11 @@ export const getSortedNotArchivedTaskLists = (taskLists: {
     .filter((taskList): taskList is TaskList => taskList != null)
     .filter(taskList => taskList.archivedAt == null)
     .sort((a, b) => a.createdAt - b.createdAt);
+
+export const getSortedArchivedTaskLists = (taskLists: {
+  [key: string]: TaskList | null;
+}): TaskList[] =>
+  Object.values(taskLists)
+    .filter((taskList): taskList is TaskList => taskList != null)
+    .filter(taskList => taskList.archivedAt != null)
+    .sort((a, b) => a.createdAt - b.createdAt);
