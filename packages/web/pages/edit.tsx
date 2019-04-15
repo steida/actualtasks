@@ -1,18 +1,23 @@
-import React, { FunctionComponent, useState, useCallback } from 'react';
+import React, {
+  FunctionComponent,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import { FormattedMessage } from 'react-intl';
 import { View } from 'react-native';
 import validateTaskList from '@app/validators/validateTaskList';
-import { rootTaskListId } from '@app/state/appStateConfig';
-import { TaskList, AppState } from '@app/state/types';
+import { TaskList } from '@app/clientstate/types';
 import useAppContext from '@app/hooks/useAppContext';
 import usePageTitles from '@app/hooks/usePageTitles';
-import useAppState from '@app/hooks/useAppState';
 import useAppHref from '@app/hooks/useAppHref';
 import useScreenSize from '@app/hooks/useScreenSize';
 import FormButton from '@app/components/FormButton';
 import { hasValidationError } from '@app/components/ValidationError';
 import TextInputWithLabelAndError from '@app/components/TextInputWithLabelAndError';
 import Layout from '@app/components/Layout';
+import useClientState from '@app/clientstate/useClientState';
+import { getSortedNotArchivedTaskLists } from '@app/clientstate/helpers';
 import { TaskListDoesNotExist } from './index';
 
 interface FormProps {
@@ -25,41 +30,42 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
   const [errors, setErrors] = useState<ReturnType<typeof validateTaskList>>({
     name: null,
   });
-  const setAppState = useAppState();
+  const taskLists = useClientState(useCallback(state => state.taskLists, []));
+  const sortedNotArchivedTaskLists: TaskList[] = useMemo(
+    () => getSortedNotArchivedTaskLists(taskLists),
+    [taskLists],
+  );
   const appHref = useAppHref();
+  const clientState = useClientState();
 
-  const handleSavePress = () => {
-    const newTaskList = { ...taskList, name };
-    const errors = validateTaskList(newTaskList);
+  const canArchive = sortedNotArchivedTaskLists.length > 1;
+
+  const saveTaskList = async (taskList: TaskList) => {
+    const errors = validateTaskList(taskList);
     if (hasValidationError(errors)) {
       setErrors(errors);
       return;
     }
-    setAppState(state => {
-      const index = state.taskLists.findIndex(t => t.id === taskList.id);
-      state.taskLists[index].name = name;
-    });
+    await clientState.saveTaskList(taskList);
+  };
+
+  const handleSavePress = async () => {
+    const taskListToSave = { ...taskList, name };
+    await saveTaskList(taskListToSave);
     appHref.push({
       pathname: '/',
       query: { id: taskList.id },
     });
   };
 
-  const handleArchivePress = () => {
-    setAppState(({ taskLists, archivedTaskLists }) => {
-      const index = taskLists.findIndex(t => t.id === taskList.id);
-      if (index === -1) return;
-      const archivedTaskList = taskLists[index];
-      taskLists.splice(index, 1);
-      archivedTaskList.archivedAt = Date.now();
-      archivedTaskLists.push(archivedTaskList);
-    });
+  const handleArchivePress = async () => {
+    const taskListToSave = { ...taskList, archivedAt: Date.now() };
+    await saveTaskList(taskListToSave);
     appHref.push({
       pathname: '/',
     });
   };
 
-  const isRootTaskList = taskList.id === rootTaskListId;
   const screenSize = useScreenSize();
 
   return (
@@ -75,7 +81,7 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
       />
       <View style={theme.buttons}>
         <FormButton title="save" onPress={handleSavePress} />
-        {!isRootTaskList && (
+        {canArchive && (
           <FormButton title="archive" onPress={handleArchivePress} />
         )}
       </View>
@@ -86,13 +92,14 @@ const Form: FunctionComponent<FormProps> = ({ taskList }) => {
 const Edit: FunctionComponent = () => {
   const pageTitles = usePageTitles();
   const query = useAppHref().query('/edit');
-  const taskList = useAppState(
+  const queryTaskListId = query ? query.id : null;
+  const taskList = useClientState(
     useCallback(
-      ({ taskLists }: AppState) =>
-        taskLists.find(t => t.id === (query && query.id)),
-      [query],
+      state => (queryTaskListId ? state.taskLists[queryTaskListId] : null),
+      [queryTaskListId],
     ),
   );
+
   const title = taskList ? pageTitles.edit(taskList.name) : pageTitles.notFound;
 
   return (

@@ -1,4 +1,5 @@
 import { DeepReadonly } from 'utility-types';
+
 import { ClientState } from './types';
 
 // The idea of reactive IndexedDB is simple.
@@ -6,12 +7,11 @@ import { ClientState } from './types';
 // For example, index page, then me page, etc. everything loaded only once.
 // Once a state is loaded, only mutations can change it.
 
-const initialState: DeepReadonly<ClientState> = {
+// Initial state is just an empty structure. Except viewer.
+export const initialState: DeepReadonly<ClientState> = {
   viewer: {
     email: '',
     darkMode: false,
   },
   taskLists: {},
 };
-
-export default initialState;

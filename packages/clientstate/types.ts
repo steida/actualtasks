@@ -20,11 +20,15 @@ export interface ClientState {
   taskLists: { [id: string]: TaskList | null };
 }
 
+// Void, because it updates client state.
 export interface Mutations {
   dangerouslyDeleteDB(): void;
   loadViewer(): Promise<User>;
   setViewerDarkMode(darkMode: boolean): Promise<void>;
   setViewerEmail(email: string): Promise<void>;
+  loadTaskLists(): Promise<void>;
+  saveTaskList(taskList: TaskList): Promise<void>;
+  // saveTaskList
   // loadTaskList(id: string): Promise<TaskList | null>;
 }
 

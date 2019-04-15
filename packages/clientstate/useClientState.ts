@@ -1,8 +1,9 @@
 import { useContext, useCallback } from 'react';
 import { useSubscription } from '@app/hooks/useSubscription';
+// import nanoid from 'nanoid';
 import ClientStateContext from './ClientStateContext';
 import { ClientState, Callback, Mutations } from './types';
-import initialState from './initialState';
+import { initialState } from './initialState';
 
 // Usage:
 // const darkMode = useClientState(state =>

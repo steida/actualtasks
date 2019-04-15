@@ -1,10 +1,8 @@
 import React, { useState, FunctionComponent } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { View } from 'react-native';
-import createTaskList from '@app/state/createTaskList';
 import validateTaskList from '@app/validators/validateTaskList';
 import useAppContext from '@app/hooks/useAppContext';
-import useAppState from '@app/hooks/useAppState';
 import usePageTitles from '@app/hooks/usePageTitles';
 import useScreenSize from '@app/hooks/useScreenSize';
 import { hasValidationError } from '@app/components/ValidationError';
@@ -12,6 +10,8 @@ import TextInputWithLabelAndError from '@app/components/TextInputWithLabelAndErr
 import FormButton from '@app/components/FormButton';
 import Layout from '@app/components/Layout';
 import useAppHref from '@app/hooks/useAppHref';
+import { createTaskList } from '@app/clientstate/helpers';
+import useClientState from '@app/clientstate/useClientState';
 
 const Form: FunctionComponent = () => {
   const { theme } = useAppContext();
@@ -19,19 +19,17 @@ const Form: FunctionComponent = () => {
   const [errors, setErrors] = useState<ReturnType<typeof validateTaskList>>({
     name: null,
   });
-  const setAppState = useAppState();
   const appHref = useAppHref();
+  const clientState = useClientState();
 
-  const handleSubmitEditing = () => {
-    const taskList = createTaskList(name);
+  const handleSubmitEditing = async () => {
+    const taskList = await createTaskList(name);
     const errors = validateTaskList(taskList);
     if (hasValidationError(errors)) {
       setErrors(errors);
       return;
     }
-    setAppState(state => {
-      state.taskLists.push(taskList);
-    });
+    await clientState.saveTaskList(taskList);
     appHref.push({
       pathname: '/',
       query: { id: taskList.id },

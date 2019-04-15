@@ -83,7 +83,7 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
     }
   };
 
-  // Fetch data for app and page once. Then use getInitialProps.
+  // Fetch data for the app and a page once. Then use getInitialProps.
   async fetchClientState() {
     // There is no client state on the server.
     if (dbPromise == null) return;
@@ -91,14 +91,13 @@ export default class MyApp extends App<MyAppProps, MyAppState> {
 
     // This list of loaders must be maintained manually, we don't have Relay.
     // While it's theoretically possible to use Relay with client data, I hope
-    // React Suspense will provide better API.
+    // React Suspense will provide better API. Anyway, this is good enough.
     await db.mutations.loadViewer();
+    await db.mutations.loadTaskLists();
 
     // if (this.props.Component.prefetch) {
     //   await...
     // }
-    // this.setState({ clientStateReady: true });
-    // this.setState({ initialRender: false });
     this.setState({ db });
   }
 

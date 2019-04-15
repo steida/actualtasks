@@ -1,10 +1,12 @@
-import React, { FunctionComponent, memo } from 'react';
+import React, { FunctionComponent, memo, useCallback, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { rootTaskListId } from '@app/state/appStateConfig';
 import useAppContext from '@app/hooks/useAppContext';
-// import useAppState from '@app/hooks/useAppState';
 import useScreenSize from '@app/hooks/useScreenSize';
 import useAppHref, { AppHref } from '@app/hooks/useAppHref';
+import useClientState from '@app/clientstate/useClientState';
+import { TaskList } from '@app/clientstate/types';
+import { getSortedNotArchivedTaskLists } from '@app/clientstate/helpers';
 import Link, { LinkProps } from './Link';
 import KeyboardNavigableView from './KeyboardNavigableView';
 
@@ -69,11 +71,15 @@ const TaskListLink: FunctionComponent<TaskListLinkProps> = memo(
 );
 
 const TaskLists: FunctionComponent = () => {
-  // const taskLists = useAppState(state => state.taskLists);
-  const taskLists = [{ id: '123', name: 'test' }];
+  const taskLists = useClientState(useCallback(state => state.taskLists, []));
+  const sortedNotArchivedTaskLists: TaskList[] = useMemo(
+    () => getSortedNotArchivedTaskLists(taskLists),
+    [taskLists],
+  );
+
   return (
     <>
-      {taskLists.map((taskList, index) => (
+      {sortedNotArchivedTaskLists.map((taskList, index) => (
         <TaskListLink
           // At least one link must be accessible.
           accessible={index === 0}

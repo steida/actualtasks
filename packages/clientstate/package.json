@@ -5,12 +5,14 @@
   "dependencies": {
     "@app/hooks": "1.0.0",
     "immer": "^2.0.0",
+    "nanoid": "^2.0.1",
     "react": "^16.8.2",
     "react-art": "^16.8.2",
     "react-dom": "^16.8.2",
     "react-native-web": "^0.11.2"
   },
   "devDependencies": {
+    "@types/nanoid": "^1.2.1",
     "@types/react": "^16.8.4",
     "@types/react-native": "^0.57.38",
     "utility-types": "^3.4.1"

@@ -1,4 +1,4 @@
-import { TaskList } from '@app/state/types';
+import { TaskList } from '@app/clientstate/types';
 import { validateMax32Chars } from '.';
 import { Max32CharsError } from './types';
 

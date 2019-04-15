@@ -5,9 +5,11 @@ import {
   ClientState,
   Mutations,
   Callback,
+  TaskList,
 } from '@app/clientstate/types';
 import produce from 'immer';
-import initialState from '@app/clientstate/initialState';
+import { initialState } from '@app/clientstate/initialState';
+import { createTaskList } from '@app/clientstate/helpers';
 
 // We use IndexedDB to have absolute control over native API.
 // I considered: LokiJS, PouchDB, LocalStorage, WatermelonDB and some others.
@@ -15,11 +17,16 @@ import initialState from '@app/clientstate/initialState';
 // and SQLite for the mobile) than relying on other abstractions.
 // Being close to the metal FTW. For more informations, check Github issues.
 
+// https://golb.hplar.ch/2017/09/A-closer-look-at-IndexedDB.html
+
 interface ActualTasksDBSchema extends DBSchema {
   viewers: {
     value: User;
     key: string;
-    indexes: { 'by-email': string };
+  };
+  taskLists: {
+    value: TaskList;
+    key: string;
   };
 }
 
@@ -27,20 +34,30 @@ const name = 'actualtasks';
 
 export const createDB: CreateDB = async () => {
   const db = await openDB<ActualTasksDBSchema>(name, 1, {
-    async upgrade(db, oldVersion, _, _tx) {
+    async upgrade(db, oldVersion, _, upgradeTransaction) {
+      // db.objectStoreNames
       // eslint-disable-next-line default-case
       switch (oldVersion) {
         case 0: {
           db.createObjectStore('viewers', {
             keyPath: 'email',
-          }).createIndex('by-email', 'email');
-          // Populate DB example.
-          // await tx.done;
-          // await db.put('viewers', {
-          //   email: '',
-          //   darkMode: false,
-          // });
+          });
+          db.createObjectStore('taskLists', {
+            keyPath: 'id',
+          });
         }
+      }
+      // Wait for upgrade.
+      await upgradeTransaction.done;
+
+      // Populate DB.
+      const taskListsTransaction = db.transaction('taskLists', 'readwrite');
+      const taskListsStore = taskListsTransaction.store;
+      const taskListIsEmpty =
+        (await taskListsStore.getAll(undefined, 1)).length === 0;
+      if (taskListIsEmpty) {
+        const taskList = await createTaskList('actual');
+        await taskListsStore.put(taskList);
       }
     },
     blocked() {
@@ -96,9 +113,18 @@ export const createDB: CreateDB = async () => {
         state.viewer = viewer;
       });
     },
-    // async loadTaskList(_id) {
-    //   ret
-    // },
+    async loadTaskLists() {
+      const taskLists = await db.getAll('taskLists');
+      updateState(state => {
+        taskLists.forEach(taskList => {
+          state.taskLists[taskList.id] = taskList;
+        });
+      });
+    },
+    async saveTaskList(taskList) {
+      await db.put('taskLists', taskList);
+      this.loadTaskLists();
+    },
   };
 
   return {

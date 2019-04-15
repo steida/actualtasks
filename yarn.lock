@@ -779,6 +779,13 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.123.tgz#39be5d211478c8dd3bdae98ee75bb7efe4abfe4d"
   integrity sha512-pQvPkc4Nltyx7G1Ww45OjVqUsJP4UsZm+GWJpigXgkikZqJgRm4c48g027o6tdgubWHwFRF15iFd+Y4Pmqv6+Q==
 
+"@types/nanoid@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@types/nanoid/-/nanoid-1.2.1.tgz#995bd0538ef04c4751d88d2fa15a97f0b85dd848"
+  integrity sha512-G3fQNcOYPHLXigI5nxpmSCCJIAEqgd+DP3p1IaxcdXJRJxdoeIZi/MGt58j/lI0AIsgajwG10Vs6J2xzkGZfEQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/next-server@*":
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/@types/next-server/-/next-server-8.0.0.tgz#255ed9b0cf5a518b0137dd6a72a4f9aeddbbeb7d"
@@ -1722,9 +1729,9 @@ camelcase@^4.1.0:
   integrity sha1-1UVjW+HjPFQmScaRc+Xeas+uNN0=
 
 caniuse-lite@^1.0.30000955:
-  version "1.0.30000957"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000957.tgz#fb1026bf184d7d62c685205358c3b24b9e29f7b3"
-  integrity sha512-8wxNrjAzyiHcLXN/iunskqQnJquQQ6VX8JHfW5kLgAPRSiSuKZiNfmIkP5j7jgyXqAQBSoXyJxfnbCFS0ThSiQ==
+  version "1.0.30000958"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000958.tgz#f6307b1512bccc64269e3ac4733072454ede1fd0"
+  integrity sha512-+KfdlJj6IOOrYmX723ZymUttwietVOGQfVKPAkjn+hxWg6FyPVaaIq+euUDu5mK1lblkRcF4Nlw949Lrac72sA==
 
 chalk@2.3.0:
   version "2.3.0"
@@ -4095,6 +4102,11 @@ nan@^2.9.2:
   version "2.13.2"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.13.2.tgz#f51dc7ae66ba7d5d55e1e6d4d8092e802c9aefe7"
   integrity sha512-TghvYc72wlMGMVMluVo9WRJc0mB8KxxF/gZ4YYFy7V2ZQX9l7rgbPg7vjS9mt6U5HXODVFVI2bOduCzwOMv/lw==
+
+nanoid@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-2.0.1.tgz#deb55cac196e3f138071911dabbc3726eb048864"
+  integrity sha512-k1u2uemjIGsn25zmujKnotgniC/gxQ9sdegdezeDiKdkDW56THUMqlz3urndKCXJxA6yPzSZbXx/QCMe/pxqsA==
 
 nanomatch@^1.2.9:
   version "1.2.13"
